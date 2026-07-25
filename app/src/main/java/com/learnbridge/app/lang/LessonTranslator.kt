@@ -69,7 +69,15 @@ class LessonTranslator(private val modelHost: ModelHost) {
                 // off the main thread, inside the single acquisition.
                 withContext(Dispatchers.Default) {
                     for (fragment in needed) {
-                        memo[language.code to fragment] = runCatching { engine.translate(fragment, targetId) }
+                        memo[language.code to fragment] = runCatching {
+                            // The model writes every Indic language in script-unified Devanagari, so
+                            // southern and eastern scripts are converted here rather than by the
+                            // engine. A no-op for Hindi, Marathi, Nepali, Sanskrit and Urdu.
+                            BrahmicTransliterator.transliterate(
+                                engine.translate(fragment, targetId),
+                                language.scriptOffset,
+                            )
+                        }
                             // A fragment the engine chokes on falls back to the English text rather
                             // than blanking the line. Partly-translated output beats a hole.
                             .getOrDefault(fragment)

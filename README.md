@@ -3,8 +3,11 @@
 **Your teacher, offline. आपका शिक्षक, ऑफ़लाइन।**
 
 Photograph a textbook page, or import a document. LearnBridge explains it in plain English, says the
-same thing in Hindi, reads it aloud, quizzes you on it, and answers your follow-up questions —
-entirely on your phone, with **no internet connection and no `INTERNET` permission**.
+same thing in **thirteen Indian languages**, reads it aloud, quizzes you on it, and answers your
+follow-up questions — entirely on your phone, with **no internet connection and no `INTERNET`
+permission**.
+
+हिंदी · मराठी · नेपाली · संस्कृतम् · اردو · தமிழ் · తెలుగు · ಕನ್ನಡ · മലയാളം · বাংলা · ગુજરાતી · ਪੰਜਾਬੀ · ଓଡ଼ିଆ
 
 ---
 
@@ -23,7 +26,7 @@ LearnBridge is built for the phone that has no data today.
 |---|---|
 | **Import** | `.txt`, `.md`, PDF, or a photograph of a printed page |
 | **Explain** | Key points in plain language, drawn from the document |
-| **हिंदी** | The same lesson in Hindi, instantly — pre-rendered, no waiting |
+| **Translate** | The same lesson in any of 13 Indian languages, instantly — pre-rendered, no waiting |
 | **Listen** | Read aloud in either language |
 | **Quiz** | Auto-generated questions with plausible wrong answers |
 | **Ask** | Follow-up questions answered from the document itself |
@@ -82,6 +85,31 @@ the APK. Hindi speech synthesis likewise loads from local voice data.
                                │
                     Explain · Ask · Quiz · Listen
 ```
+
+### Thirteen languages from one 472 MB model
+
+Not thirteen models. The translation export's target language is nothing more than the **second token
+of the source sequence**, so switching it needs no reload, no second set of weights and no extra
+memory. One loaded engine serves all of them.
+
+Getting there took correcting a wrong conclusion. Counting subword pieces in the target vocabulary
+shows Devanagari 72,356, Arabic 16,949, Latin 11,414 — and **zero** multi-character pieces for Tamil,
+Telugu, Kannada, Malayalam, Gurmukhi and Odia. That looks decisive: those languages cannot be
+generated. It is wrong.
+
+IndicTrans2 normalises every Indic language into one script-unified **Devanagari** representation and
+transliterates back to the native script as post-processing. Asking for Tamil produced fluent Tamil
+written in Devanagari:
+
+```
+नीर् चुऴऱ्चि ऎऩ्ऱु अऴैक्कप्पटुकिऱतु      what the model emits
+நீர் சுழற்சி என்று அழைக்கப்படுகிறது       what it should read as
+```
+
+The missing piece was a 60-line character mapping, not a model. Unicode lays the Brahmic blocks out
+in parallel — same offset, same phoneme — so Devanagari → Tamil is `codepoint + 0x280`. Urdu is the
+exception that proves the rule: Perso-Arabic is not Brahmic, cannot be reached by an offset, and
+accordingly has real subword coverage of its own in the vocabulary.
 
 ### Three design decisions worth explaining
 
@@ -174,6 +202,11 @@ splitting, and the extractive tutor's grounding invariants. No device required.
   it forces the translation engine onto an uncached path and needs measurement before switching.
 - **"Plant" sometimes renders as "संयंत्र"** (industrial plant) rather than "पौधा" — lexical
   ambiguity in the translation model.
+- **Language is chosen before import**, because the lesson is rendered during ingest. Adding a second
+  language to an existing document means translating it again.
+- **Transliteration is mechanical, not linguistic.** It maps script faithfully, but does not apply the
+  orthographic conventions a native typesetter would; Tamil output in particular reads slightly
+  transliterated rather than natively composed.
 - Portrait only. Debug signing. No release hardening.
 
 ---
