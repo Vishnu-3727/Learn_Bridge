@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bhashabridge.app.Direction
 import com.bhashabridge.app.speech.Tts
 import com.learnbridge.app.R
+import com.learnbridge.app.lang.SupportedLanguage
 import com.learnbridge.app.teach.LessonPipeline
 import kotlinx.coroutines.launch
 
@@ -173,7 +174,12 @@ class LessonActivity : AppCompatActivity() {
         }
 
         languageToggle.isEnabled = state.hindiAvailable
-        val switchingToHindi = state.lang == LessonPipeline.LANG_EN
+        // Labelled with the target language's own endonym — हिंदी, मराठी, اردو — not a generic word.
+        val target = SupportedLanguage.byCode(state.translationLang) ?: SupportedLanguage.HINDI
+        val switchingToTarget = state.lang == LessonPipeline.LANG_EN
+        languageToggle.text =
+            if (switchingToTarget) target.endonym else SupportedLanguage.ENGLISH.endonym
+        val switchingToHindi = switchingToTarget
         languageToggle.text = getString(if (switchingToHindi) R.string.action_hindi else R.string.action_english)
         languageToggle.contentDescription = getString(
             if (switchingToHindi) R.string.cd_switch_to_hindi else R.string.cd_switch_to_english,
@@ -342,7 +348,9 @@ class LessonActivity : AppCompatActivity() {
     }
 
     private fun directionFor(lang: String): Direction =
-        if (lang == LessonPipeline.LANG_HI) Direction.EN_TO_HI else Direction.HI_TO_EN
+        // Direction picks the voice: EN_TO_HI selects the target-language voice, HI_TO_EN the English
+        // one. Any non-English lesson language uses the former.
+        if (lang != LessonPipeline.LANG_EN) Direction.EN_TO_HI else Direction.HI_TO_EN
 
     companion object {
         const val EXTRA_DOC_ID = "doc_id"

@@ -89,6 +89,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <!-- Chosen before import, because the lesson is rendered into it during ingest. -->
+        <TextView
+            android:id="@+id/languageChooser"
+            style="@style/TouchTarget"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="@string/cd_choose_language"
+            android:drawablePadding="8dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
+
         <Button
             android:id="@+id/photoButton"
             style="@style/TouchTarget"

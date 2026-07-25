@@ -37,6 +37,11 @@ data class LessonUiState(
     val lang: String = LessonPipeline.LANG_EN,
     /** Whether this document has any Hindi artifacts at all. Gates the toggle; see [LessonViewModel.refreshHindiAvailability]. */
     val hindiAvailable: Boolean = false,
+    /**
+     * The non-English language this document was rendered into. Read from the document's own rows, so
+     * a lesson imported in Marathi keeps showing Marathi even if the app's preference later changes.
+     */
+    val translationLang: String = LessonPipeline.LANG_HI,
     val explain: ExplainUi = ExplainUi(),
     val ask: AskUi = AskUi(),
     val quiz: QuizUi = QuizUi(),
@@ -228,10 +233,13 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
     private fun refreshHindiAvailability() {
         val docId = _state.value.docId
         viewModelScope.launch(Dispatchers.IO) {
-            val hiExplain = docStore.artifacts(docId, LessonPipeline.KIND_EXPLANATION, LessonPipeline.LANG_HI)
-            val hiQuiz = docStore.artifacts(docId, LessonPipeline.KIND_QUIZ, LessonPipeline.LANG_HI)
-            val available = hiExplain.isNotEmpty() || hiQuiz.isNotEmpty()
-            _state.update { it.copy(hindiAvailable = available) }
+            // Which language this document actually carries, read from its rows rather than from the
+            // app's current preference — a document keeps whatever it was ingested with.
+            val code = docStore.translationLanguage(docId)
+            val explain = code?.let { docStore.artifacts(docId, LessonPipeline.KIND_EXPLANATION, it) }.orEmpty()
+            val quiz = code?.let { docStore.artifacts(docId, LessonPipeline.KIND_QUIZ, it) }.orEmpty()
+            val available = explain.isNotEmpty() || quiz.isNotEmpty()
+            _state.update { it.copy(hindiAvailable = available, translationLang = code ?: LessonPipeline.LANG_HI) }
         }
     }
 
@@ -299,7 +307,7 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun otherLang(lang: String): String =
-        if (lang == LessonPipeline.LANG_EN) LessonPipeline.LANG_HI else LessonPipeline.LANG_EN
+        if (lang == LessonPipeline.LANG_EN) _state.value.translationLang else LessonPipeline.LANG_EN
 
     private companion object {
         const val NO_DOC = -1L

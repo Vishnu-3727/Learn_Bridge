@@ -7,7 +7,8 @@ import android.util.Log
 import androidx.core.content.FileProvider
 import com.bhashabridge.app.speech.VoskModels
 import com.learnbridge.app.doc.DocStore
-import com.learnbridge.app.hindi.HindiRenderer
+import com.learnbridge.app.lang.LessonTranslator
+import com.learnbridge.app.lang.SupportedLanguage
 import com.learnbridge.app.teach.ExtractiveTeacher
 import com.learnbridge.app.teach.GemmaTeacher
 import com.learnbridge.app.teach.LessonPipeline
@@ -36,11 +37,24 @@ class LearnBridgeApp : Application() {
     val docStore: DocStore by lazy { DocStore(this) }
 
     /**
-     * A new pipeline per ingest rather than a shared instance: it holds a [HindiRenderer], whose memo
+     * A new pipeline per ingest rather than a shared instance: it holds a [LessonTranslator], whose memo
      * is only useful within one document and would otherwise grow for the life of the process.
      */
     fun lessonPipeline(): LessonPipeline =
-        LessonPipeline(this, docStore, HindiRenderer(modelHost), modelHost)
+        LessonPipeline(this, docStore, LessonTranslator(modelHost), modelHost, targetLanguage)
+
+    /**
+     * The language lessons are rendered into. Chosen before import, because rendering happens during
+     * ingest — switching afterwards means translating that document again.
+     *
+     * All of these come out of one 472 MB export: the target language is only the second input token,
+     * so supporting six costs no extra weights and no extra memory.
+     */
+    var targetLanguage: SupportedLanguage
+        get() = prefs.getString(KEY_TARGET_LANG, null)
+            ?.let { SupportedLanguage.byCode(it) }
+            ?: SupportedLanguage.DEFAULT_TARGET
+        set(value) = prefs.edit().putString(KEY_TARGET_LANG, value.code).apply()
 
     /**
      * A content Uri the system camera app may write a captured page into.
@@ -134,5 +148,6 @@ class LearnBridgeApp : Application() {
         const val PREFS = "learnbridge_prefs"
         const val KEY_NO_CO_RESIDENCY = "no_co_residency"
         const val KEY_EXTRACTIVE_ONLY = "extractive_only"
+        const val KEY_TARGET_LANG = "target_language"
     }
 }

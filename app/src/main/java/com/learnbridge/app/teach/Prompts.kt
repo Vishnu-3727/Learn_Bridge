@@ -17,7 +17,7 @@ import com.learnbridge.app.doc.Chunk
  * The "maximum ten words per line" rule appears in all four and does triple duty:
  *  - a small model follows length constraints more reliably than any other kind of instruction;
  *  - short lines are what the Hindi renderer needs, because the translation engine truncates long
- *    single calls (see HindiRenderer);
+ *    single calls (see LessonTranslator);
  *  - short lines read better on a phone.
  *
  * Output formats are deliberately line-prefixed rather than JSON. A 1B model produces malformed JSON

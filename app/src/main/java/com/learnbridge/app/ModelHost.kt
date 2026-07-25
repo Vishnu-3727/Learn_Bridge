@@ -102,7 +102,7 @@ class ModelHost(private val app: LearnBridgeApp) {
      *
      * Raising it here is a call-site change: [MtEngine] takes the decoder as a constructor parameter,
      * so nothing inside the frozen engine module is touched. Callers still split long text into short
-     * fragments (see HindiRenderer) — this raises the ceiling, it does not remove the need for that.
+     * fragments (see LessonTranslator) — this raises the ceiling, it does not remove the need for that.
      */
     private fun translatorLocked(direction: Direction): MtEngine =
         engines.getOrPut(direction) {
@@ -219,7 +219,7 @@ class ModelHost(private val app: LearnBridgeApp) {
          * regardless: observed real translations finish in 3-14 steps. A high cap does not lengthen
          * output, it only stops long output from being cut off mid-sentence.
          *
-         * Raised 32 -> 48 so HindiRenderer can send whole 18-word sentences instead of splitting them
+         * Raised 32 -> 48 so LessonTranslator can send whole 18-word sentences instead of splitting them
          * at commas — measured on device, split clauses translate with visibly worse grammar than the
          * sentence they came from.
          */

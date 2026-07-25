@@ -16,6 +16,11 @@
     <string name="cd_photo">Photograph a page to learn from</string>
     <string name="cd_import">Import a document to learn from</string>
 
+    <!-- Language selection -->
+    <string name="teach_me_in">Teach me in</string>
+    <string name="cd_choose_language">Choose the language to learn in</string>
+    <string name="choose_language_title">Teach me in</string>
+
     <!-- Documents -->
     <string name="document_meta">%1$d words</string>
     <string name="delete_confirm">Remove this document and everything LearnBridge learned from it?</string>

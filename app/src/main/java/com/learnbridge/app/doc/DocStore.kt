@@ -200,6 +200,22 @@ class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_V
         return result
     }
 
+    /**
+     * The non-English language this document was rendered into, or null if it has none.
+     *
+     * Discovered from the stored rows rather than read from a setting, because a document keeps the
+     * language it was ingested with. Changing the app's preference must not make an existing lesson
+     * claim a translation it does not have.
+     */
+    fun translationLanguage(docId: Long): String? {
+        readableDatabase.rawQuery(
+            "SELECT lang FROM artifacts WHERE docId = ? AND lang <> 'en' LIMIT 1",
+            arrayOf(docId.toString()),
+        ).use { cursor ->
+            return if (cursor.moveToFirst()) cursor.getString(0) else null
+        }
+    }
+
     fun recordQuizResult(docId: Long, itemOrdinal: Int, correct: Boolean) {
         val values = ContentValues().apply {
             put("docId", docId)

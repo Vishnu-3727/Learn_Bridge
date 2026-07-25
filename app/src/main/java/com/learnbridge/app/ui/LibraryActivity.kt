@@ -17,6 +17,7 @@ import com.learnbridge.app.LearnBridgeApp
 import com.learnbridge.app.R
 import com.learnbridge.app.doc.DocStore
 import com.learnbridge.app.doc.ImportResult
+import com.learnbridge.app.lang.SupportedLanguage
 import com.learnbridge.app.teach.IngestProgress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
@@ -39,6 +40,7 @@ class LibraryActivity : AppCompatActivity() {
     private lateinit var ingestStatus: TextView
     private lateinit var photoButton: Button
     private lateinit var importButton: Button
+    private lateinit var languageChooser: TextView
 
     /**
      * OpenDocument rather than GetContent: it returns a durably readable Uri, and the document's
@@ -74,6 +76,35 @@ class LibraryActivity : AppCompatActivity() {
 
         photoButton.setOnClickListener { launchCamera() }
         importButton.setOnClickListener { pickDocument.launch(IMPORTABLE_TYPES) }
+
+        languageChooser = findViewById(R.id.languageChooser)
+        languageChooser.setOnClickListener { chooseLanguage() }
+        renderLanguage()
+    }
+
+    private fun renderLanguage() {
+        val language = app.targetLanguage
+        languageChooser.text = getString(R.string.teach_me_in) + ":  ${language.endonym}  ▾"
+    }
+
+    /**
+     * Chosen before import rather than inside the lesson, because the lesson is rendered into this
+     * language during ingest — changing it afterwards means translating the document again.
+     */
+    private fun chooseLanguage() {
+        val options = SupportedLanguage.targets
+        val labels = options.map { it.endonym }.toTypedArray()
+        val current = options.indexOf(app.targetLanguage)
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.choose_language_title)
+            .setSingleChoiceItems(labels, current) { dialog, which ->
+                app.targetLanguage = options[which]
+                renderLanguage()
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     override fun onResume() {

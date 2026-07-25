@@ -34,11 +34,23 @@ class MtEngine(
     private val tokenizer = Tokenizer.load(context, direction)
     private val models = OnnxModels(context, direction, tune)
 
-    /** Translates [text]. Returns the target-language string. */
-    fun translate(text: String): String {
+    /**
+     * The vocabulary id for a FLORES-style language tag, or null if this vocabulary lacks it.
+     * Callers resolve a tag once and pass the id to [translate], rather than resolving per sentence.
+     */
+    fun languageId(tag: String): Long? = tokenizer.tagId(tag)
+
+    /**
+     * Translates [text], optionally into a language other than this engine's default.
+     *
+     * [targetLang] is a vocabulary id from [languageId]. Because the target language is only the
+     * second input token, switching it costs nothing — no reload, no second engine, no extra memory.
+     * One loaded engine serves every language the export supports.
+     */
+    fun translate(text: String, targetLang: Long? = null): String {
         Metrics.begin("translate")
 
-        val srcIds = tokenizer.encode(text)
+        val srcIds = if (targetLang != null) tokenizer.encode(text, targetLang) else tokenizer.encode(text)
         Metrics.stage("tokenize")
 
         val mask = OnnxTensor.createTensor(models.env, LongBuffer.wrap(LongArray(srcIds.size) { 1L }), longArrayOf(1, srcIds.size.toLong()))

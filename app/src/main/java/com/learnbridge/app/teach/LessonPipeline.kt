@@ -8,7 +8,8 @@ import com.learnbridge.app.doc.DocImport
 import com.learnbridge.app.doc.DocStore
 import com.learnbridge.app.doc.ImportResult
 import com.learnbridge.app.doc.chunk
-import com.learnbridge.app.hindi.HindiRenderer
+import com.learnbridge.app.lang.LessonTranslator
+import com.learnbridge.app.lang.SupportedLanguage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -50,8 +51,14 @@ sealed interface IngestProgress {
 class LessonPipeline(
     private val context: Context,
     private val store: DocStore,
-    private val hindi: HindiRenderer,
+    private val translator: LessonTranslator,
     private val modelHost: com.learnbridge.app.ModelHost,
+    /**
+     * Which language the lesson is rendered into at import. Only one is rendered up front — a second
+     * costs another pass over every fragment — but adding one later is cheap, because switching target
+     * language needs no model reload. See [translateInto].
+     */
+    private val target: SupportedLanguage = SupportedLanguage.DEFAULT_TARGET,
 ) {
 
     fun ingest(uri: Uri): Flow<IngestProgress> = flow {
@@ -83,7 +90,7 @@ class LessonPipeline(
         val keyPoints = generateEnglish(docId, lead)
 
         emit(IngestProgress.Translating)
-        renderHindi(docId, keyPoints)
+        translateInto(docId, keyPoints, target)
 
         store.setStatus(docId, STATUS_READY)
         emit(IngestProgress.Done(docId, doc.title))
@@ -127,21 +134,28 @@ class LessonPipeline(
      * total work, but it would move a model swap into the middle of someone answering a quiz, and the
      * swap is the expensive part — not the translating.
      */
-    private suspend fun renderHindi(docId: Long, keyPoints: List<String>) {
+    suspend fun translateInto(
+        docId: Long,
+        keyPointsOrNull: List<String>? = null,
+        language: SupportedLanguage,
+    ) {
+        if (language == SupportedLanguage.ENGLISH) return
+
+        val keyPoints = keyPointsOrNull ?: store.artifacts(docId, KIND_EXPLANATION, LANG_EN)
         if (keyPoints.isEmpty()) return
 
         val quizItems = store.artifacts(docId, KIND_QUIZ, LANG_EN).mapNotNull { QuizItem.decode(it) }
 
-        // Flattened so the renderer makes a single pass, then split back apart by count.
+        // Flattened so the translator makes a single pass, then split back apart by count.
         val quizLines = quizItems.flatMap { listOf(it.question, it.correct) + it.distractors }
-        val translated = runCatching { hindi.toHindi(keyPoints + quizLines) }
+        val translated = runCatching { translator.render(keyPoints + quizLines, language) }
             .getOrElse {
-                Log.w(TAG, "doc $docId: Hindi rendering failed (${it.message})")
+                Log.w(TAG, "doc $docId: ${language.code} rendering failed (${it.message})")
                 return
             }
 
         translated.take(keyPoints.size).forEachIndexed { i, point ->
-            store.putArtifact(docId, KIND_EXPLANATION, LANG_HI, i, point)
+            store.putArtifact(docId, KIND_EXPLANATION, language.code, i, point)
         }
 
         var cursor = keyPoints.size
@@ -153,11 +167,12 @@ class LessonPipeline(
             store.putArtifact(
                 docId,
                 KIND_QUIZ,
-                LANG_HI,
+                language.code,
                 i,
                 QuizItem(slice[0], slice[1], slice.drop(2)).encode(),
             )
         }
+        Log.i(TAG, "doc $docId: rendered into ${language.code}")
     }
 
     companion object {

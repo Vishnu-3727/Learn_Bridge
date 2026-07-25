@@ -1,4 +1,4 @@
-package com.learnbridge.app.hindi
+package com.learnbridge.app.lang
 
 import com.bhashabridge.app.Direction
 import com.learnbridge.app.ModelHost
@@ -9,62 +9,67 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * One translatable piece of text plus whatever punctuation followed it in the original.
  *
- * Keeping the trailing characters beside the fragment instead of trying to rebuild punctuation
- * afterwards is what makes reassembly exact: the translator never sees the punctuation, so it can
- * never mangle it, and the rejoin is a concatenation rather than a guess.
+ * Keeping the trailing characters beside the fragment instead of rebuilding punctuation afterwards is
+ * what makes reassembly exact: the translator never sees the punctuation, so it can never mangle it,
+ * and the rejoin is a concatenation rather than a guess.
  */
 internal data class Fragment(val text: String, val trailing: String)
 
 /**
- * Purpose:  Renders English tutor output into Hindi through the offline translation engine.
- * Owns:     A memo of previously translated fragments.
- * Lifetime: One per lesson screen is fine; the memo is the only state.
- * Thread:   [toHindi] is suspend and does its own dispatching.
+ * Purpose:  Renders English lesson text into any [SupportedLanguage] through the offline engine.
+ * Owns:     A memo of previously translated fragments, keyed by language and text.
+ * Lifetime: One per lesson render; the memo is the only state.
+ * Thread:   [render] is suspend and does its own dispatching.
  *
- * Two engine constraints shape this entire class, and neither is negotiable from here because the
- * translation engine is frozen:
+ * Two engine constraints shape this class, and neither is negotiable from here:
  *
- *  1. **A single translate() call caps at roughly fourteen Hindi words.** The decoder's step limit is
- *     raised where the engine is constructed (see ModelHost), but greedy decoding still drifts and
- *     loops on long outputs, so the reliable fix is to hand it short fragments. That is why text is
- *     split before translation rather than after.
+ *  1. **A single translate() call has a decode-step ceiling.** ModelHost raises it well above the
+ *     engine's inherited default, but greedy decoding still drifts on very long outputs, so text is
+ *     split before translation rather than truncated after.
  *
- *  2. **Acquiring the engine may cost a model swap.** On a memory-constrained device the generative
- *     model is released to make room, which takes seconds. So every fragment of every artifact is
- *     translated inside ONE withTranslator block. A renderer that acquired per sentence would pay
- *     that swap forty times and turn a six-second render into minutes — the single most expensive
- *     mistake available in this file.
+ *  2. **Acquiring the engine may cost a model swap** — measured at ~14 s when the generative model has
+ *     to be released first. So every fragment of every artifact is translated inside ONE
+ *     `withTranslator` block. A renderer that acquired per sentence would pay that swap forty times.
+ *
+ * Switching *language*, by contrast, is free: the target language is only the second input token, so
+ * one loaded engine serves every language with no reload.
  */
-class HindiRenderer(private val modelHost: ModelHost) {
+class LessonTranslator(private val modelHost: ModelHost) {
 
     /**
-     * Quiz options and key points repeat across a document, so the memo earns its keep immediately.
-     * Concurrent map because the renderer outlives any single coroutine, even though ModelHost's
-     * mutex means only one translation runs at a time.
+     * Keyed by language and source text, because the same English sentence renders differently per
+     * language. Concurrent because the translator outlives any single coroutine, even though
+     * ModelHost's mutex means only one translation runs at a time.
      */
-    private val memo = ConcurrentHashMap<String, String>()
+    private val memo = ConcurrentHashMap<Pair<String, String>, String>()
 
     /**
-     * Translates [lines] to Hindi, preserving line structure — one English line in, one Hindi line
-     * out, so callers can keep rendering a bulleted list as a bulleted list.
+     * Translates [lines] into [language], preserving line structure — one English line in, one
+     * translated line out, so callers can keep rendering a list as a list.
      *
      * All work happens in a single engine acquisition. Call it once with everything that needs
      * translating, not once per item.
      */
-    suspend fun toHindi(lines: List<String>): List<String> {
-        val plans = lines.map { splitForTranslation(it) }
+    suspend fun render(lines: List<String>, language: SupportedLanguage): List<String> {
+        if (language == SupportedLanguage.ENGLISH) return lines
+
+        val plans = lines.map { splitForTranslation(it, language) }
         val needed = plans.flatten()
             .map { it.text }
-            .filter { it.isNotBlank() && !memo.containsKey(it) }
+            .filter { it.isNotBlank() && !memo.containsKey(language.code to it) }
             .distinct()
 
         if (needed.isNotEmpty()) {
             modelHost.withTranslator(Direction.EN_TO_HI) { engine ->
+                // Resolved once per render, not per sentence. Falls back to the engine's own default
+                // when a vocabulary somehow lacks the tag, which yields Hindi rather than an error.
+                val targetId = engine.languageId(language.tag)
+
                 // translate() is synchronous, blocking and not thread-safe. One fragment at a time,
                 // off the main thread, inside the single acquisition.
                 withContext(Dispatchers.Default) {
                     for (fragment in needed) {
-                        memo[fragment] = runCatching { engine.translate(fragment) }
+                        memo[language.code to fragment] = runCatching { engine.translate(fragment, targetId) }
                             // A fragment the engine chokes on falls back to the English text rather
                             // than blanking the line. Partly-translated output beats a hole.
                             .getOrDefault(fragment)
@@ -73,12 +78,12 @@ class HindiRenderer(private val modelHost: ModelHost) {
             }
         }
 
-        return plans.map { fragments -> rejoin(fragments) }
+        return plans.map { fragments -> rejoin(fragments, language) }
     }
 
-    private fun rejoin(fragments: List<Fragment>): String =
+    private fun rejoin(fragments: List<Fragment>, language: SupportedLanguage): String =
         fragments.joinToString("") { fragment ->
-            joinTranslated(memo[fragment.text] ?: fragment.text, fragment.trailing)
+            joinTranslated(memo[language.code to fragment.text] ?: fragment.text, fragment.trailing)
         }.trim()
 
     companion object {
@@ -86,20 +91,16 @@ class HindiRenderer(private val modelHost: ModelHost) {
         /**
          * Target words per fragment.
          *
-         * **Raised from 10 to 18 after seeing the output on device, and the reason matters: splitting
-         * is not free.** Ten words was calibrated against the engine's inherited 18-step decode cap,
-         * but ModelHost now constructs the decoder with a 48-step cap, so that ceiling is gone — and
-         * over-splitting was actively destroying quality. "A plant makes its own food inside its
-         * leaves, using nothing but sunlight, water and air." was split at the comma, and the orphaned
-         * clause came back as "कुछ भी नहीं पानी और हवा" — grammatically broken, because a translation
-         * model needs the whole clause to resolve the grammar.
-         *
-         * So: split only when a sentence genuinely cannot fit. A whole sentence translated well beats
-         * two fragments translated badly, every time.
+         * Split only when a sentence genuinely cannot fit. Splitting is not free: an earlier ten-word
+         * limit cut "A plant makes its own food inside its leaves, using nothing but sunlight, water
+         * and air." at the comma, and the orphaned clause came back as "कुछ भी नहीं पानी और हवा" —
+         * grammatically broken, because a translation model needs the whole clause to resolve grammar.
+         * A whole sentence translated well beats two fragments translated badly.
          */
         internal const val MAX_WORDS = 18
 
-        private val SENTENCE_END = charArrayOf('.', '!', '?', '।')
+        /** Every terminator any supported language uses, plus the shared `!` and `?`. */
+        private val TERMINATORS = SupportedLanguage.allTerminators
 
         /**
          * Clause boundaries used only when a sentence is too long on its own. Ordered longest-first so
@@ -111,21 +112,21 @@ class HindiRenderer(private val modelHost: ModelHost) {
         )
 
         /**
-         * Splits [text] into fragments no longer than [MAX_WORDS] words where possible, carrying each
-         * fragment's trailing punctuation and spacing alongside it.
+         * Splits [text] into fragments of at most [MAX_WORDS] words where possible, carrying each
+         * fragment's trailing punctuation alongside it.
          *
-         * Deliberately a pure function with no engine or context, so the splitting rules — the part
-         * most likely to be wrong — are unit-testable without a device or a loaded model.
+         * Deliberately pure — no engine, no context — so the splitting rules, the part most likely to
+         * be wrong, are unit-testable without a device or a loaded model.
          *
-         * Sentence-final `.` becomes `।` (danda), the correct Hindi full stop. Small touch, but
-         * it is the difference between output that reads as Hindi and output that reads as English
-         * punctuation with Hindi words in it.
+         * The English full stop is mapped to [language]'s own terminator: danda for Devanagari, the
+         * Arabic full stop for Urdu. Small touch, but it is the difference between output that reads
+         * as the target language and output that reads as English punctuation with other words in it.
          */
-        internal fun splitForTranslation(text: String): List<Fragment> {
+        internal fun splitForTranslation(text: String, language: SupportedLanguage): List<Fragment> {
             if (text.isBlank()) return emptyList()
 
             val fragments = mutableListOf<Fragment>()
-            for (sentence in splitSentences(text)) {
+            for (sentence in splitSentences(text, language)) {
                 val body = sentence.text
                 if (body.isBlank()) continue
 
@@ -146,18 +147,18 @@ class HindiRenderer(private val modelHost: ModelHost) {
         /** Sentence text paired with the punctuation and whitespace that ended it. */
         private data class Sentence(val text: String, val trailing: String)
 
-        private fun splitSentences(text: String): List<Sentence> {
+        private fun splitSentences(text: String, language: SupportedLanguage): List<Sentence> {
             val result = mutableListOf<Sentence>()
             val body = StringBuilder()
             var i = 0
 
             while (i < text.length) {
                 val c = text[i]
-                if (c in SENTENCE_END) {
+                if (c in TERMINATORS) {
                     // Consume a run of terminators ("?!") plus any trailing whitespace as one unit.
                     val punctuation = StringBuilder()
-                    while (i < text.length && text[i] in SENTENCE_END) {
-                        punctuation.append(if (text[i] == '.') '।' else text[i])
+                    while (i < text.length && text[i] in TERMINATORS) {
+                        punctuation.append(if (text[i] == '.') language.terminator else text[i])
                         i++
                     }
                     val spacing = StringBuilder()
@@ -177,9 +178,9 @@ class HindiRenderer(private val modelHost: ModelHost) {
         }
 
         /**
-         * Breaks an over-long sentence at commas and conjunctions, then hard-splits anything still
-         * over the limit. The hard split is a real quality compromise — it can cut mid-clause — but a
-         * fragment that exceeds the engine's cap gets silently truncated, which is strictly worse.
+         * Breaks an over-long sentence at commas and conjunctions, then hard-splits anything still over
+         * the limit. The hard split is a real quality compromise — it can cut mid-clause — but a
+         * fragment that exceeds the decode ceiling gets silently truncated, which is strictly worse.
          */
         private fun splitClauses(sentence: String): List<String> {
             var parts = sentence.split(',', ';', ':').map { it.trim() }.filter { it.isNotEmpty() }
@@ -218,16 +219,16 @@ class HindiRenderer(private val modelHost: ModelHost) {
          * Appends a fragment's original punctuation to its translation — **unless the translation
          * already ends in a terminator of its own.**
          *
-         * IndicTrans2 supplies a sentence-final danda itself, so appending the mapped English
-         * terminator unconditionally produced "…होती है ।।" on every rendered line. Whitespace in the
-         * original trailing text is preserved either way, so fragments still separate correctly.
+         * The engine supplies a sentence-final terminator itself, so appending unconditionally
+         * produced "…होती है ।।" in Hindi and "…ہوتا ہے۔।" in Urdu, where a danda was being stuck onto
+         * text that already ended with the Arabic full stop.
          */
         internal fun joinTranslated(translated: String, trailing: String): String {
             val body = translated.trimEnd()
-            val bodyTerminated = body.isNotEmpty() && body.last() in SENTENCE_END
-            val trailingStartsWithTerminator = trailing.isNotEmpty() && trailing.first() in SENTENCE_END
+            val bodyTerminated = body.isNotEmpty() && body.last() in TERMINATORS
+            val trailingStartsWithTerminator = trailing.isNotEmpty() && trailing.first() in TERMINATORS
             return if (bodyTerminated && trailingStartsWithTerminator) {
-                body + trailing.dropWhile { it in SENTENCE_END }
+                body + trailing.dropWhile { it in TERMINATORS }
             } else {
                 body + trailing
             }

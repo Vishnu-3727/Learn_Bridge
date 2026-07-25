@@ -1,4 +1,4 @@
-package com.learnbridge.app.hindi
+package com.learnbridge.app.lang
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -9,13 +9,14 @@ import org.junit.Test
  * fragment does not fail, it comes back silently truncated by the translation engine's decode cap.
  * So the load-bearing assertion in most of these cases is simply "no fragment exceeds the limit".
  */
-class HindiRendererTest {
+class LessonTranslatorTest {
 
-    private fun split(text: String) = HindiRenderer.splitForTranslation(text)
+    private fun split(text: String, language: SupportedLanguage = SupportedLanguage.HINDI) =
+        LessonTranslator.splitForTranslation(text, language)
 
     private fun assertAllWithinLimit(text: String) {
-        val over = split(text).filter { HindiRenderer.wordCount(it.text) > HindiRenderer.MAX_WORDS }
-        assertTrue("fragments over the ${HindiRenderer.MAX_WORDS}-word limit: ${over.map { it.text }}", over.isEmpty())
+        val over = split(text).filter { LessonTranslator.wordCount(it.text) > LessonTranslator.MAX_WORDS }
+        assertTrue("fragments over the ${LessonTranslator.MAX_WORDS}-word limit: ${over.map { it.text }}", over.isEmpty())
     }
 
     @Test
@@ -70,7 +71,7 @@ class HindiRendererTest {
 
         assertAllWithinLimit(text)
         // ceil(40 / MAX_WORDS) fragments, whatever the limit is currently set to.
-        assertEquals((40 + HindiRenderer.MAX_WORDS - 1) / HindiRenderer.MAX_WORDS, split(text).size)
+        assertEquals((40 + LessonTranslator.MAX_WORDS - 1) / LessonTranslator.MAX_WORDS, split(text).size)
     }
 
     /**
@@ -142,7 +143,7 @@ class HindiRendererTest {
     fun `a translation that already ends in a danda does not get a second one`() {
         assertEquals(
             "पौधे भोजन बनाते हैं।",
-            HindiRenderer.joinTranslated("पौधे भोजन बनाते हैं।", "।"),
+            LessonTranslator.joinTranslated("पौधे भोजन बनाते हैं।", "।"),
         )
     }
 
@@ -150,7 +151,7 @@ class HindiRendererTest {
     fun `punctuation is still added when the translation lacks it`() {
         assertEquals(
             "पौधे भोजन बनाते हैं।",
-            HindiRenderer.joinTranslated("पौधे भोजन बनाते हैं", "।"),
+            LessonTranslator.joinTranslated("पौधे भोजन बनाते हैं", "।"),
         )
     }
 
@@ -158,18 +159,57 @@ class HindiRendererTest {
     fun `spacing after a terminator survives deduplication`() {
         assertEquals(
             "पहला वाक्य। ",
-            HindiRenderer.joinTranslated("पहला वाक्य।", "। "),
+            LessonTranslator.joinTranslated("पहला वाक्य।", "। "),
         )
     }
 
     @Test
     fun `an interior fragment keeps its plain space separator`() {
-        assertEquals("पहला भाग ", HindiRenderer.joinTranslated("पहला भाग", " "))
+        assertEquals("पहला भाग ", LessonTranslator.joinTranslated("पहला भाग", " "))
+    }
+
+    // --- per-language punctuation ---
+
+    /**
+     * The sentence terminator is not universal. Devanagari uses the danda, Urdu uses the Arabic full
+     * stop. Emitting a danda in Urdu output reads as the wrong script's punctuation bolted onto the
+     * right words — and it was a real defect: "…ہوتا ہے۔।" appeared on device.
+     */
+    @Test
+    fun `each language gets its own sentence terminator`() {
+        assertEquals("।", split("Plants make food.", SupportedLanguage.HINDI)[0].trailing.trim())
+        assertEquals("।", split("Plants make food.", SupportedLanguage.MARATHI)[0].trailing.trim())
+        assertEquals("۔", split("Plants make food.", SupportedLanguage.URDU)[0].trailing.trim())
+        assertEquals(".", split("Plants make food.", SupportedLanguage.ENGLISH)[0].trailing.trim())
+    }
+
+    @Test
+    fun `an Urdu translation ending in its own full stop does not gain a danda`() {
+        assertEquals(
+            "پانی کبھی استعمال نہیں ہوتا۔",
+            LessonTranslator.joinTranslated("پانی کبھی استعمال نہیں ہوتا۔", "۔"),
+        )
+    }
+
+    @Test
+    fun `a danda is not appended to text already ending in an Arabic full stop`() {
+        // The dedup must consider every supported language's terminator, not just Devanagari's.
+        assertEquals(
+            "یہ ایک جملہ ہے۔",
+            LessonTranslator.joinTranslated("یہ ایک جملہ ہے۔", "।"),
+        )
+    }
+
+    @Test
+    fun `sentence splitting recognises an Arabic full stop as a boundary`() {
+        val fragments = split("پہلا جملہ۔ دوسرا جملہ۔", SupportedLanguage.URDU)
+
+        assertEquals(2, fragments.size)
     }
 
     @Test
     fun `word count ignores extra whitespace`() {
-        assertEquals(3, HindiRenderer.wordCount("  one   two \n three  "))
-        assertEquals(0, HindiRenderer.wordCount("   "))
+        assertEquals(3, LessonTranslator.wordCount("  one   two \n three  "))
+        assertEquals(0, LessonTranslator.wordCount("   "))
     }
 }

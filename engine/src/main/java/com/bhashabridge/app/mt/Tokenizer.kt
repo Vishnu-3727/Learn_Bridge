@@ -33,11 +33,11 @@ class Tokenizer internal constructor(
      * against the vocab in three case variants (lower/title/upper), each prefixed with the
      * SentencePiece word-boundary marker ▁; on a miss the word falls back to [greedyEncode].
      */
-    fun encode(text: String): LongArray {
+    fun encode(text: String, targetLang: Long = tgtLangId): LongArray {
         val words = text.trim().split(WHITESPACE)
         val ids = ArrayList<Long>(words.size * 2 + 3)
         ids.add(srcLangId)
-        ids.add(tgtLangId)
+        ids.add(targetLang)
 
         for (word in words) {
             if (word.isEmpty()) continue
@@ -51,6 +51,23 @@ class Tokenizer internal constructor(
         ids.add((srcPieceToId["</s>"] ?: 2).toLong())
         return ids.toLongArray()
     }
+
+    /**
+     * The vocabulary id for a FLORES-style language tag such as `hin_Deva`, `urd_Arab`, `mar_Deva`,
+     * or null when this vocabulary does not carry it.
+     *
+     * The target language is the **second token of the source sequence** and nothing else — the ONNX
+     * graphs and the target vocabulary are shared across every language the export supports. So a
+     * loaded engine can translate into any of them with no reload, which is why [encode] takes the
+     * tag per call rather than baking it in at construction.
+     *
+     * A tag being present does not guarantee usable output: the vocabulary carries all 34 IndicTrans2
+     * tags, but the target vocabulary only has real subword coverage for Devanagari (72,356 pieces),
+     * Arabic script (16,949) and Latin (11,414). Tamil, Telugu, Kannada, Malayalam, Gurmukhi and Odia
+     * have their alphabets but zero multi-character pieces, so they cannot be generated. See
+     * SupportedLanguage in the app module for the list that was actually verified on device.
+     */
+    fun tagId(tag: String): Long? = srcPieceToId[tag]?.toLong()
 
     /** Greedy longest-match-first subword split, up to 20 chars; an unmatched char becomes `<unk>`. */
     private fun greedyEncode(text: String): List<Long> {
