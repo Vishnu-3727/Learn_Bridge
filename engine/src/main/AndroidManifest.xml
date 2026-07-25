@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Library manifest for the frozen inference stack. Declares no permissions of its own:
+  RECORD_AUDIO is the consuming app's decision, and there is deliberately no INTERNET.
+  Models, translation, recognition and speech are all on-device.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" />

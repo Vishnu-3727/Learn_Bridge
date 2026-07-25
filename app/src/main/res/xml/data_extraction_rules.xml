@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Backup & device-transfer rules (API 31+; see AndroidManifest dataExtractionRules).
+
+  Same reasoning as backup_rules.xml: the model / ORT graph caches (filesDir) and the
+  benchmark + profiling artifacts (app external files) are large and fully regenerable,
+  so exclude them from both cloud backup and device-to-device transfer. User-facing
+  state (per-app locale, first-run flag) lives in the sharedpref domain and is carried.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="." />
+        <exclude domain="external" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="." />
+        <exclude domain="external" path="." />
+    </device-transfer>
+</data-extraction-rules>

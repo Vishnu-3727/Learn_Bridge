@@ -1,0 +1,31 @@
+# Build output. Note the trailing slash with no leading slash: this must match at EVERY level,
+# not just the repository root. A leading-slash "/build" matches only the root and lets
+# app/build/ and engine/build/ through — which stages the merged asset copies of the model
+# weights, several hundred megabytes of them.
+build/
+.gradle/
+.cxx/
+.externalNativeBuild/
+captures/
+
+# IDE and local machine
+.idea/
+*.iml
+local.properties
+.DS_Store
+
+# Model weights are NOT in git. ~909 MB of ONNX graphs and Vosk acoustic models, plus the
+# generative .task file. They are produced/downloaded out of band; see the README for how to
+# stage them. A clone without these compiles and runs, but translation and speech will fail at
+# runtime and the app falls back to its non-generative tutor.
+*.onnx
+*.ort
+*.task
+*.litertlm
+engine/src/main/assets/*.bin
+engine/src/main/assets/dict.*.json
+engine/src/main/assets/model/
+engine/src/main/assets/model-hi/
+
+# Local measurement output from the on-device gates — machine-specific, not shared state.
+/measurements/

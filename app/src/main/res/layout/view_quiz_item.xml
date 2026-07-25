@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One tappable quiz option row, inflated into quizOptions by LessonActivity — same
+     inflate-into-a-LinearLayout convention LibraryActivity uses for the document list, at the same
+     small scale (at most a handful of options per question). -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/TouchTarget"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:background="@drawable/bg_quiz_option"
+    android:gravity="center_vertical"
+    android:padding="14dp"
+    android:textColor="@color/text_primary"
+    android:textSize="15sp" />

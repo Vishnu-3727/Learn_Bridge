@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      RECORD_AUDIO is the only dangerous permission, for spoken questions via the offline Vosk
+      recognizer.
+
+      Deliberately NOT declared:
+        INTERNET — everything (translation, generation, recognition, speech, OCR) runs on-device.
+                   The absence of this line is the product's central claim; do not add it.
+        CAMERA   — page capture uses ACTION_IMAGE_CAPTURE, which hands off to the system camera
+                   app. Declaring CAMERA would make the platform enforce it for that intent for
+                   no benefit. Not declaring it means the intent simply works.
+    -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Page capture is optional: the app is fully usable by importing files. -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <application
+        android:name=".LearnBridgeApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.LearnBridge">
+
+        <activity
+            android:name=".ui.LibraryActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.LessonActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.LibraryActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!--
+          Grants the system camera app write access to exactly one app-private directory so a
+          photographed page can be handed back. Not exported; access is per-Uri and temporary.
+        -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+    </application>
+
+</manifest>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Every user-facing string lives here, never inline in a layout or Kotlin file. values-hi/ mirrors
+  this file key-for-key; a missing key there silently falls back to English, which is the
+  localization gap to avoid rather than inherit.
+-->
+<resources>
+    <string name="app_name">LearnBridge AI</string>
+
+    <!-- Library screen -->
+    <string name="library_title">My Documents</string>
+    <string name="library_empty_title">Nothing to learn yet</string>
+    <string name="library_empty_body">Photograph a textbook page, or import a document, and LearnBridge will teach it back to you — with no internet.</string>
+    <string name="action_photo">Photograph a page</string>
+    <string name="action_import">Import a document</string>
+    <string name="cd_photo">Photograph a page to learn from</string>
+    <string name="cd_import">Import a document to learn from</string>
+
+    <!-- Documents -->
+    <string name="document_meta">%1$d words</string>
+    <string name="delete_confirm">Remove this document and everything LearnBridge learned from it?</string>
+    <string name="delete">Remove</string>
+    <string name="cd_document">Open this lesson</string>
+
+    <!-- Ingest -->
+    <string name="ingest_reading">Reading the page…</string>
+    <string name="ingest_thinking">Working out how to teach this…</string>
+    <string name="ingest_translating">Preparing the Hindi version…</string>
+    <string name="ingest_wait_note">This happens once per document, so the lesson opens instantly afterwards.</string>
+    <string name="ingest_failed_unreadable">No text could be read from that file.</string>
+    <string name="ingest_failed_empty">That document looks empty.</string>
+    <string name="ingest_failed_unsupported">That file type is not supported yet. Try a text file, a PDF, or a photo.</string>
+    <string name="error_capture_unavailable">No camera app is available on this device.</string>
+
+    <!-- Lesson screen -->
+    <string name="tab_explain">Explain</string>
+    <string name="tab_ask">Ask</string>
+    <string name="tab_quiz">Quiz</string>
+    <string name="explain_generating">Explaining…</string>
+    <string name="action_hindi">हिंदी</string>
+    <string name="action_english">English</string>
+    <string name="action_listen">Listen</string>
+    <string name="cd_listen">Read this aloud</string>
+    <string name="translating_inline">Translating…</string>
+
+    <!-- Ask -->
+    <string name="ask_hint">Ask a question about this document</string>
+    <string name="ask_send">Ask</string>
+    <string name="cd_ask_voice">Ask by speaking</string>
+    <string name="ask_thinking">Looking through the document…</string>
+    <string name="ask_no_answer">That does not appear to be covered in this document.</string>
+
+    <!-- Quiz -->
+    <string name="quiz_progress">Question %1$d of %2$d</string>
+    <string name="quiz_correct">Correct</string>
+    <string name="quiz_incorrect">Not quite</string>
+    <string name="quiz_score">You got %1$d of %2$d</string>
+    <string name="quiz_next">Next</string>
+    <string name="quiz_unavailable">No questions could be generated from this document.</string>
+
+    <!-- Errors -->
+    <string name="error_generation_failed">The tutor could not answer that. Try asking differently.</string>
+    <string name="error_low_memory">This device is short on memory, so LearnBridge is using its simpler offline tutor.</string>
+
+    <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
+    <string name="explain_fallback_english">Hindi isn\'t ready for this document yet — showing English instead.</string>
+    <string name="explain_unavailable">No explanation could be generated for this document.</string>
+    <string name="cd_ask_input">Type your question about this document</string>
+    <string name="cd_ask_send">Send your question</string>
+    <string name="cd_quiz_option">Answer: %1$s</string>
+    <string name="cd_quiz_next">Go to the next question</string>
+    <string name="cd_switch_to_hindi">Switch the lesson to Hindi</string>
+    <string name="cd_switch_to_english">Switch the lesson to English</string>
+</resources>

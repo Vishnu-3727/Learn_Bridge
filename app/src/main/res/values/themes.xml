@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  One theme, permanently dark — no values-night variant. The visual identity is the dark surface
+  plus the emerald accent; a light variant would be a second design nobody has drawn.
+-->
+<resources>
+    <style name="Theme.LearnBridge" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/bg_primary</item>
+        <item name="android:colorBackground">@color/bg_primary</item>
+
+        <item name="android:statusBarColor">@color/status_bar</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/bg_primary</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorPrimaryVariant">@color/accent_pressed</item>
+        <item name="colorOnPrimary">@color/accent_on</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorOnSecondary">@color/accent_on</item>
+        <item name="colorSurface">@color/bg_card</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="android:colorControlHighlight">#206EE7B7</item>
+
+        <item name="android:textColorHighlight">#406EE7B7</item>
+        <item name="colorControlActivated">@color/accent</item>
+        <item name="rippleColor">@color/accent_dim</item>
+    </style>
+
+    <!-- Content cards: input, explanation, quiz items. 16dp radius / 0 elevation, applied once
+         here rather than repeated on every CardView. -->
+    <style name="ContentCard">
+        <item name="cardBackgroundColor">@color/bg_card</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">0dp</item>
+    </style>
+
+    <!-- Every tappable row/button gets at least 48dp of height: accessibility minimum, declared
+         once so no screen can quietly drop below it. -->
+    <style name="TouchTarget">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+</resources>

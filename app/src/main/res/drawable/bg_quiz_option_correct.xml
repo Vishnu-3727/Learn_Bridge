@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The correct option once answered. Always shown on the correct row, whether or not it was the
+     one tapped, so a wrong guess still reveals the right answer. Paired with a "check_mark" prefix
+     in LessonActivity so the state does not rely on colour alone. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/accent_dim" />
+    <corners android:radius="12dp" />
+    <stroke android:width="2dp" android:color="@color/accent" />
+</shape>

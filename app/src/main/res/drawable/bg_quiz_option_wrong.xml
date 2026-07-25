@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The row the student tapped, when it was not the correct answer. Paired with a "cross" prefix in
+     LessonActivity so the state does not rely on colour alone. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/emergency_bg" />
+    <corners android:radius="12dp" />
+    <stroke android:width="2dp" android:color="@color/emergency" />
+</shape>

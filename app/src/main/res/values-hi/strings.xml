@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hindi strings for the lesson screen's new user-facing keys only. The rest of the app's strings
+  fall back to values/strings.xml (English) — see that file's header for why a missing key here is
+  an accepted gap rather than a bug, and add to this file key-for-key as more screens gain a Hindi
+  translation.
+-->
+<resources>
+    <string name="explain_fallback_english">इस दस्तावेज़ के लिए हिंदी अभी तैयार नहीं है — इसके बजाय अंग्रेज़ी दिखाई जा रही है।</string>
+    <string name="explain_unavailable">इस दस्तावेज़ के लिए कोई व्याख्या नहीं बनाई जा सकी।</string>
+    <string name="cd_ask_input">इस दस्तावेज़ के बारे में अपना प्रश्न लिखें</string>
+    <string name="cd_ask_send">अपना प्रश्न भेजें</string>
+    <string name="cd_quiz_option">उत्तर: %1$s</string>
+    <string name="cd_quiz_next">अगले प्रश्न पर जाएँ</string>
+    <string name="cd_switch_to_hindi">पाठ को हिंदी में बदलें</string>
+    <string name="cd_switch_to_english">पाठ को अंग्रेज़ी में बदलें</string>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An unanswered quiz option row. Plain outline so the correct/incorrect fills read as new states,
+     not as a shade of the same colour. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/accent_dim" />
+            <corners android:radius="12dp" />
+            <stroke android:width="1dp" android:color="@color/divider_light" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/bg_surface" />
+            <corners android:radius="12dp" />
+            <stroke android:width="1dp" android:color="@color/divider_light" />
+        </shape>
+    </item>
+</selector>
