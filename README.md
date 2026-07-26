@@ -184,8 +184,19 @@ it the app runs on `ExtractiveTeacher` and every feature still works.
 ./gradlew :app:testDebugUnitTest :engine:testDebugUnitTest
 ```
 
-92 JVM unit tests covering chunking, FTS retrieval, the tolerant output parsers, Hindi sentence
-splitting, and the extractive tutor's grounding invariants. No device required.
+137 JVM unit tests covering chunking, FTS retrieval, the tolerant output parsers, Hindi sentence
+splitting, the Brahmic script mapping, and the extractive tutor's grounding invariants. No device
+required.
+
+One test does need a device, because it is the only way to make the claim it makes:
+
+```bash
+./gradlew :app:connectedDebugAndroidTest
+```
+
+`AllLanguagesDeviceTest` loads the translation engine once, translates the same English sentence into
+all thirteen targets, and asserts each result lands in that language's own Unicode block — that the
+*model's* output, not hand-written input, transliterates correctly. It needs the staged model assets.
 
 ---
 
