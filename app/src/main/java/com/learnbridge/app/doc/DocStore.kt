@@ -26,7 +26,11 @@ import java.io.File
  * change on day 4 never means re-OCRing or re-parsing a source document — [chunks_fts] can be
  * rebuilt from the saved text alone.
  */
-class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
+// `open`, with `open` writes, for exactly one reason: LessonPipelineTest subclasses this to make a
+// write fail on demand. The invariant it checks — nothing thrown inside the pipeline reaches the
+// collector — cannot be exercised otherwise, because SQLiteOpenHelper reopens a closed database on
+// the next writableDatabase call, so there is no way to break a real store from outside.
+open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
     private val appContext = context.applicationContext
 
@@ -114,7 +118,7 @@ class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_V
         writableDatabase.update("documents", values, "id = ?", arrayOf(docId.toString()))
     }
 
-    fun insertChunks(docId: Long, chunks: List<Chunk>) {
+    open fun insertChunks(docId: Long, chunks: List<Chunk>) {
         val db = writableDatabase
         db.beginTransaction()
         try {

@@ -57,6 +57,8 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 # Needed only so DocStore/Retrieval (SQLite) can be unit-tested on the JVM without a device.
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+# runTest, for the suspend/Flow pipeline tests. Same version as the coroutines runtime.
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
