@@ -5,7 +5,6 @@ kotlin = "2.2.10"
 # --- Inference stack, pinned to the versions the engine was benchmarked against. Do not bump. ---
 # 1.27.1 is a GitHub tag only; no onnxruntime-android AAR was published for it.
 onnxruntime = "1.27.0"
-vosk = "0.3.47"
 coroutines = "1.7.3"
 
 # --- On-device generation. MediaPipe LLM Inference is maintenance-only (LiteRT-LM is the
@@ -33,7 +32,6 @@ robolectric = "4.11.1"
 [libraries]
 # Inference
 onnxruntime-android = { group = "com.microsoft.onnxruntime", name = "onnxruntime-android", version.ref = "onnxruntime" }
-vosk-android = { group = "com.alphacephei", name = "vosk-android", version.ref = "vosk" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 
 # On-device LLM

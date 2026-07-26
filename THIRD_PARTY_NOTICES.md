@@ -29,11 +29,11 @@ No model weights are committed to this repository — see the README for how to 
   terms and the use restrictions.
 - Prohibited Use Policy: https://ai.google.dev/gemma/prohibited_use_policy
 
-### Vosk acoustic models (offline speech recognition)
+Speech *synthesis* uses the platform `TextToSpeech` engine and its installed voice data, which is
+part of the device rather than shipped here, so it carries no notice of its own.
 
-- Source: Vosk small models for English (Indian accent) and Hindi
-- Licence: Apache License 2.0
-- Copyright: Alpha Cephei Inc.
+Speech *recognition* (Vosk) was removed along with the unwired spoken-questions feature and is no
+longer a dependency or a packaged asset.
 
 ---
 
@@ -44,7 +44,6 @@ No model weights are committed to this repository — see the README for how to 
 | ONNX Runtime (Android) | 1.27.0 | MIT | Microsoft Corporation |
 | MediaPipe Tasks GenAI | 0.10.27 | Apache-2.0 | Google LLC |
 | ML Kit Text Recognition (Devanagari, bundled) | 16.0.1 | Apache-2.0 | Google LLC |
-| Vosk Android | 0.3.47 | Apache-2.0 | Alpha Cephei Inc. |
 | PdfBox-Android | 2.0.27.0 | Apache-2.0 | Tom Roush; Apache Software Foundation |
 | AndroidX (core, appcompat, activity, constraintlayout, lifecycle, cardview) | various | Apache-2.0 | The Android Open Source Project |
 | Material Components for Android | 1.11.0 | Apache-2.0 | Google LLC |

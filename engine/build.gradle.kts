@@ -48,16 +48,14 @@ android {
         }
     }
 
-    // ONNX Runtime and Vosk each ship their own copies of some .so files; without pickFirsts the
-    // merge fails on duplicate native libs. Kept here as well as in :app because a library module
-    // that is consumed elsewhere should carry its own packaging facts.
+    // ONNX Runtime ships more than one copy of some .so files; without pickFirsts the merge fails on
+    // duplicate native libs. Kept here as well as in :app because a library module that is consumed
+    // elsewhere should carry its own packaging facts.
     packaging {
         jniLibs {
             pickFirsts += setOf(
                 "**/libonnxruntime.so",
                 "**/libonnxruntime4j_jni.so",
-                "**/libvosk.so",
-                "**/libjnidispatch.so",
             )
         }
     }
@@ -65,7 +63,6 @@ android {
 
 dependencies {
     api(libs.onnxruntime.android)
-    api(libs.vosk.android)
     api(libs.kotlinx.coroutines.android)
 
     testImplementation(libs.junit)

@@ -14,10 +14,14 @@ captures/
 local.properties
 .DS_Store
 
-# Model weights are NOT in git. ~909 MB of ONNX graphs and Vosk acoustic models, plus the
-# generative .task file. They are produced/downloaded out of band; see the README for how to
-# stage them. A clone without these compiles and runs, but translation and speech will fail at
-# runtime and the app falls back to its non-generative tutor.
+# Model weights are NOT in git: ~459 MB of ONNX translation graphs plus the optional generative
+# .task file. They are produced/downloaded out of band; see the README for how to stage them. A
+# clone without them compiles and runs — translation is unavailable and the app falls back to its
+# non-generative tutor, which is a supported configuration, not a broken one.
+#
+# Was ~909 MB. The Vosk acoustic models went with the unwired speech-input feature, and the HI->EN
+# graphs are not packaged because nothing loads them; the model/ and model-hi/ entries below are
+# kept so a stray re-stage does not get committed by accident.
 *.onnx
 *.ort
 *.task

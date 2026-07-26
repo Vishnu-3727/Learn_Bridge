@@ -4,8 +4,7 @@
 
 Photograph a textbook page, or import a document. LearnBridge explains it in plain English, says the
 same thing in **thirteen Indian languages**, reads it aloud, quizzes you on it, and answers your
-follow-up questions — entirely on your phone, with **no internet connection and no `INTERNET`
-permission**.
+follow-up questions — entirely on your phone, requesting **no permissions at all**.
 
 हिंदी · मराठी · नेपाली · संस्कृतम् · اردو · தமிழ் · తెలుగు · ಕನ್ನಡ · മലയാളം · বাংলা · ગુજરાતી · ਪੰਜਾਬੀ · ଓଡ଼ିଆ
 
@@ -50,11 +49,44 @@ LessonPipeline: doc 3: 5 quiz items
 ```
 
 Text recognition selected its **local** module and loaded its native library and models from inside
-the APK. Hindi speech synthesis likewise loads from local voice data.
+the APK. Speech synthesis likewise loads from local voice data.
 
-`AndroidManifest.xml` declares exactly one permission — `RECORD_AUDIO`. There is deliberately no
-`INTERNET` and no `CAMERA`; page capture hands off to the system camera app via
-`ACTION_IMAGE_CAPTURE`, so no camera permission is needed at all.
+### The permission list is empty, and that took more than not declaring one
+
+Not declaring `INTERNET` is not the same as not having it. ML Kit pulls in
+`com.google.android.datatransport:transport-backend-cct` — Google's telemetry uploader — which
+declares `INTERNET` and `ACCESS_NETWORK_STATE` in its own manifest, and the manifest merger adds them
+to yours. Every APK built from this repository before that was found requested network access, and a
+user checking the app's permissions would have seen it.
+
+The fix is to strip them at merge time:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+```
+
+which is *stronger* than never declaring them — the process becomes incapable of opening a socket, so
+the guarantee is enforced by the OS rather than by our intentions. Confirmed in the merger report:
+
+```
+> uses-permission#android.permission.INTERNET
+  ADDED from .../app/src/main/AndroidManifest.xml
+  REJECTED from [com.google.android.datatransport:transport-backend-cct:2.3.3]
+```
+
+The merged manifest now contains no user-visible permission at all:
+
+- no `INTERNET` — everything runs on-device, and the OS enforces it
+- no `CAMERA` — page capture hands off to the system camera app via `ACTION_IMAGE_CAPTURE`
+- no `RECORD_AUDIO` — this was declared for spoken questions that were never wired up. A dangerous
+  permission for code with no call sites is worse than a missing feature, so the permission, the
+  recognizer and its 134 MB of acoustic models are all gone until the mic button actually ships.
+
+Backup is restricted too, for the same reason. Auto Backup is performed by the system, so an absent
+`INTERNET` permission would not have stopped it: the rules files existed but the manifest referenced
+neither, and the platform default includes the `database` domain — every sentence extracted from a
+photographed page was eligible for upload. Both files are now wired, and the document database is
+excluded from cloud backup while still travelling on a local device-to-device transfer.
 
 ---
 
@@ -163,9 +195,14 @@ cd LearnBridgeAI
 
 Requires JDK 17 and the Android SDK (compileSdk 36).
 
-**The model weights are not in this repository** (~909 MB of ONNX translation graphs and Vosk
-acoustic models). A clone compiles and runs without them, and falls back to the extractive tutor, but
-translation and speech will not work. Stage them into `engine/src/main/assets/`.
+One APK is produced per ABI — `arm64-v8a`, `armeabi-v7a` and `x86_64`, the last so the app installs
+on a standard emulator. MediaPipe publishes no x86_64 generative library, so on that ABI the app runs
+its extractive tutor; every feature still works.
+
+**The model weights are not in this repository** (~459 MB of ONNX translation graphs). A clone
+compiles and runs without them and falls back to the extractive tutor, so a build with no assets at
+all is a supported configuration rather than a broken one — translation is simply unavailable and the
+language toggle stays disabled. Stage them into `engine/src/main/assets/`.
 
 The optional generative model is **not** bundled during development — push it to the device instead,
 so a rebuild does not reinstall a 1.5 GB APK:

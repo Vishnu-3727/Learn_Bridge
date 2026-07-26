@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
-import com.bhashabridge.app.speech.VoskModels
 import com.learnbridge.app.doc.DocStore
 import com.learnbridge.app.lang.LessonTranslator
 import com.learnbridge.app.lang.SupportedLanguage
@@ -16,9 +15,9 @@ import com.learnbridge.app.teach.Teacher
 import java.io.File
 
 /**
- * Purpose:  Process entry point and the sole owner of every native resource. Hands out [ModelHost]
- *           and the speech models; nothing else in the app constructs a model.
- * Owns:     One [ModelHost], one [VoskModels].
+ * Purpose:  Process entry point and the sole owner of every native resource. Hands out [ModelHost];
+ *           nothing else in the app constructs a model.
+ * Owns:     One [ModelHost].
  * Lifetime: Process.
  * Thread:   Main. [ModelHost] handles its own synchronisation.
  *
@@ -67,13 +66,6 @@ class LearnBridgeApp : Application() {
         val file = File(dir, "page_${System.currentTimeMillis()}.jpg")
         FileProvider.getUriForFile(this, "$packageName.files", file)
     }.onFailure { Log.w(TAG, "Could not create a capture Uri: ${it.message}") }.getOrNull()
-
-    /**
-     * Vosk acoustic models for spoken questions. Lazy inside [VoskModels] too, so a session that
-     * never uses the microphone never pays for it.
-     */
-    private val speechModelsLazy = lazy { VoskModels(this) }
-    val speechModels: VoskModels get() = speechModelsLazy.value
 
     private val prefs by lazy { getSharedPreferences(PREFS, Context.MODE_PRIVATE) }
 
@@ -136,11 +128,6 @@ class LearnBridgeApp : Application() {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         modelHost.onTrimMemory(level)
-        // Guarded rather than `speechModels.release()`: touching the property would construct the
-        // models we are trying to avoid holding.
-        if (speechModelsLazy.isInitialized()) {
-            speechModelsLazy.value.release()
-        }
     }
 
     private companion object {

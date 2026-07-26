@@ -3,17 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!--
-      RECORD_AUDIO is the only dangerous permission, for spoken questions via the offline Vosk
-      recognizer.
+      This app requests NO permissions at all, and every one of the three it might have needed is
+      absent for a specific reason:
 
-      Deliberately NOT declared:
-        INTERNET — everything (translation, generation, recognition, speech, OCR) runs on-device.
-                   The absence of this line is the product's central claim; do not add it.
-        CAMERA   — page capture uses ACTION_IMAGE_CAPTURE, which hands off to the system camera
-                   app. Declaring CAMERA would make the platform enforce it for that intent for
-                   no benefit. Not declaring it means the intent simply works.
+        INTERNET     — everything (translation, generation, speech, OCR) runs on-device. See the
+                       tools:node="remove" block below, which is what makes this true of the built
+                       APK rather than only of this file.
+        CAMERA       — page capture uses ACTION_IMAGE_CAPTURE, which hands off to the system camera
+                       app. Declaring CAMERA would make the platform enforce it for that intent for
+                       no benefit. Not declaring it means the intent simply works.
+        RECORD_AUDIO — was declared for spoken questions through the offline Vosk recognizer. That
+                       feature was never wired up: no microphone control existed in any layout and
+                       the recognizer had no call sites. A dangerous permission for code that
+                       cannot run is worse than a missing feature, so both are gone. Re-add this
+                       line, and the Vosk dependency, on the day the mic button ships.
     -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <!--
       LOAD-BEARING, AND THE ONLY THING THAT MAKES THE CLAIM ABOVE TRUE OF THE BUILT APK.

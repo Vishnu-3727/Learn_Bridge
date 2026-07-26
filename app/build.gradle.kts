@@ -63,8 +63,6 @@ android {
             pickFirsts += setOf(
                 "**/libonnxruntime.so",
                 "**/libonnxruntime4j_jni.so",
-                "**/libvosk.so",
-                "**/libjnidispatch.so",
             )
         }
     }
@@ -81,20 +79,27 @@ android {
         noCompress += setOf("onnx", "bin", "pb", "task")
     }
 
-    // A single APK carrying both ABIs plus ~909 MB of models is not installable on the target
-    // device. Universal APK stays off.
+    // A single APK carrying every ABI plus the packaged models is not installable on a mid-range
+    // phone, so one APK is produced per ABI and the universal variant stays off.
+    //
+    // x86_64 is included so the app installs on a standard Android emulator. The split was arm-only,
+    // which meant anyone without a physical arm64 phone — a reviewer, a CI runner, a teammate on an
+    // emulator — could not run the app at all. ONNX Runtime, ML Kit and PdfBox all publish x86_64
+    // libraries; MediaPipe's generative task does not, so on x86_64 the app falls back to
+    // ExtractiveTeacher. That is the same supported degradation a low-memory phone takes, and every
+    // feature still works — see Teacher's three implementations.
     splits {
         abi {
             isEnable = true
             reset()
-            include("arm64-v8a", "armeabi-v7a")
+            include("arm64-v8a", "armeabi-v7a", "x86_64")
             isUniversalApk = false
         }
     }
 }
 
 dependencies {
-    // The frozen inference stack: IndicTrans2 via ONNX Runtime, Vosk ASR, system TTS.
+    // The frozen inference stack: IndicTrans2 via ONNX Runtime, plus system TTS.
     implementation(project(":engine"))
 
     // On-device generation.
