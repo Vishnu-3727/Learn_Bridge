@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--
       RECORD_AUDIO is the only dangerous permission, for spoken questions via the offline Vosk
@@ -14,14 +15,50 @@
     -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <!--
+      LOAD-BEARING, AND THE ONLY THING THAT MAKES THE CLAIM ABOVE TRUE OF THE BUILT APK.
+
+      Not declaring INTERNET is not the same as not having it. ML Kit pulls in
+      com.google.android.datatransport:transport-backend-cct — Google's telemetry uploader — which
+      declares INTERNET and ACCESS_NETWORK_STATE in its own manifest, and the manifest merger adds
+      them to ours. Verified in build/outputs/logs/manifest-merger-debug-report.txt: without these
+      two lines the shipped APK requests both, and a user inspecting the app's permissions sees
+      network access on an app that promises none.
+
+      tools:node="remove" strips them back out, which is *stronger* than never declaring them: the
+      process is then incapable of opening a socket at all, so the guarantee is enforced by the OS
+      rather than by our intentions. Nothing here needs the network — translation, generation,
+      recognition, speech and OCR are all local, and the bundled ML Kit variant carries its models
+      inside the APK — so the only thing that loses is the telemetry uploader.
+
+      Re-check this file whenever a dependency is added. A transitive permission is invisible in
+      source and obvious in the APK.
+    -->
+    <uses-permission
+        android:name="android.permission.INTERNET"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"
+        tools:node="remove" />
+
     <!-- Page capture is optional: the app is fully usable by importing files. -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <!--
+      Backup is restricted, not disabled. Both rules files must be named here or they have no
+      effect at all: without these two attributes the platform applies its defaults, which include
+      the `database` domain — so every sentence extracted from a photographed textbook page was
+      eligible for upload to Google's servers. Auto Backup is performed by the system, so the
+      deliberately absent INTERNET permission above does not prevent it. See the rules files for
+      what each domain does and why.
+    -->
     <application
         android:name=".LearnBridgeApp"
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"

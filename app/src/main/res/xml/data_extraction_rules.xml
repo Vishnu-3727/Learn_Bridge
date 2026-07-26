@@ -1,14 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Backup & device-transfer rules (API 31+; see AndroidManifest dataExtractionRules).
+  Backup and device-transfer rules (API 31+). Wired up by AndroidManifest's
+  android:dataExtractionRules — this file does nothing unless that attribute names it.
 
-  Same reasoning as backup_rules.xml: the model / ORT graph caches (filesDir) and the
-  benchmark + profiling artifacts (app external files) are large and fully regenerable,
-  so exclude them from both cloud backup and device-to-device transfer. User-facing
-  state (per-app locale, first-run flag) lives in the sharedpref domain and is carried.
+  Three domains, three different answers:
+
+  database — the imported documents themselves: every sentence extracted from a photographed
+      or imported textbook page, plus the student's quiz history. **Excluded from cloud backup.**
+      This app declares no INTERNET permission because the student's study material is meant to
+      stay on their phone; Auto Backup is performed by the system rather than by us, so without
+      this exclusion that material would be uploaded to Google's servers regardless. Allowed on
+      device-transfer, which is a local phone-to-phone copy — moving to a new handset should not
+      cost a student their library.
+
+  file / external — the baked .ort graph caches and the extracted .onnx sources under filesDir.
+      Hundreds of megabytes, entirely regenerable on next launch, and far past the ~25 MB backup
+      quota. Excluded from both.
+
+  sharedpref — the chosen teaching language and the model-residency decisions. A few bytes,
+      genuinely useful to carry, and not study content. Included in both by omission.
 -->
 <data-extraction-rules>
     <cloud-backup>
+        <exclude domain="database" path="." />
         <exclude domain="file" path="." />
         <exclude domain="external" path="." />
     </cloud-backup>

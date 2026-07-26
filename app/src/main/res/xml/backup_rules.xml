@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Auto Backup rules (applies on API <= 30; see AndroidManifest fullBackupContent).
+  Auto Backup rules for API 30 and below. Wired up by AndroidManifest's
+  android:fullBackupContent — this file does nothing unless that attribute names it.
 
-  Everything the app writes to internal storage (filesDir) and app-specific external
-  storage is a regenerable cache, not user data:
-    - filesDir  : the baked .ort graphs + .ort.stamp, and the one-shot extracted .onnx
-                  source (purged next launch). Rebuilt automatically on next launch.
-    - external  : benchmark JSON reports (files/bench) and ORT profiling traces
-                  (files/ort-profile). Developer artifacts, re-measured on demand.
+  API 30 and below have no separate device-transfer channel, so everything here is about cloud
+  backup, and the document database is excluded for the reason given in data_extraction_rules.xml:
+  the study material a student photographs is not ours to upload, and the system performs Auto
+  Backup whether or not this app can reach the network.
 
-  These total hundreds of MB and would otherwise be pushed against the ~25 MB backup
-  quota for nothing. Exclude both domains. User-facing state (per-app locale, first-run
-  flag) lives in the sharedpref domain and is still backed up.
+  filesDir and app-specific external storage hold the regenerable .ort graph caches and the
+  one-shot extracted .onnx sources — hundreds of megabytes against a ~25 MB quota, all rebuilt on
+  next launch. The chosen teaching language and the model-residency flags live in sharedpref and
+  are carried by omission.
 -->
 <full-backup-content>
+    <exclude domain="database" path="." />
     <exclude domain="file" path="." />
     <exclude domain="external" path="." />
 </full-backup-content>
