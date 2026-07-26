@@ -8,7 +8,7 @@ import java.io.File
 
 /**
  * Purpose:  Every piece of ingested-document state the app persists: the document list, its chunk
- *           text (for FTS retrieval), generated artifacts (explanations/keypoints/quiz/glossary, per
+ *           text (for FTS retrieval), generated artifacts (explanations and quiz items, per
  *           language), and quiz results. The only type in the app that touches this database.
  * Owns:     The single writable [SQLiteDatabase] backing the doc.* tables, plus the plain-text mirror
  *           at `filesDir/docs/<docId>.txt`.

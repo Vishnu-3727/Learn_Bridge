@@ -23,9 +23,6 @@ sealed interface TeachRequest {
 
     /** Multiple-choice questions over the document. */
     data class Quiz(override val chunks: List<Chunk>) : TeachRequest
-
-    /** Hard vocabulary with short definitions. */
-    data class Glossary(override val chunks: List<Chunk>) : TeachRequest
 }
 
 /**

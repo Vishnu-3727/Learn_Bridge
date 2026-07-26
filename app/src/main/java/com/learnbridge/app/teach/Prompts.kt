@@ -3,7 +3,7 @@ package com.learnbridge.app.teach
 import com.learnbridge.app.doc.Chunk
 
 /**
- * Purpose:  Builds the four prompts the tutor ever sends. The single place prompt wording lives.
+ * Purpose:  Builds the three prompts the tutor ever sends. The single place prompt wording lives.
  * Owns:     Nothing — pure string assembly.
  * Lifetime: Stateless.
  * Thread:   Any.
@@ -14,7 +14,7 @@ import com.learnbridge.app.doc.Chunk
  * photosynthesis" — the first is grounded in text it can see, the second invites it to invent. So
  * every instruction below points at the supplied text and forbids adding to it.
  *
- * The "maximum ten words per line" rule appears in all four and does triple duty:
+ * The "maximum ten words per line" rule appears in all three and does triple duty:
  *  - a small model follows length constraints more reliably than any other kind of instruction;
  *  - short lines are what the Hindi renderer needs, because the translation engine truncates long
  *    single calls (see LessonTranslator);
@@ -51,7 +51,6 @@ object Prompts {
         is TeachRequest.Explain -> explain(request.chunks)
         is TeachRequest.Ask -> ask(request.question, request.chunks)
         is TeachRequest.Quiz -> quiz(request.chunks)
-        is TeachRequest.Glossary -> glossary(request.chunks)
     }
 
     /**
@@ -130,25 +129,6 @@ object Prompts {
         - The X lines must be clearly wrong, but about the same topic.
         - Use only facts from the text.
         """.trimIndent() + "\n\nTEXT:\n" + chunks.joinToString("\n\n") { it.text },
-    )
-
-    /** Hard vocabulary with short definitions — the cheapest artifact to generate and to translate. */
-    fun glossary(chunks: List<Chunk>): String = wrap(
-        """
-        Find five difficult words in the text below.
-
-        Use exactly this format for every word:
-        T: the word
-        D: its meaning
-
-        Rules:
-        - Maximum eight words in each D line.
-        - Explain each word in simple language.
-        - Choose words that actually appear in the text.
-
-        TEXT:
-        ${chunks.joinToString("\n\n") { it.text }}
-        """.trimIndent(),
     )
 
     private fun wrap(body: String): String =

@@ -176,34 +176,6 @@ class LessonParserTest {
         assertEquals(3, first.size)
     }
 
-    // --- glossary ---
-
-    @Test
-    fun `parses term and definition pairs`() {
-        val raw = """
-            T: Chlorophyll
-            D: The green pigment inside leaves.
-            T: Glucose
-            D: A sugar that stores energy.
-        """.trimIndent()
-
-        val entries = LessonParser.parseGlossary(raw)
-
-        assertEquals(2, entries.size)
-        assertEquals("Chlorophyll", entries[0].term)
-        assertEquals("The green pigment inside leaves.", entries[0].definition)
-    }
-
-    @Test
-    fun `a term with no definition is dropped`() {
-        val raw = "T: Chlorophyll\nT: Glucose\nD: A sugar that stores energy."
-
-        val entries = LessonParser.parseGlossary(raw)
-
-        assertEquals(1, entries.size)
-        assertEquals("Glucose", entries[0].term)
-    }
-
     // --- answers ---
 
     @Test

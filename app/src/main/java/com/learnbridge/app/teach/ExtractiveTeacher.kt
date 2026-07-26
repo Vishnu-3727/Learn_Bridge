@@ -48,7 +48,6 @@ class ExtractiveTeacher(
             is TeachRequest.Explain -> explain(sentences)
             is TeachRequest.Ask -> answer(request.question, sentences)
             is TeachRequest.Quiz -> quiz(sentences)
-            is TeachRequest.Glossary -> glossary(sentences)
         }
 
         // Emitted in pieces at a readable pace rather than all at once. The screen renders this the
@@ -175,23 +174,6 @@ class ExtractiveTeacher(
             distractors.forEach { builder.append("X: ").append(it).append('\n') }
         }
 
-        return builder.toString().trimEnd()
-    }
-
-    // --- Glossary: distinctive terms with the sentence that introduces them ---
-
-    private fun glossary(sentences: List<String>): String {
-        val tokenized = sentences.map { tokens(it) }
-        val idf = inverseDocumentFrequency(tokenized)
-        val terms = topicTerms(sentences, tokenized, idf).take(GLOSSARY_TERMS)
-
-        val builder = StringBuilder()
-        for (term in terms) {
-            // The document's own first mention is the definition; nothing is invented.
-            val defining = sentences.firstOrNull { tokens(it).contains(term) } ?: continue
-            builder.append("T: ").append(term).append('\n')
-            builder.append("D: ").append(shorten(defining)).append('\n')
-        }
         return builder.toString().trimEnd()
     }
 
@@ -375,7 +357,6 @@ class ExtractiveTeacher(
     companion object {
         const val KEY_POINTS = 5
         const val QUIZ_ITEMS = 5
-        const val GLOSSARY_TERMS = 5
         const val ANSWER_SENTENCES = 3
         const val DISTRACTOR_POOL = 12
 

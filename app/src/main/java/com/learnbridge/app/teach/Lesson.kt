@@ -41,9 +41,6 @@ data class QuizItem(
     }
 }
 
-/** One glossary entry. */
-data class GlossaryEntry(val term: String, val definition: String)
-
 /**
  * Purpose:  Parses the tutor's raw text output into structured lesson content.
  * Owns:     Nothing — pure functions over strings.
@@ -136,25 +133,6 @@ object LessonParser {
         flush()
 
         return items.take(max)
-    }
-
-    /** Glossary entries from `T:` / `D:` pairs. A term with no definition is dropped. */
-    fun parseGlossary(raw: String, max: Int = 6): List<GlossaryEntry> {
-        val entries = mutableListOf<GlossaryEntry>()
-        var term: String? = null
-
-        for (line in raw.lineSequence()) {
-            val text = clean(line)
-            if (text.isEmpty()) continue
-            val (tag, body) = splitTag(text) ?: continue
-            if (body.isEmpty()) continue
-
-            when (tag) {
-                "T" -> term = body
-                "D" -> term?.let { entries += GlossaryEntry(it, body); term = null }
-            }
-        }
-        return entries.distinctBy { it.term.lowercase() }.take(max)
     }
 
     /**

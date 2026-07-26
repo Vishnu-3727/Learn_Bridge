@@ -319,19 +319,4 @@ class ExtractiveTeacherTest {
         assertTrue("expected no items from a one-sentence document", items.isEmpty())
     }
 
-    // --- Glossary ---
-
-    @Test
-    fun `glossary pairs document terms with a defining sentence`() = runBlocking {
-        val entries = LessonParser.parseGlossary(collect(TeachRequest.Glossary(chunks)))
-
-        assertTrue("expected glossary entries", entries.isNotEmpty())
-        for (entry in entries) {
-            assertTrue(
-                "term \"${entry.term}\" should appear in the document",
-                document.contains(entry.term, ignoreCase = true),
-            )
-            assertTrue("definition should not be blank", entry.definition.isNotBlank())
-        }
-    }
 }
