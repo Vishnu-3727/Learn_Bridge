@@ -159,4 +159,53 @@ class LessonViewModelTest {
         assertFalse(AskUi(output = AskOutput.Final("answer")).busy)
         assertFalse(AskUi(output = AskOutput.Failed("error")).busy)
     }
+
+    // --- what survives a language toggle mid-quiz ---
+
+    /**
+     * The defect this guards against: the shuffle is seeded by the question text, so the translated
+     * question orders its options differently. Carrying `selectedIndex` across the swap drew the tick
+     * and cross against the previous permutation — the ✓ moved and the ✗ could land on an option the
+     * student never tapped.
+     */
+    @Test
+    fun `a language toggle keeps score and position but clears the stale selection`() {
+        val english = QuizUi(items = listOf(q1, q2))
+        val (_, correctIndex) = q1.shuffledOptions()
+        val answered = english.answer(correctIndex).next() // question 1 correct, now on question 2
+
+        // What loadQuiz(preserveProgress = true) rebuilds when the translated rows arrive.
+        val translated = QuizUi(
+            items = listOf(hindi(q1), hindi(q2)),
+            currentIndex = answered.currentIndex,
+            score = answered.score,
+        )
+
+        assertEquals(1, translated.score)
+        assertEquals(1, translated.currentIndex)
+        assertFalse("the previous question's answered flag must not carry over", translated.answered)
+        assertEquals(null, translated.selectedIndex)
+    }
+
+    @Test
+    fun `translating a question really does change its option order`() {
+        // Not a tautology: it is the premise the test above depends on. If shuffledOptions ever
+        // became language-stable, preserving the selection would be safe and this would fail.
+        val englishOrder = q1.shuffledOptions().first
+        val hindiOrder = hindi(q1).shuffledOptions().first
+
+        assertEquals(englishOrder.size, hindiOrder.size)
+        assertTrue(
+            "seeded by question text, so a translated question must reshuffle",
+            englishOrder.map { it.length } != hindiOrder.map { it.length } ||
+                englishOrder.indexOf(q1.correct) != hindiOrder.indexOf(hindi(q1).correct),
+        )
+    }
+
+    /** Stands in for the same item rendered in another language: different strings, same structure. */
+    private fun hindi(item: QuizItem) = QuizItem(
+        question = "अनुवादित: ${item.question}",
+        correct = "अनुवादित: ${item.correct}",
+        distractors = item.distractors.map { "अनुवादित: $it" },
+    )
 }

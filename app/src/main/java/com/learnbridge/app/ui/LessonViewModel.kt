@@ -207,8 +207,15 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * [preserveProgress] keeps score/currentIndex across a language toggle mid-quiz — swapping which
-     * language a question is worded in should not cost the student their progress through it.
+     * [preserveProgress] carries score and position across a language toggle mid-quiz — swapping
+     * which language a question is worded in should not cost the student their progress through it.
+     *
+     * **It deliberately does not carry the current selection.** [QuizItem.shuffledOptions] seeds its
+     * shuffle from the question text, so the options of the translated question come back in a
+     * different order. Keeping `selectedIndex` across that meant the tick and cross were drawn
+     * against the *previous* permutation: after toggling, the ✓ jumped to another row and the ✗ could
+     * land on an option the student never touched. The score was already banked and stayed correct,
+     * which made it read as the app having forgotten the answer.
      */
     private fun loadQuiz(preserveProgress: Boolean = false) {
         val (docId, lang) = _state.value.let { it.docId to it.lang }
@@ -224,7 +231,17 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
             val fallback = fallbackRaw.mapNotNull { QuizItem.decode(it) }
             val resolved = resolveFallback(lang, other, primary, fallback)
             _state.update {
-                val quiz = if (preserveProgress) it.quiz.copy(items = resolved.rows) else QuizUi(items = resolved.rows)
+                val quiz = if (preserveProgress) {
+                    // Only what is language-independent. See this function's header for why the
+                    // per-question selection cannot come along.
+                    QuizUi(
+                        items = resolved.rows,
+                        currentIndex = it.quiz.currentIndex,
+                        score = it.quiz.score,
+                    )
+                } else {
+                    QuizUi(items = resolved.rows)
+                }
                 it.copy(quiz = quiz)
             }
         }
