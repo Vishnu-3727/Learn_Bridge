@@ -110,6 +110,24 @@ class DocStoreTest {
         assertEquals(listOf("regenerated version"), store.artifacts(docId, "keypoint", "en"))
     }
 
+    /**
+     * The replacement is one atomic statement against a UNIQUE index, not a delete followed by an
+     * insert — so re-rendering a whole lesson can never leave a hole where an artifact used to be.
+     * Distinct ordinals must survive it, which is what proves the constraint is scoped to the right
+     * four columns and not collapsing every ordinal into one row.
+     */
+    @Test
+    fun `re-rendering every ordinal keeps one row each and loses none`() {
+        val docId = store.insertDocument("Doc", null, 10)
+        repeat(5) { store.putArtifact(docId, "explanation", "en", it, "first pass $it") }
+        repeat(5) { store.putArtifact(docId, "explanation", "en", it, "second pass $it") }
+
+        assertEquals(
+            List(5) { "second pass $it" },
+            store.artifacts(docId, "explanation", "en"),
+        )
+    }
+
     @Test
     fun `saveText and savedText round-trip through the filesystem`() {
         val docId = store.insertDocument("Doc", null, 10)

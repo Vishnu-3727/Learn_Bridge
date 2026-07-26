@@ -79,9 +79,13 @@ class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_V
             )
             """.trimIndent()
         )
-        // (kind, lang) is the lookup the UI runs constantly: "show me the English explanation" /
-        // "is there a Hindi one yet". Index it; the table is otherwise unindexed by design.
-        db.execSQL("CREATE INDEX idx_artifacts_lookup ON artifacts(docId, kind, lang)")
+        // UNIQUE, not a plain index, and that is load-bearing rather than defensive: it is what lets
+        // putArtifact replace a row in a single atomic statement instead of delete-then-insert.
+        //
+        // (docId, kind, lang) is still the lookup the UI runs constantly — "show me the English
+        // explanation" / "is there a Tamil one yet" — and remains a usable prefix of this index, so
+        // that query costs nothing extra and now gets its ORDER BY ordinal for free.
+        db.execSQL("CREATE UNIQUE INDEX idx_artifacts_lookup ON artifacts(docId, kind, lang, ordinal)")
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -179,14 +183,15 @@ class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_V
         File(docsDir(appContext), "$docId.txt").delete()
     }
 
-    /** Replaces any existing row for this (docId, kind, lang, ordinal) — regeneration is idempotent. */
+    /**
+     * Replaces any existing row for this (docId, kind, lang, ordinal) — regeneration is idempotent.
+     *
+     * One statement, not a delete followed by an insert. The two-statement version had a window in
+     * which the row simply did not exist: a crash or a process kill landing there lost the artifact
+     * and left the caller believing it had been written. `CONFLICT_REPLACE` against the unique index
+     * makes the swap atomic, and is less work than the pair it replaces.
+     */
     fun putArtifact(docId: Long, kind: String, lang: String, ordinal: Int, text: String) {
-        val db = writableDatabase
-        db.delete(
-            "artifacts",
-            "docId = ? AND kind = ? AND lang = ? AND ordinal = ?",
-            arrayOf(docId.toString(), kind, lang, ordinal.toString()),
-        )
         val values = ContentValues().apply {
             put("docId", docId)
             put("kind", kind)
@@ -194,7 +199,12 @@ class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_V
             put("ordinal", ordinal)
             put("text", text)
         }
-        db.insert("artifacts", null, values)
+        writableDatabase.insertWithOnConflict(
+            "artifacts",
+            null,
+            values,
+            SQLiteDatabase.CONFLICT_REPLACE,
+        )
     }
 
     /** All artifact rows for (docId, kind, lang) in ordinal order. Empty if that language hasn't been generated yet. */
