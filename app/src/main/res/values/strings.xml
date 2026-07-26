@@ -30,7 +30,8 @@
     <!-- Ingest -->
     <string name="ingest_reading">Reading the page…</string>
     <string name="ingest_thinking">Working out how to teach this…</string>
-    <string name="ingest_translating">Preparing the Hindi version…</string>
+    <!-- %1$s is the chosen language's own endonym, not always Hindi. -->
+    <string name="ingest_translating">Preparing the %1$s version…</string>
     <string name="ingest_wait_note">This happens once per document, so the lesson opens instantly afterwards.</string>
     <string name="ingest_failed_unreadable">No text could be read from that file.</string>
     <string name="ingest_failed_empty">That document looks empty.</string>
@@ -42,7 +43,11 @@
     <string name="tab_ask">Ask</string>
     <string name="tab_quiz">Quiz</string>
     <string name="explain_generating">Explaining…</string>
-    <string name="action_hindi">हिंदी</string>
+    <!--
+      The toggle's label is NOT a string resource: it is the target language's own endonym, read
+      from SupportedLanguage at render time. A fixed "हिंदी" here was shown for all thirteen
+      languages. Only English has a stable label, because it is always the source.
+    -->
     <string name="action_english">English</string>
     <string name="action_listen">Listen</string>
     <string name="cd_listen">Read this aloud</string>
@@ -68,12 +73,14 @@
     <string name="error_low_memory">This device is short on memory, so LearnBridge is using its simpler offline tutor.</string>
 
     <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
-    <string name="explain_fallback_english">Hindi isn\'t ready for this document yet — showing English instead.</string>
+    <!-- %1$s is the language's own endonym: this document may have been imported in any of thirteen. -->
+    <string name="explain_fallback_english">%1$s isn\'t ready for this document yet — showing English instead.</string>
     <string name="explain_unavailable">No explanation could be generated for this document.</string>
     <string name="cd_ask_input">Type your question about this document</string>
     <string name="cd_ask_send">Send your question</string>
     <string name="cd_quiz_option">Answer: %1$s</string>
     <string name="cd_quiz_next">Go to the next question</string>
-    <string name="cd_switch_to_hindi">Switch the lesson to Hindi</string>
+    <!-- %1$s is the language's own endonym, so a screen reader announces the real target. -->
+    <string name="cd_switch_to_target">Switch the lesson to %1$s</string>
     <string name="cd_switch_to_english">Switch the lesson to English</string>
 </resources>

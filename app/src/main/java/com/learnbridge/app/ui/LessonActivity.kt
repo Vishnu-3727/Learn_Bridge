@@ -168,21 +168,20 @@ class LessonActivity : AppCompatActivity() {
         quizScroll.visibility = if (state.tab == LessonTab.QUIZ) View.VISIBLE else View.GONE
 
         when (state.tab) {
-            LessonTab.EXPLAIN -> renderExplain(state.explain)
+            LessonTab.EXPLAIN -> renderExplain(state.explain, state.lang)
             LessonTab.ASK -> renderAsk(state.ask)
             LessonTab.QUIZ -> renderQuiz(state.quiz)
         }
 
-        languageToggle.isEnabled = state.hindiAvailable
-        // Labelled with the target language's own endonym — हिंदी, मराठी, اردو — not a generic word.
+        languageToggle.isEnabled = state.translationAvailable
+        // Labelled with the target language's own endonym — हिंदी, मराठी, தமிழ், اردو — never a
+        // hardcoded language name. A Tamil lesson must not offer a button that says "हिंदी".
         val target = SupportedLanguage.byCode(state.translationLang) ?: SupportedLanguage.HINDI
         val switchingToTarget = state.lang == LessonPipeline.LANG_EN
-        languageToggle.text =
-            if (switchingToTarget) target.endonym else SupportedLanguage.ENGLISH.endonym
-        val switchingToHindi = switchingToTarget
-        languageToggle.text = getString(if (switchingToHindi) R.string.action_hindi else R.string.action_english)
+        languageToggle.text = if (switchingToTarget) target.endonym else SupportedLanguage.ENGLISH.endonym
         languageToggle.contentDescription = getString(
-            if (switchingToHindi) R.string.cd_switch_to_hindi else R.string.cd_switch_to_english,
+            if (switchingToTarget) R.string.cd_switch_to_target else R.string.cd_switch_to_english,
+            target.endonym,
         )
     }
 
@@ -202,7 +201,7 @@ class LessonActivity : AppCompatActivity() {
     }
 
     /** A database read, never a generation — so there is no spinner here, ever. */
-    private fun renderExplain(explain: ExplainUi) {
+    private fun renderExplain(explain: ExplainUi, requestedLang: String) {
         if (explain.points.isEmpty()) {
             contentText.text = getString(R.string.explain_unavailable)
             inlineStatus.visibility = View.GONE
@@ -210,7 +209,10 @@ class LessonActivity : AppCompatActivity() {
         }
         contentText.text = explain.points.joinToString("\n\n") { "• $it" }
         if (explain.fellBack) {
-            inlineStatus.text = getString(R.string.explain_fallback_english)
+            // Named in the language's own script, because the document may have been imported in
+            // any of the thirteen — "Hindi isn't ready" was wrong for twelve of them.
+            val requested = SupportedLanguage.byCode(requestedLang) ?: SupportedLanguage.HINDI
+            inlineStatus.text = getString(R.string.explain_fallback_english, requested.endonym)
             inlineStatus.visibility = View.VISIBLE
         } else {
             inlineStatus.visibility = View.GONE

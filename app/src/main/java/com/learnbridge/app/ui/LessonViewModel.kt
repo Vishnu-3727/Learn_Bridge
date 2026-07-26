@@ -35,8 +35,12 @@ data class LessonUiState(
     /** The language the Explain/Quiz artifacts are requested in. Ask always answers in English —
      *  see [LessonViewModel.sendQuestion]. */
     val lang: String = LessonPipeline.LANG_EN,
-    /** Whether this document has any Hindi artifacts at all. Gates the toggle; see [LessonViewModel.refreshHindiAvailability]. */
-    val hindiAvailable: Boolean = false,
+    /**
+     * Whether this document has artifacts in its target language at all. Gates the toggle; see
+     * [LessonViewModel.refreshTranslationAvailability]. Named for the language generally, not Hindi:
+     * a document may have been imported in any of the thirteen.
+     */
+    val translationAvailable: Boolean = false,
     /**
      * The non-English language this document was rendered into. Read from the document's own rows, so
      * a lesson imported in Marathi keeps showing Marathi even if the app's preference later changes.
@@ -160,7 +164,7 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
         _state.value = LessonUiState(docId = docId, docTitle = docTitle)
         loadExplain()
         loadQuiz()
-        refreshHindiAvailability()
+        refreshTranslationAvailability()
     }
 
     fun selectTab(tab: LessonTab) {
@@ -178,7 +182,7 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
      */
     fun toggleLanguage() {
         val current = _state.value
-        if (!current.hindiAvailable) return
+        if (!current.translationAvailable) return
         val newLang = otherLang(current.lang)
         _state.update { it.copy(lang = newLang) }
         loadExplain()
@@ -230,7 +234,7 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
      * Doc-level: true if EITHER artifact kind has a Hindi row. Checked once per doc, not per pane, so
      * the toggle can be disabled up front rather than discovered broken after a tap.
      */
-    private fun refreshHindiAvailability() {
+    private fun refreshTranslationAvailability() {
         val docId = _state.value.docId
         viewModelScope.launch(Dispatchers.IO) {
             // Which language this document actually carries, read from its rows rather than from the
@@ -239,7 +243,9 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
             val explain = code?.let { docStore.artifacts(docId, LessonPipeline.KIND_EXPLANATION, it) }.orEmpty()
             val quiz = code?.let { docStore.artifacts(docId, LessonPipeline.KIND_QUIZ, it) }.orEmpty()
             val available = explain.isNotEmpty() || quiz.isNotEmpty()
-            _state.update { it.copy(hindiAvailable = available, translationLang = code ?: LessonPipeline.LANG_HI) }
+            _state.update {
+                it.copy(translationAvailable = available, translationLang = code ?: LessonPipeline.LANG_HI)
+            }
         }
     }
 

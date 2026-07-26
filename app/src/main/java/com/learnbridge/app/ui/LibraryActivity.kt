@@ -201,7 +201,8 @@ class LibraryActivity : AppCompatActivity() {
         when (progress) {
             IngestProgress.Reading -> ingestStatus.setText(R.string.ingest_reading)
             IngestProgress.Teaching -> ingestStatus.setText(R.string.ingest_thinking)
-            IngestProgress.Translating -> ingestStatus.setText(R.string.ingest_translating)
+            IngestProgress.Translating ->
+                ingestStatus.text = getString(R.string.ingest_translating, app.targetLanguage.endonym)
 
             is IngestProgress.Done -> {
                 setBusy(false)
