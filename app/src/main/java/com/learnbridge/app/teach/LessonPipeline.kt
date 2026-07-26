@@ -11,7 +11,9 @@ import com.learnbridge.app.doc.chunk
 import com.learnbridge.app.lang.LessonTranslator
 import com.learnbridge.app.lang.SupportedLanguage
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onCompletion
 
 /** What the ingest screen renders. Every failure is a state, never an exception reaching the UI. */
 sealed interface IngestProgress {
@@ -61,39 +63,92 @@ class LessonPipeline(
     private val target: SupportedLanguage = SupportedLanguage.DEFAULT_TARGET,
 ) {
 
-    fun ingest(uri: Uri): Flow<IngestProgress> = flow {
-        emit(IngestProgress.Reading)
+    /**
+     * The whole ingest, as a stream of states.
+     *
+     * **Every throwable becomes [IngestProgress.Failed], and a document that does not finish is
+     * deleted.** The header above says failure is a state and never an exception, and this is where
+     * that is enforced rather than merely intended. Two things were wrong before:
+     *
+     *  1. `LibraryActivity` collects this flow with no `catch`, so anything thrown here — a full
+     *     disk, an ML Kit failure, a native generation error — crashed the process and left the
+     *     blocking ingest overlay up with both buttons disabled.
+     *  2. Only the empty-chunks path cleaned up after itself. Every other failure left a row at
+     *     `status = "importing"` that the library rendered as a normal lesson, opened empty, and
+     *     offered no way to retry or remove.
+     */
+    fun ingest(uri: Uri): Flow<IngestProgress> {
+        // Holds the row to clean up if this ingest does not reach STATUS_READY. Assigned inside the
+        // builder, read by the terminal operators below, which is why it lives out here.
+        var pending: Long? = null
 
-        val imported = DocImport.import(context, uri)
-        if (imported is ImportResult.Failure) {
-            emit(IngestProgress.Failed(imported.reason))
-            return@flow
+        return flow {
+            emit(IngestProgress.Reading)
+
+            val imported = DocImport.import(context, uri)
+            if (imported is ImportResult.Failure) {
+                emit(IngestProgress.Failed(imported.reason))
+                return@flow
+            }
+            val doc = imported as ImportResult.Success
+
+            val docId = store.insertDocument(doc.title, uri.toString(), doc.wordCount)
+            pending = docId
+
+            store.saveText(docId, doc.text)
+
+            val chunks = chunk(doc.text)
+            if (chunks.isEmpty()) {
+                store.deleteDocument(docId)
+                pending = null
+                emit(IngestProgress.Failed(ImportResult.Reason.EMPTY))
+                return@flow
+            }
+            store.insertChunks(docId, chunks)
+
+            // The opening chunks, not retrieved ones. For "teach me this document" the beginning is
+            // the right context; retrieval exists for answering a specific question later.
+            val lead = chunks.take(Prompts.MAX_CHUNKS)
+
+            emit(IngestProgress.Teaching)
+            val keyPoints = generateEnglish(docId, lead)
+
+            emit(IngestProgress.Translating)
+            translateInto(docId, keyPoints, target)
+
+            store.setStatus(docId, DocStore.STATUS_READY)
+            // Committed: from here the document is a real lesson and must survive a cancelled
+            // collector — the student may well have navigated away while it finished.
+            pending = null
+            emit(IngestProgress.Done(docId, doc.title))
         }
-        val doc = imported as ImportResult.Success
+            // `.catch`, not a try/catch around the body. A try/catch wrapping `emit` also catches
+            // exceptions thrown by the *collector*, and emitting again from there fails with "Flow
+            // exception transparency is violated" — masking the real error with a worse one.
+            .catch { t ->
+                Log.e(TAG, "doc ${pending ?: -1}: ingest failed", t)
+                discard(pending)
+                pending = null
+                emit(IngestProgress.Failed(ImportResult.Reason.UNREADABLE))
+            }
+            // Cancellation does not pass through `.catch`. The collecting scope dies whenever the
+            // student leaves the screen mid-ingest, and without this the half-built row would
+            // outlive it: visible in the library, openable, permanently empty.
+            .onCompletion { cause ->
+                if (cause != null) discard(pending)
+            }
+    }
 
-        val docId = store.insertDocument(doc.title, uri.toString(), doc.wordCount)
-        store.saveText(docId, doc.text)
-
-        val chunks = chunk(doc.text)
-        if (chunks.isEmpty()) {
-            store.deleteDocument(docId)
-            emit(IngestProgress.Failed(ImportResult.Reason.EMPTY))
-            return@flow
-        }
-        store.insertChunks(docId, chunks)
-
-        // The opening chunks, not retrieved ones. For "teach me this document" the beginning is the
-        // right context; retrieval exists for answering a specific question later.
-        val lead = chunks.take(Prompts.MAX_CHUNKS)
-
-        emit(IngestProgress.Teaching)
-        val keyPoints = generateEnglish(docId, lead)
-
-        emit(IngestProgress.Translating)
-        translateInto(docId, keyPoints, target)
-
-        store.setStatus(docId, STATUS_READY)
-        emit(IngestProgress.Done(docId, doc.title))
+    /**
+     * Removes a document that never finished importing.
+     *
+     * Best-effort by design: this runs on a failure path, and a failure to clean up after a failure
+     * must not replace the original error with a second one.
+     */
+    private fun discard(docId: Long?) {
+        if (docId == null) return
+        runCatching { store.deleteDocument(docId) }
+            .onFailure { Log.w(TAG, "doc $docId: could not remove the unfinished document", it) }
     }
 
     /**
@@ -107,7 +162,15 @@ class LessonPipeline(
         var keyPoints = emptyList<String>()
 
         modelHost.withTeacher { teacher ->
-            keyPoints = LessonParser.parseKeyPoints(teacher.collect(TeachRequest.Explain(lead)))
+            // Attempted independently, exactly like the quiz below. Generation can fail mid-stream
+            // (Teacher.stream documents this), and a document with a quiz but no explanation is
+            // still worth keeping — the same reasoning that already protected the quiz.
+            keyPoints = runCatching {
+                LessonParser.parseKeyPoints(teacher.collect(TeachRequest.Explain(lead)))
+            }.getOrElse {
+                Log.w(TAG, "doc $docId: key-point generation failed (${it.message})")
+                emptyList()
+            }
             keyPoints.forEachIndexed { i, point ->
                 store.putArtifact(docId, KIND_EXPLANATION, LANG_EN, i, point)
             }
@@ -181,8 +244,12 @@ class LessonPipeline(
         const val KIND_EXPLANATION = "explanation"
         const val KIND_QUIZ = "quiz"
         const val LANG_EN = "en"
+
+        /**
+         * The fallback target language code, used when a document carries no translation at all.
+         * Not "the language this app translates into" — that is [SupportedLanguage], thirteen wide.
+         */
         const val LANG_HI = "hi"
-        const val STATUS_READY = "ready"
     }
 }
 

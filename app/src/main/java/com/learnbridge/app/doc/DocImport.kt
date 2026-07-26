@@ -3,6 +3,7 @@ package com.learnbridge.app.doc
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -11,6 +12,7 @@ import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.text.PDFTextStripper
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -40,6 +42,7 @@ sealed class ImportResult {
  */
 object DocImport {
 
+    private const val TAG = "DocImport"
     private const val TITLE_MAX_LEN = 60
 
     suspend fun import(context: Context, uri: Uri): ImportResult = withContext(Dispatchers.IO) {
@@ -51,9 +54,23 @@ object DocImport {
                 DocKind.IMAGE -> extractImageText(context, uri)
                 DocKind.UNKNOWN -> return@withContext ImportResult.Failure(ImportResult.Reason.UNSUPPORTED)
             }
-        } catch (e: IOException) {
+        } catch (cancellation: CancellationException) {
+            // Not a failure to report — the caller went away. Rethrown so structured concurrency
+            // still works; catching it below as an ordinary Exception would silently swallow it.
+            throw cancellation
+        } catch (e: Exception) {
+            // Deliberately broad. IOException and SecurityException were the only cases handled, and
+            // neither covers what the extractors actually throw: PdfBox raises its own unchecked
+            // types for a malformed page tree or an encrypted file, and ML Kit resumes the
+            // coroutine with whatever its recognizer failed with. Those reached the collector as a
+            // crash. Every extraction failure is the same thing to a student — "no text could be
+            // read from that file" — so they are reported as that, and logged for us.
+            Log.w(TAG, "Extraction failed for $kind: ${e.javaClass.simpleName}: ${e.message}")
             return@withContext ImportResult.Failure(ImportResult.Reason.UNREADABLE)
-        } catch (e: SecurityException) {
+        } catch (e: OutOfMemoryError) {
+            // A very large PDF can exhaust heap inside PdfBox despite the temp-file setting. The app
+            // must lose the import, not the process.
+            Log.w(TAG, "Out of memory extracting $kind")
             return@withContext ImportResult.Failure(ImportResult.Reason.UNREADABLE)
         }
 

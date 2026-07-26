@@ -29,8 +29,9 @@ class DocStoreTest {
     }
 
     @Test
-    fun `insertDocument then listDocuments round-trips the row`() {
+    fun `insertDocument then listDocuments round-trips a finished document`() {
         val id = store.insertDocument("Photosynthesis", "content://x/1", 342)
+        store.setStatus(id, DocStore.STATUS_READY)
 
         val rows = store.listDocuments()
 
@@ -39,7 +40,19 @@ class DocStoreTest {
         assertEquals("Photosynthesis", rows[0].title)
         assertEquals("content://x/1", rows[0].sourceUri)
         assertEquals(342, rows[0].wordCount)
-        assertEquals("importing", rows[0].status) // insertDocument's default status
+        assertEquals(DocStore.STATUS_READY, rows[0].status)
+    }
+
+    /**
+     * The load-bearing assertion for the ghost-document bug: an ingest that never finished must not
+     * appear in the library at all. It used to, and it opened to an empty lesson with no way to
+     * retry or remove it.
+     */
+    @Test
+    fun `listDocuments hides a document that never finished importing`() {
+        store.insertDocument("Half-imported", null, 10) // left at STATUS_IMPORTING
+
+        assertTrue(store.listDocuments().isEmpty())
     }
 
     @Test
@@ -47,16 +60,22 @@ class DocStoreTest {
         val a = store.insertDocument("A", null, 1)
         val b = store.insertDocument("B", null, 1)
 
-        store.setStatus(a, "ready")
+        store.setStatus(a, DocStore.STATUS_READY)
 
-        val rows = store.listDocuments().associateBy { it.id }
-        assertEquals("ready", rows.getValue(a).status)
-        assertEquals("importing", rows.getValue(b).status)
+        val listed = store.listDocuments()
+        // Only A is listed, because only A finished — which is the point of filtering on status.
+        assertEquals(listOf(a), listed.map { it.id })
+        assertEquals(DocStore.STATUS_READY, listed.single().status)
+
+        // B is still in the table, just not shown; setStatus must not have touched it.
+        store.setStatus(b, DocStore.STATUS_READY)
+        assertEquals(setOf(a, b), store.listDocuments().map { it.id }.toSet())
     }
 
     @Test
     fun `deleteDocument leaves no orphan rows in chunks, artifacts or quiz_results`() {
         val docId = store.insertDocument("Doc", null, 10)
+        store.setStatus(docId, DocStore.STATUS_READY)
         store.insertChunks(docId, listOf(Chunk(0, "intro"), Chunk(1, "body")))
         store.putArtifact(docId, "explanation", "en", 0, "explanation text")
         store.recordQuizResult(docId, 0, correct = true)

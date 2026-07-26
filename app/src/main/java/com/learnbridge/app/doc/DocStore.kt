@@ -100,7 +100,7 @@ class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_V
             put("sourceUri", sourceUri)
             put("wordCount", wordCount)
             put("ingestedAt", System.currentTimeMillis())
-            put("status", "importing")
+            put("status", STATUS_IMPORTING)
         }
         return writableDatabase.insert("documents", null, values)
     }
@@ -133,11 +133,20 @@ class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_V
         }
     }
 
+    /**
+     * Every document that finished importing, newest first.
+     *
+     * Filtered on `status`, which is why that column exists. [LessonPipeline] deletes a document
+     * that fails partway through, but a process kill can land between the insert and that cleanup —
+     * and an unfinished row rendered in the library is indistinguishable from a real lesson until
+     * the student opens it and finds it empty, with no way to retry or remove it.
+     */
     fun listDocuments(): List<DocumentRow> {
         val rows = mutableListOf<DocumentRow>()
         readableDatabase.rawQuery(
-            "SELECT id, title, sourceUri, wordCount, ingestedAt, status FROM documents ORDER BY ingestedAt DESC",
-            null,
+            "SELECT id, title, sourceUri, wordCount, ingestedAt, status FROM documents " +
+                "WHERE status = ? ORDER BY ingestedAt DESC",
+            arrayOf(STATUS_READY),
         ).use { cursor ->
             while (cursor.moveToNext()) {
                 rows += DocumentRow(
@@ -239,10 +248,21 @@ class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_V
         return if (file.exists()) file.readText() else null
     }
 
-    private companion object {
-        const val DB_NAME = "learnbridge_docs.db"
-        const val DB_VERSION = 1
+    companion object {
+        private const val DB_NAME = "learnbridge_docs.db"
+        private const val DB_VERSION = 1
 
-        fun docsDir(context: Context) = File(context.filesDir, "docs")
+        /**
+         * The status a document reaches only once its lesson is fully generated and persisted.
+         *
+         * Declared here rather than in [LessonPipeline] because this class filters on it — the writer
+         * and the reader must not be able to drift apart on the spelling of a magic string.
+         */
+        const val STATUS_READY = "ready"
+
+        /** A document whose ingest has started but not finished. Never shown in the library. */
+        const val STATUS_IMPORTING = "importing"
+
+        private fun docsDir(context: Context) = File(context.filesDir, "docs")
     }
 }
