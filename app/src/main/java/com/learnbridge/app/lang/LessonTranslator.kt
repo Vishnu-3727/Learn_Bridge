@@ -73,10 +73,13 @@ class LessonTranslator(private val modelHost: ModelHost) {
                             // The model writes every Indic language in script-unified Devanagari, so
                             // southern and eastern scripts are converted here rather than by the
                             // engine. A no-op for Hindi, Marathi, Nepali, Sanskrit and Urdu.
-                            BrahmicTransliterator.transliterate(
+                            val script = BrahmicTransliterator.transliterate(
                                 engine.translate(fragment, targetId),
                                 language.scriptOffset,
                             )
+                            // The single place every translated fragment passes through, which is why
+                            // punctuation is repaired here rather than at each of the callers.
+                            normalizePunctuation(script, language)
                         }
                             // A fragment the engine chokes on falls back to the English text rather
                             // than blanking the line. Partly-translated output beats a hole.
@@ -222,6 +225,69 @@ class LessonTranslator(private val modelHost: ModelHost) {
 
         internal fun wordCount(text: String): Int =
             if (text.isBlank()) 0 else text.trim().split(Regex("\\s+")).size
+
+        /**
+         * Punctuation the model detokenizes as a free-standing token, and so emits with a space in
+         * front of it. Danda, double danda, the Arabic full stop and the ASCII pipe are all included
+         * because every one of them was observed in real device output.
+         */
+        private val TIGHT_PUNCTUATION = charArrayOf(
+            ',', ';', ':', '.', '!', '?', '।', '॥', '۔', '|', '་',
+        )
+
+        /**
+         * A pipe standing in for a danda. IndicTrans2's Odia output writes sentence-final `|`
+         * (U+007C) rather than `।` (U+0964) — an artefact of the Odia training corpora, where the
+         * two are routinely conflated. Left unrepaired, an Odia lesson ends every sentence with an
+         * ASCII pipe.
+         */
+        private const val PIPE_AS_DANDA = '|'
+
+        /**
+         * Repairs the punctuation of one translated fragment.
+         *
+         * The model detokenizes punctuation as separate tokens, so its raw output reads
+         * "…बन जाते हैं ।" with a space before the danda, and Sanskrit came back with " ," mid-sentence.
+         * It also picks its own sentence terminator, which is how Marathi rendered a Latin full stop
+         * even though [SupportedLanguage.MARATHI] declares a danda: [joinTranslated] saw the fragment
+         * as already terminated and dropped the danda it was about to add. Normalising here makes the
+         * enum authoritative, which is what the rest of this class already assumes.
+         *
+         * Pure, so the rules are unit-testable without a device or a loaded model.
+         */
+        internal fun normalizePunctuation(text: String, language: SupportedLanguage): String {
+            val out = StringBuilder(text.length)
+            for (ch in text) {
+                val c = if (ch == PIPE_AS_DANDA && language.terminator != PIPE_AS_DANDA) language.terminator else ch
+                // Close up the space the detokenizer left in front of punctuation. Only spaces are
+                // dropped, never a preceding letter, so this cannot merge two words.
+                if (c in TIGHT_PUNCTUATION) {
+                    while (out.isNotEmpty() && out.last() == ' ') out.setLength(out.length - 1)
+                }
+                out.append(c)
+            }
+
+            // The model's choice of sentence terminator does not outrank the language's. Applied only
+            // to the final character, so decimals and abbreviations mid-fragment are untouched.
+            //
+            // ponytail: last character only. A fragment holding two sentences would keep the model's
+            // terminator on the first; fragments are split per sentence upstream, so that does not
+            // arise today. Widen to every sentence boundary if splitForTranslation ever stops doing that.
+            val trimmed = out.toString().trimEnd()
+            val last = trimmed.lastOrNull() ?: return trimmed
+            return if (last in SENTENCE_ENDINGS && last != language.terminator) {
+                trimmed.dropLast(1) + language.terminator
+            } else {
+                trimmed
+            }
+        }
+
+        /**
+         * Terminators that end a statement, and so are interchangeable between languages. `!` and `?`
+         * are deliberately absent: they carry meaning the language's own full stop does not, and are
+         * written the same way in every script here.
+         */
+        private val SENTENCE_ENDINGS = charArrayOf('.', '।', '۔')
 
         /**
          * Appends a fragment's original punctuation to its translation — **unless the translation

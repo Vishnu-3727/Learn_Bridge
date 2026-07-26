@@ -212,4 +212,86 @@ class LessonTranslatorTest {
         assertEquals(3, LessonTranslator.wordCount("  one   two \n three  "))
         assertEquals(0, LessonTranslator.wordCount("   "))
     }
+
+    // --- Punctuation repair. Every input below is real device output, copied from the log of
+    // AllLanguagesDeviceTest before this was fixed. ---
+
+    private fun normalize(text: String, language: SupportedLanguage) =
+        LessonTranslator.normalizePunctuation(text, language)
+
+    @Test
+    fun `the space the detokenizer leaves before a danda is closed up`() {
+        assertEquals(
+            "समुद्र से पानी वाष्पित हो जाता है और आकाश में बादल बन जाते हैं।",
+            normalize("समुद्र से पानी वाष्पित हो जाता है और आकाश में बादल बन जाते हैं ।", SupportedLanguage.HINDI),
+        )
+    }
+
+    @Test
+    fun `a space before a mid-sentence comma is closed up too`() {
+        assertEquals(
+            "समुद्रेण जलं बाष्पीभवति, आकाशे मेघान् च निर्माति।",
+            normalize("समुद्रेण जलं बाष्पीभवति , आकाशे मेघान् च निर्माति ।", SupportedLanguage.SANSKRIT),
+        )
+    }
+
+    @Test
+    fun `the language's terminator outranks the one the model chose`() {
+        // Marathi declares a danda, but the model emits a Latin full stop; joinTranslated then saw the
+        // fragment as already terminated and dropped the danda, so Marathi read as English punctuation.
+        assertEquals(
+            "समुद्रातून पाणी बाष्पीभवन होते आणि आकाशात ढग तयार होतात।",
+            normalize("समुद्रातून पाणी बाष्पीभवन होते आणि आकाशात ढग तयार होतात .", SupportedLanguage.MARATHI),
+        )
+    }
+
+    @Test
+    fun `Odia's pipe standing in for a danda becomes a danda`() {
+        assertEquals(
+            "ସମୁଦ୍ରରୁ ଜଳ ବାଷ୍ପୀଭୂତ ହୋଇ ଆକାଶରେ ମେଘ ସୃଷ୍ଟି କରେ।",
+            normalize("ସମୁଦ୍ରରୁ ଜଳ ବାଷ୍ପୀଭୂତ ହୋଇ ଆକାଶରେ ମେଘ ସୃଷ୍ଟି କରେ |", SupportedLanguage.ODIA),
+        )
+    }
+
+    @Test
+    fun `Tamil keeps the full stop it declares`() {
+        // The southern languages declare '.', so there is nothing to rewrite — only the space to close.
+        assertEquals(
+            "கடலில் இருந்து நீர் ஆவியாகிறது.",
+            normalize("கடலில் இருந்து நீர் ஆவியாகிறது .", SupportedLanguage.TAMIL),
+        )
+    }
+
+    @Test
+    fun `Urdu keeps the Arabic full stop`() {
+        assertEquals(
+            "سمندر سے پانی بخارات میں تبدیل ہو جاتا ہے۔",
+            normalize("سمندر سے پانی بخارات میں تبدیل ہو جاتا ہے ۔", SupportedLanguage.URDU),
+        )
+    }
+
+    @Test
+    fun `a question mark is not rewritten into a full stop`() {
+        // '?' carries meaning a danda does not, so it survives even though it is a terminator.
+        assertEquals("यह क्या है?", normalize("यह क्या है ?", SupportedLanguage.HINDI))
+    }
+
+    @Test
+    fun `a decimal point mid-fragment is left alone`() {
+        // Only the final character is rewritten, so an interior '.' is not touched.
+        assertEquals("तापमान 98.6 डिग्री है।", normalize("तापमान 98.6 डिग्री है ।", SupportedLanguage.HINDI))
+    }
+
+    @Test
+    fun `punctuation repair never merges two words`() {
+        // Only spaces immediately before punctuation are dropped — letters are never consumed.
+        assertEquals("एक, दो, तीन।", normalize("एक , दो , तीन ।", SupportedLanguage.HINDI))
+    }
+
+    @Test
+    fun `an unterminated fragment is left unterminated`() {
+        // Clause pieces from an over-long sentence arrive without punctuation; inventing a terminator
+        // here would put a danda in the middle of a rejoined sentence.
+        assertEquals("आकाश में बादल", normalize("आकाश में बादल", SupportedLanguage.HINDI))
+    }
 }

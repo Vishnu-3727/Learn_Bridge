@@ -43,13 +43,28 @@ class AllLanguagesDeviceTest {
                 continue
             }
 
+            // The same two post-processing steps LessonTranslator applies, in the same order, so this
+            // measures what a student actually sees rather than the engine's raw output.
             val raw = engine.translate(SENTENCE, targetId)
-            val out = BrahmicTransliterator.transliterate(raw, language.scriptOffset)
+            val out = LessonTranslator.normalizePunctuation(
+                BrahmicTransliterator.transliterate(raw, language.scriptOffset),
+                language,
+            )
             Log.i(TAG, "${language.code} (${language.endonym}): $out")
 
             if (out.isBlank()) {
                 failures += "${language.code}: blank output"
                 continue
+            }
+
+            // Each language ends its sentences its own way, and the model does not reliably agree —
+            // it emitted a Latin full stop for Marathi and an ASCII pipe for Odia. A space in front of
+            // the terminator is the detokenizer's, and equally visible on screen.
+            if (out.last() != language.terminator) {
+                failures += "${language.code}: ends with '${out.last()}', expected '${language.terminator}' — \"$out\""
+            }
+            if (out.contains(" ${language.terminator}") || out.contains(" ,")) {
+                failures += "${language.code}: space before punctuation in \"$out\""
             }
 
             // Urdu is Perso-Arabic, reached through its own vocabulary coverage rather than an offset,
