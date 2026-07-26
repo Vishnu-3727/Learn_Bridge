@@ -13,16 +13,17 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.bhashabridge.app.Direction
 import com.bhashabridge.app.speech.Tts
 import com.learnbridge.app.R
 import com.learnbridge.app.lang.SupportedLanguage
 import com.learnbridge.app.teach.LessonPipeline
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 /**
  * Purpose:  The demo spine. One document, three modes — Explain, Ask, Quiz — with a language toggle
@@ -326,33 +327,57 @@ class LessonActivity : AppCompatActivity() {
         }
     }
 
-    /** Speaks whatever is currently on screen, in the language currently displayed. Ask is always
-     *  answered in English (see [LessonViewModel.sendQuestion]), so it always uses the English voice. */
+    /**
+     * Speaks whatever is currently on screen, in the language it is actually written in.
+     *
+     * The voice comes from [SupportedLanguage.locale], not from a two-valued direction. Passing a
+     * direction here is what made every non-English lesson — Tamil, Bengali, Urdu, all of them —
+     * come out of the Hindi voice.
+     *
+     * Ask is always answered in English (see [LessonViewModel.sendQuestion]), so it is the one pane
+     * whose voice does not follow the lesson language.
+     */
     private fun speakCurrent() {
         val state = lastState ?: return
         if (!tts.ready) return
         tts.stop()
 
-        val (text, direction) = when (state.tab) {
-            LessonTab.EXPLAIN -> state.explain.points.joinToString(". ") to directionFor(state.explain.displayedLang)
-            LessonTab.ASK -> ((state.ask.output as? AskOutput.Final)?.answer ?: "") to Direction.HI_TO_EN
+        val (text, locale) = when (state.tab) {
+            LessonTab.EXPLAIN ->
+                // displayedLang, not state.lang: Explain falls back to English when the requested
+                // language has no rows yet, and the voice must follow what is on screen.
+                state.explain.points.joinToString(". ") to localeFor(state.explain.displayedLang)
+            LessonTab.ASK ->
+                ((state.ask.output as? AskOutput.Final)?.answer ?: "") to SupportedLanguage.ENGLISH.locale
             LessonTab.QUIZ -> quizSpeechFor(state)
         }
-        if (text.isNotBlank()) tts.speak(text, direction)
+        if (text.isBlank()) return
+
+        // Most devices ship no voice data for Odia, Sanskrit or Kannada. Tts falls back to the
+        // English voice rather than going silent, but the student deserves to know why the words
+        // sound wrong, and how to fix it.
+        if (!tts.voiceAvailable(locale)) {
+            val language = SupportedLanguage.entries.firstOrNull { it.locale == locale }
+            Toast.makeText(
+                this,
+                getString(R.string.tts_voice_missing, language?.endonym ?: locale.displayLanguage),
+                Toast.LENGTH_LONG,
+            ).show()
+        }
+        tts.speak(text, locale)
     }
 
-    private fun quizSpeechFor(state: LessonUiState): Pair<String, Direction> {
+    private fun quizSpeechFor(state: LessonUiState): Pair<String, Locale> {
         val quiz = state.quiz
-        if (quiz.items.isEmpty() || quiz.isDone) return "" to Direction.HI_TO_EN
+        if (quiz.items.isEmpty() || quiz.isDone) return "" to SupportedLanguage.ENGLISH.locale
         val item = quiz.items[quiz.currentIndex]
         val (options, _) = item.shuffledOptions()
-        return (listOf(item.question) + options).joinToString(". ") to directionFor(state.lang)
+        return (listOf(item.question) + options).joinToString(". ") to localeFor(state.lang)
     }
 
-    private fun directionFor(lang: String): Direction =
-        // Direction picks the voice: EN_TO_HI selects the target-language voice, HI_TO_EN the English
-        // one. Any non-English lesson language uses the former.
-        if (lang != LessonPipeline.LANG_EN) Direction.EN_TO_HI else Direction.HI_TO_EN
+    /** The voice for a language code, falling back to English for an unknown one. */
+    private fun localeFor(lang: String): Locale =
+        (SupportedLanguage.byCode(lang) ?: SupportedLanguage.ENGLISH).locale
 
     companion object {
         const val EXTRA_DOC_ID = "doc_id"
