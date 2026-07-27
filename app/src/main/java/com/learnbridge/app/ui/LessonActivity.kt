@@ -95,8 +95,14 @@ class LessonActivity : AppCompatActivity() {
         // points. Switching back still catches up, because renderAsk replays [streamed].
         lifecycleScope.launch {
             viewModel.tokens.collect { token ->
+                val first = streamed.isEmpty()
                 streamed.append(token)
-                if (lastState?.tab == LessonTab.ASK) contentText.append(token)
+                if (lastState?.tab == LessonTab.ASK) {
+                    // The first token is what retires the "thinking" line; there is no state change
+                    // at this moment for render() to react to.
+                    if (first) inlineStatus.visibility = View.GONE
+                    contentText.append(token)
+                }
             }
         }
     }
@@ -280,7 +286,11 @@ class LessonActivity : AppCompatActivity() {
                 // .toString(): TextView keeps the CharSequence it is handed, and handing it the live
                 // builder means every later append mutates text the view believes it already laid out.
                 contentText.text = streamed.toString()
-                inlineStatus.visibility = View.GONE
+                // Streaming starts before the first token exists — acquiring the teacher can take
+                // seconds when a model has to be swapped in. Dropping the line there left an empty
+                // pane with a disabled button, which reads as a hang. Observed on device.
+                inlineStatus.text = getString(R.string.ask_thinking)
+                inlineStatus.visibility = if (streamed.isEmpty()) View.VISIBLE else View.GONE
             }
 
             is AskOutput.Final -> {
