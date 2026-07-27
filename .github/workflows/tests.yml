@@ -1,0 +1,37 @@
+name: tests
+
+# The model weights are not in the repository, so this can never assemble an APK — and does not try.
+# It runs the JVM test suites, which is the whole of what CI can honestly verify here. The one test
+# that needs a staged vocabulary (TokenizerTest's real EN-HI dictionary case) already skips itself
+# with assumeTrue when the file is absent, so a weightless checkout is a green checkout, not a lie.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 21 because that is the JBR the project is developed against; the modules compile to 17.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # ubuntu-latest ships an Android SDK but not platform 36.1. This accepts the licences so
+      # Gradle can fetch it rather than failing on a licence prompt no one is there to answer.
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - run: ./gradlew :app:testDebugUnitTest :engine:testDebugUnitTest
+
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: '**/build/reports/tests/'
