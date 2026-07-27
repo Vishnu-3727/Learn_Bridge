@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
@@ -62,14 +63,43 @@ class LibraryActivity : AppCompatActivity() {
     private val capturePage = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val uri = pendingCaptureUri
         pendingCaptureUri = null
-        if (result.resultCode == RESULT_OK && uri != null) ingest(uri)
+        Log.i(TAG, "capture returned: resultCode=${result.resultCode} uri=$uri")
+
+        // The photo on disk, not the result code, decides. A camera app writes the file before it
+        // returns, and some — Samsung's among the reported cases — then return something other than
+        // RESULT_OK anyway. Trusting the code alone silently threw away a page the student had
+        // already framed, shot and confirmed: the screen simply came back with nothing on it.
+        //
+        // A genuine cancel leaves no file, so it still falls through to silence, which is correct.
+        when {
+            uri == null -> Log.w(TAG, "Capture returned with no pending Uri — the photo is lost")
+            hasContent(uri) -> ingest(uri)
+            else -> Log.i(TAG, "Capture cancelled — nothing was written")
+        }
     }
 
+    /**
+     * True when [uri] resolves to at least one byte. Reads a single byte rather than stat-ing a path,
+     * because what came back is a content Uri and the question is only whether the camera wrote
+     * anything to it.
+     */
+    private fun hasContent(uri: Uri): Boolean = runCatching {
+        contentResolver.openInputStream(uri)?.use { it.read() != -1 } ?: false
+    }.onFailure { Log.w(TAG, "Could not read back the capture: ${it.message}") }.getOrDefault(false)
+
+    /**
+     * Which file the camera was told to write. Restored in [onCreate] because the camera runs in its
+     * own process and this one can be killed behind it — on the low-memory phones this app targets,
+     * that is a routine event, not an edge case. Losing this field meant the result arrived with
+     * nowhere to read the photo from, and the import was dropped without a word.
+     */
     private var pendingCaptureUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_library)
+
+        pendingCaptureUri = savedInstanceState?.getString(KEY_PENDING_CAPTURE)?.let(Uri::parse)
 
         documentList = findViewById(R.id.documentList)
         emptyState = findViewById(R.id.emptyState)
@@ -118,6 +148,11 @@ class LibraryActivity : AppCompatActivity() {
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        pendingCaptureUri?.let { outState.putString(KEY_PENDING_CAPTURE, it.toString()) }
     }
 
     override fun onResume() {
@@ -262,6 +297,9 @@ class LibraryActivity : AppCompatActivity() {
         kotlinx.coroutines.withContext(Dispatchers.IO) { block() }
 
     private companion object {
+        const val TAG = "LibraryActivity"
+        const val KEY_PENDING_CAPTURE = "pending_capture_uri"
+
         /**
          * Plain text and markdown first — the path with no extraction failure modes — plus PDF and
          * images. A text wildcard rather than "text/plain" exactly, because content providers label
