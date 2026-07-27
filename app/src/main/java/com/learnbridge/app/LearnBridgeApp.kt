@@ -112,7 +112,7 @@ class LearnBridgeApp : Application() {
      * what the app has concluded about a student does not sit on disk indefinitely afterwards.
      */
     fun writeExports(files: List<Pair<String, String>>): List<Uri> = runCatching {
-        val dir = File(filesDir, "export").apply {
+        val dir = exportDir.apply {
             listFiles()?.forEach { it.delete() }
             mkdirs()
         }
@@ -121,7 +121,34 @@ class LearnBridgeApp : Application() {
             file.writeText(content)
             FileProvider.getUriForFile(this, "$packageName.files", file)
         }
-    }.onFailure { Log.w(TAG, "Could not write the export: ${it.message}") }.getOrDefault(emptyList())
+    }.onFailure {
+        Log.w(TAG, "Could not write the export: ${it.message}")
+        // A half-written export is not just useless, it is a file of learner data left behind by a
+        // failure nobody was told about. Clear it rather than wait for the next export to do it.
+        clearExports()
+    }.getOrDefault(emptyList())
+
+    /**
+     * Everything the student can ask to be forgotten, removed in one call.
+     *
+     * One method rather than three at the call site, and that is the point: deletion used to be
+     * "empty the database, then prune the captures", and the export directory — which holds a file
+     * spelling out what the app concluded about the student — was simply not on that list. A control
+     * labelled "delete everything" that leaves their data on disk is the one bug in here that would
+     * have mattered most. Anything added to the app that persists learner data belongs in this
+     * method, not in a caller.
+     */
+    fun eraseAllLearnerData() {
+        docStore.deleteEverything()
+        pruneCaptures()
+        clearExports()
+    }
+
+    private fun clearExports() {
+        exportDir.listFiles()?.forEach { it.delete() }
+    }
+
+    private val exportDir: File get() = File(filesDir, "export")
 
     /**
      * Deletes every captured page. Ingest reads the photo once and never needs it again, and each one

@@ -230,6 +230,67 @@ class LessonViewModelTest {
         )
     }
 
+    // --- a quiz with no questions ---
+
+    /**
+     * A document the generator produced no questions for still reaches this class: the Quiz tab
+     * renders "no questions could be generated" from the same empty [QuizUi]. Nothing in the UI can
+     * be tapped in that state today, so this was a hole rather than a live crash — but [QuizUi.isDone]
+     * is false for an empty quiz, so the guard in [QuizUi.answer] let an empty list fall through to
+     * `items[0]`. One stray call was all it needed.
+     */
+    @Test
+    fun `answering an empty quiz does nothing instead of crashing`() {
+        val empty = QuizUi(items = emptyList())
+
+        val answered = empty.answer(0)
+
+        assertEquals(empty, answered)
+        assertFalse(answered.answered)
+        assertEquals(0, answered.score)
+    }
+
+    @Test
+    fun `advancing an empty quiz does nothing`() {
+        val empty = QuizUi(items = emptyList())
+
+        assertEquals(empty, empty.next())
+    }
+
+    @Test
+    fun `an empty quiz reports no median latency`() {
+        assertEquals(0L, QuizUi(items = emptyList()).medianLatencyMs)
+    }
+
+    // --- answer latency, which is what the Twin reads confidence from ---
+
+    @Test
+    fun `answering records how long the question was on screen`() {
+        val shown = 1_000_000L
+        val quiz = QuizUi(items = listOf(q1, q2), shownAt = shown)
+
+        val answered = quiz.answer(0, now = shown + 4_000)
+
+        assertEquals(listOf(4_000L), answered.latenciesMs)
+    }
+
+    /** A quiz restored without a display timestamp must not report a latency measured from the epoch. */
+    @Test
+    fun `an unknown display time records no latency at all`() {
+        val quiz = QuizUi(items = listOf(q1, q2), shownAt = 0L)
+
+        val answered = quiz.answer(0, now = 1_800_000_000_000L)
+
+        assertTrue("a 56-year latency would wreck the confidence estimate", answered.latenciesMs.isEmpty())
+    }
+
+    @Test
+    fun `the median ignores one interrupted question`() {
+        val quiz = QuizUi(items = listOf(q1, q2), latenciesMs = listOf(3_000, 4_000, 900_000))
+
+        assertEquals(4_000L, quiz.medianLatencyMs)
+    }
+
     /** Stands in for the same item rendered in another language: different strings, same structure. */
     private fun hindi(item: QuizItem) = QuizItem(
         question = "अनुवादित: ${item.question}",

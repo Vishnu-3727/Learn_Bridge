@@ -34,9 +34,13 @@ object Revision {
      *  "forgotten", and without a cap one ancient document would outrank everything forever. */
     private const val OVERDUE_SATURATION_DAYS = 14.0
 
+    /**
+     * A document and why it surfaced. [score] is kept because it is what the ordering means and what
+     * the tests assert on; nothing else is carried, because a field nobody reads is a field the next
+     * reader has to work out the meaning of.
+     */
     data class Candidate(
         val document: DocStore.DocumentRow,
-        val mastery: Mastery?,
         val score: Double,
     )
 
@@ -53,7 +57,7 @@ object Revision {
         mastery: Map<Long, Mastery>,
         now: Long = System.currentTimeMillis(),
     ): List<Candidate> = documents
-        .map { doc -> Candidate(doc, mastery[doc.id], score(mastery[doc.id], now)) }
+        .map { doc -> Candidate(doc, score(mastery[doc.id], now)) }
         .filter { it.score > 0.0 }
         .sortedWith(compareByDescending<Candidate> { it.score }.thenByDescending { it.document.ingestedAt })
 

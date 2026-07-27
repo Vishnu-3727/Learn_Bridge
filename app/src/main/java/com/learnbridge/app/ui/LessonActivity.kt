@@ -404,7 +404,9 @@ class LessonActivity : AppCompatActivity() {
         quizOptions.visibility = View.VISIBLE
         quizProgress.text = getString(R.string.quiz_progress, quiz.currentIndex + 1, quiz.total)
 
-        val item = quiz.items[quiz.currentIndex]
+        // Both branches above already return, so this cannot be null — asking anyway costs nothing
+        // and means a future edit to either guard cannot turn this line into an index crash.
+        val item = quiz.current ?: return
         quizQuestion.text = item.question
         val (options, correctIndex) = item.shuffledOptions()
 
@@ -493,8 +495,9 @@ class LessonActivity : AppCompatActivity() {
 
     private fun quizSpeechFor(state: LessonUiState): Pair<String, Locale> {
         val quiz = state.quiz
-        if (quiz.items.isEmpty() || quiz.isDone) return "" to SupportedLanguage.ENGLISH.locale
-        val item = quiz.items[quiz.currentIndex]
+        // One question — "is there something on screen to read aloud" — instead of two guards that
+        // have to be kept in step with how the quiz decides it has a current question.
+        val item = quiz.current ?: return "" to SupportedLanguage.ENGLISH.locale
         val (options, _) = item.shuffledOptions()
         return (listOf(item.question) + options).joinToString(". ") to localeFor(state.lang)
     }

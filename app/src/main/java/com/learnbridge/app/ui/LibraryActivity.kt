@@ -226,12 +226,17 @@ class LibraryActivity : AppCompatActivity() {
             // appears to succeed while delivering nothing.
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        val chooser = Intent.createChooser(intent, getString(R.string.privacy_export_share))
-        if (intent.resolveActivity(packageManager) == null) {
+        // Started inside runCatching rather than gated on resolveActivity(intent). From API 30 that
+        // call answers through the package-visibility filter and returns null for apps this one
+        // cannot see — so the check would report "nothing can receive this" on exactly the devices
+        // where the chooser works fine. The chooser itself always resolves, and it is the component
+        // that tells the student when genuinely nothing can handle the files.
+        runCatching {
+            startActivity(Intent.createChooser(intent, getString(R.string.privacy_export_share)))
+        }.onFailure {
+            Log.w(TAG, "No app could receive the export: ${it.message}")
             Toast.makeText(this, R.string.privacy_export_failed, Toast.LENGTH_LONG).show()
-            return
         }
-        startActivity(chooser)
     }
 
     /** Irreversible, so it is asked twice: once by opening this, once by confirming it. */
@@ -241,10 +246,7 @@ class LibraryActivity : AppCompatActivity() {
             .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(R.string.privacy_erase) { _, _ ->
                 lifecycleScope.launch {
-                    withDb {
-                        app.docStore.deleteEverything()
-                        app.pruneCaptures()
-                    }
+                    withDb { app.eraseAllLearnerData() }
                     Toast.makeText(this@LibraryActivity, R.string.privacy_erased, Toast.LENGTH_LONG).show()
                     refreshDocuments()
                 }

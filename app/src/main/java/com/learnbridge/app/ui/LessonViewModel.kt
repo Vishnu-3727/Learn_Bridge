@@ -121,6 +121,15 @@ data class QuizUi(
     val isDone: Boolean get() = items.isNotEmpty() && currentIndex >= items.size
 
     /**
+     * The question on screen, or null when there is none — an empty quiz, or one already finished.
+     *
+     * Every read of [items] goes through this. Indexing directly is what let an empty quiz reach
+     * `items[0]`: [isDone] is false when there are no items at all, so a guard written in terms of
+     * it does not cover the one case where there is nothing to index.
+     */
+    val current: QuizItem? get() = items.getOrNull(currentIndex)
+
+    /**
      * The middle answer time, or 0 when nothing has been answered.
      *
      * Median rather than mean: one question interrupted by a phone call would drag an average into
@@ -136,8 +145,11 @@ data class QuizUi(
      * double-tap can never double-count a score.
      */
     fun answer(selected: Int, now: Long = System.currentTimeMillis()): QuizUi {
-        if (answered || isDone) return this
-        val (_, correctIndex) = items[currentIndex].shuffledOptions()
+        if (answered) return this
+        // Not `isDone`: that is false for a quiz with no questions, which is exactly the state where
+        // there is nothing to index. Asking for the current question answers both cases at once.
+        val question = current ?: return this
+        val (_, correctIndex) = question.shuffledOptions()
         // shownAt is 0 for a quiz restored without a display timestamp; recording a latency measured
         // from the epoch would report roughly fifty-six years of hesitation.
         val elapsed = if (shownAt > 0) now - shownAt else 0L
@@ -149,7 +161,10 @@ data class QuizUi(
         )
     }
 
-    /** Moves to the next question, resetting per-question state. A no-op before an answer is given. */
+    /**
+     * Moves to the next question, resetting per-question state. A no-op before an answer is given —
+     * which also covers the empty quiz, since nothing there can ever be answered.
+     */
     fun next(now: Long = System.currentTimeMillis()): QuizUi =
         if (!answered) this
         else copy(currentIndex = currentIndex + 1, selectedIndex = null, answered = false, shownAt = now)
