@@ -30,8 +30,14 @@ jobs:
 
       - run: ./gradlew :app:testDebugUnitTest :engine:testDebugUnitTest
 
+      # Lint runs as its own step so a lint regression reads as a lint failure rather than as a
+      # test failure. It aborts on errors and there are currently none; warnings do not fail it.
+      - run: ./gradlew :app:lintDebug
+
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports
-          path: '**/build/reports/tests/'
+          name: reports
+          path: |
+            **/build/reports/tests/
+            **/build/reports/lint-results-*.html
