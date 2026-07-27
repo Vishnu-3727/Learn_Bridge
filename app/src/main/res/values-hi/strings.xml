@@ -30,6 +30,7 @@
     <string name="document_meta">%1$d शब्द</string>
     <string name="document_mastery">%1$d%% सीखा</string>
     <string name="document_due">दोहराने के लिए तैयार</string>
+    <string name="revise_next">आगे पढ़ें: %1$s</string>
     <string name="delete_confirm">इस दस्तावेज़ को और LearnBridge ने इससे जो कुछ सीखा, सब हटा दें?</string>
     <string name="delete">हटाएँ</string>
     <string name="cd_document">यह पाठ खोलें</string>

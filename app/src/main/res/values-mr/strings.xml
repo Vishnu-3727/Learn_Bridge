@@ -26,6 +26,7 @@
     <string name="document_meta">%1$d शब्द</string>
     <string name="document_mastery">%1$d%% शिकले</string>
     <string name="document_due">उजळणीसाठी तयार</string>
+    <string name="revise_next">पुढे अभ्यासा: %1$s</string>
     <string name="delete_confirm">हे दस्तऐवज आणि LearnBridge ने त्यातून शिकलेले सर्व काही काढून टाकायचे?</string>
     <string name="delete">काढा</string>
     <string name="cd_document">हा धडा उघडा</string>

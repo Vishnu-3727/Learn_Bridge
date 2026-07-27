@@ -22,6 +22,7 @@ import com.learnbridge.app.R
 import com.learnbridge.app.doc.DocStore
 import com.learnbridge.app.doc.ImportResult
 import com.learnbridge.app.doc.Mastery
+import com.learnbridge.app.doc.Revision
 import com.learnbridge.app.lang.SupportedLanguage
 import com.learnbridge.app.teach.IngestProgress
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +49,7 @@ class LibraryActivity : AppCompatActivity() {
     private lateinit var photoButton: Button
     private lateinit var importButton: Button
     private lateinit var languageChooser: TextView
+    private lateinit var reviseNext: TextView
 
     /**
      * OpenDocument rather than GetContent: it returns a durably readable Uri, and the document's
@@ -109,6 +111,7 @@ class LibraryActivity : AppCompatActivity() {
         ingestStatus = findViewById(R.id.ingestStatus)
         photoButton = findViewById(R.id.photoButton)
         importButton = findViewById(R.id.importButton)
+        reviseNext = findViewById(R.id.reviseNext)
 
         photoButton.setOnClickListener { launchCamera() }
         importButton.setOnClickListener { pickDocument.launch(IMPORTABLE_TYPES) }
@@ -174,7 +177,26 @@ class LibraryActivity : AppCompatActivity() {
             // document the student has been quizzed on, which is at most as many rows as the list.
             val mastery = withDb { app.docStore.allMastery().associateBy { it.docId } }
             renderDocuments(rows, mastery)
+            renderReviseNext(rows, mastery)
         }
+    }
+
+    /**
+     * The one document worth opening next, or nothing at all.
+     *
+     * Deliberately one, not a queue: a ranked list of everything the student is behind on is a list
+     * of reasons to feel behind. The row it points at already shows what is known and whether it is
+     * due, so this line does not restate the reason.
+     */
+    private fun renderReviseNext(rows: List<DocStore.DocumentRow>, mastery: Map<Long, Mastery>) {
+        val candidate = Revision.next(rows, mastery)
+        if (candidate == null) {
+            reviseNext.visibility = View.GONE
+            return
+        }
+        reviseNext.text = getString(R.string.revise_next, candidate.document.title)
+        reviseNext.visibility = View.VISIBLE
+        reviseNext.setOnClickListener { openLesson(candidate.document) }
     }
 
     private fun renderDocuments(rows: List<DocStore.DocumentRow>, mastery: Map<Long, Mastery>) {

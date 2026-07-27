@@ -39,6 +39,9 @@
     <string name="document_mastery">%1$d%% learned</string>
     <!-- Appended when the spaced-revision schedule says this document is due again. -->
     <string name="document_due">Ready to revise</string>
+    <!-- The one thing to study next, above the list. %1$s is the document's title. The row's own
+         "N% learned / Ready to revise" is the reason, so this line does not repeat it. -->
+    <string name="revise_next">Study next: %1$s</string>
     <string name="delete_confirm">Remove this document and everything LearnBridge learned from it?</string>
     <string name="delete">Remove</string>
     <string name="cd_document">Open this lesson</string>
