@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Gujarati chrome. Mirrors values/strings.xml key-for-key, except app_name, which is a product name
+  and is deliberately left to fall back. See values-hi/strings.xml for why these are reachable.
+
+  MACHINE-DRAFTED, NOT YET READ BY A NATIVE SPEAKER. See README "Honest limitations".
+-->
+<resources>
+    <!-- Library screen -->
+    <string name="library_title">મારા દસ્તાવેજો</string>
+    <string name="library_empty_title">હજી શીખવા માટે કંઈ નથી</string>
+    <string name="library_empty_body">પાઠ્યપુસ્તકના પાનાનો ફોટો પાડો, અથવા કોઈ દસ્તાવેજ આયાત કરો — LearnBridge તે તમને ઇન્ટરનેટ વગર જ શીખવશે.</string>
+    <string name="action_photo">પાનાનો ફોટો પાડો</string>
+    <string name="action_import">દસ્તાવેજ આયાત કરો</string>
+    <string name="cd_photo">શીખવા માટે પાનાનો ફોટો પાડો</string>
+    <string name="cd_import">શીખવા માટે દસ્તાવેજ આયાત કરો</string>
+
+    <!-- Language selection -->
+    <string name="teach_me_in">મને શીખવો</string>
+    <string name="cd_choose_language">શીખવાની ભાષા પસંદ કરો</string>
+    <string name="choose_language_title">મને શીખવો</string>
+    <string name="language_needs_rendering">%1$s  (હજી તૈયાર નથી)</string>
+    <string name="language_render_failed">આ દસ્તાવેજ માટે તે ભાષા તૈયાર કરી શકાઈ નથી.</string>
+
+    <!-- Documents -->
+    <string name="document_meta">%1$d શબ્દો</string>
+    <string name="delete_confirm">આ દસ્તાવેજ અને LearnBridge એ તેમાંથી જે કંઈ શીખ્યું, તે બધું દૂર કરવું?</string>
+    <string name="delete">દૂર કરો</string>
+    <string name="cd_document">આ પાઠ ખોલો</string>
+
+    <!-- Ingest -->
+    <string name="ingest_reading">પાનું વાંચી રહ્યું છે…</string>
+    <string name="ingest_thinking">આ કેવી રીતે શીખવવું તે વિચારી રહ્યું છે…</string>
+    <string name="ingest_translating">%1$s આવૃત્તિ તૈયાર કરી રહ્યું છે…</string>
+    <string name="ingest_wait_note">આ દરેક દસ્તાવેજ માટે એક જ વાર થાય છે, તેથી પછી પાઠ તરત ખૂલે છે.</string>
+    <string name="ingest_failed_unreadable">તે ફાઇલમાંથી કોઈ લખાણ વાંચી શકાયું નથી.</string>
+    <string name="ingest_failed_empty">તે દસ્તાવેજ ખાલી લાગે છે.</string>
+    <string name="ingest_failed_unsupported">આ પ્રકારની ફાઇલ હજી સમર્થિત નથી. લખાણ ફાઇલ, PDF, અથવા ફોટો અજમાવો.</string>
+    <string name="error_capture_unavailable">આ ઉપકરણ પર કોઈ કૅમેરા ઍપ ઉપલબ્ધ નથી.</string>
+
+    <!-- Lesson screen -->
+    <string name="tab_explain">સમજાવો</string>
+    <string name="tab_ask">પૂછો</string>
+    <string name="tab_quiz">પ્રશ્નોત્તરી</string>
+    <string name="explain_generating">સમજાવી રહ્યું છે…</string>
+    <string name="action_english">અંગ્રેજી</string>
+    <string name="action_listen">સાંભળો</string>
+    <string name="tts_voice_missing">આ ઉપકરણ પર %1$s નો કોઈ અવાજ સ્થાપિત નથી, તેથી તે અંગ્રેજીમાં વંચાશે. સેટિંગ્સ › ટેક્સ્ટ-ટુ-સ્પીચ માંથી સ્થાપિત કરો.</string>
+    <string name="cd_listen">આ મોટેથી વાંચો</string>
+    <string name="translating_inline">અનુવાદ થઈ રહ્યો છે…</string>
+
+    <!-- Ask -->
+    <string name="ask_hint">આ દસ્તાવેજ વિશે પ્રશ્ન પૂછો</string>
+    <string name="ask_send">પૂછો</string>
+    <string name="cd_ask_voice">બોલીને પૂછો</string>
+    <string name="ask_thinking">દસ્તાવેજમાં શોધી રહ્યું છે…</string>
+    <string name="ask_no_answer">આ આ દસ્તાવેજમાં આવરી લેવાયું હોય તેવું લાગતું નથી.</string>
+
+    <!-- Quiz -->
+    <string name="quiz_progress">%2$d માંથી પ્રશ્ન %1$d</string>
+    <string name="quiz_correct">સાચું</string>
+    <string name="quiz_incorrect">બરાબર નથી</string>
+    <string name="quiz_score">તમે %2$d માંથી %1$d સાચા કર્યા</string>
+    <string name="quiz_next">આગળ</string>
+    <string name="quiz_unavailable">આ દસ્તાવેજમાંથી કોઈ પ્રશ્ન બનાવી શકાયો નથી.</string>
+
+    <!-- Errors -->
+    <string name="error_generation_failed">શિક્ષક તેનો જવાબ આપી શક્યા નહીં. પ્રશ્ન બીજી રીતે પૂછો.</string>
+    <string name="error_low_memory">આ ઉપકરણમાં મેમરી ઓછી છે, તેથી LearnBridge તેના સરળ ઑફલાઇન શિક્ષકનો ઉપયોગ કરી રહ્યું છે.</string>
+
+    <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
+    <string name="explain_fallback_english">આ દસ્તાવેજ માટે %1$s હજી તૈયાર નથી — તેના બદલે અંગ્રેજી બતાવાય છે.</string>
+    <string name="explain_unavailable">આ દસ્તાવેજ માટે કોઈ સમજૂતી બનાવી શકાઈ નથી.</string>
+    <string name="cd_ask_input">આ દસ્તાવેજ વિશે તમારો પ્રશ્ન લખો</string>
+    <string name="cd_ask_send">તમારો પ્રશ્ન મોકલો</string>
+    <string name="cd_quiz_option">જવાબ: %1$s</string>
+    <string name="cd_quiz_next">આગલા પ્રશ્ન પર જાઓ</string>
+    <string name="cd_switch_to_target">પાઠ %1$s માં બદલો</string>
+    <string name="cd_switch_to_english">પાઠ અંગ્રેજીમાં બદલો</string>
+    <string name="cd_long_press_for_languages">બીજી ભાષા પસંદ કરવા દબાવી રાખો.</string>
+</resources>

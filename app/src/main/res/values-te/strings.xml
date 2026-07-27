@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Telugu chrome. Mirrors values/strings.xml key-for-key, except app_name, which is a product name
+  and is deliberately left to fall back. See values-hi/strings.xml for why these are reachable.
+
+  MACHINE-DRAFTED, NOT YET READ BY A NATIVE SPEAKER. See README "Honest limitations".
+-->
+<resources>
+    <!-- Library screen -->
+    <string name="library_title">నా పత్రాలు</string>
+    <string name="library_empty_title">ఇంకా నేర్చుకోవడానికి ఏమీ లేదు</string>
+    <string name="library_empty_body">పాఠ్యపుస్తకం పేజీని ఫోటో తీయండి, లేదా ఒక పత్రాన్ని దిగుమతి చేయండి — LearnBridge దానిని ఇంటర్నెట్ లేకుండానే మీకు నేర్పుతుంది.</string>
+    <string name="action_photo">పేజీని ఫోటో తీయండి</string>
+    <string name="action_import">పత్రాన్ని దిగుమతి చేయండి</string>
+    <string name="cd_photo">నేర్చుకోవడానికి ఒక పేజీని ఫోటో తీయండి</string>
+    <string name="cd_import">నేర్చుకోవడానికి ఒక పత్రాన్ని దిగుమతి చేయండి</string>
+
+    <!-- Language selection -->
+    <string name="teach_me_in">నాకు నేర్పండి</string>
+    <string name="cd_choose_language">నేర్చుకునే భాషను ఎంచుకోండి</string>
+    <string name="choose_language_title">నాకు నేర్పండి</string>
+    <string name="language_needs_rendering">%1$s  (ఇంకా సిద్ధం కాలేదు)</string>
+    <string name="language_render_failed">ఈ పత్రానికి ఆ భాషను సిద్ధం చేయలేకపోయాం.</string>
+
+    <!-- Documents -->
+    <string name="document_meta">%1$d పదాలు</string>
+    <string name="delete_confirm">ఈ పత్రాన్ని, LearnBridge దాని నుండి నేర్చుకున్నదంతా తొలగించాలా?</string>
+    <string name="delete">తొలగించు</string>
+    <string name="cd_document">ఈ పాఠాన్ని తెరవండి</string>
+
+    <!-- Ingest -->
+    <string name="ingest_reading">పేజీని చదువుతోంది…</string>
+    <string name="ingest_thinking">దీన్ని ఎలా నేర్పాలో ఆలోచిస్తోంది…</string>
+    <string name="ingest_translating">%1$s సంస్కరణను సిద్ధం చేస్తోంది…</string>
+    <string name="ingest_wait_note">ఇది ప్రతి పత్రానికి ఒక్కసారే జరుగుతుంది, కాబట్టి ఆ తర్వాత పాఠం వెంటనే తెరుచుకుంటుంది.</string>
+    <string name="ingest_failed_unreadable">ఆ ఫైల్ నుండి ఏ వచనమూ చదవలేకపోయాం.</string>
+    <string name="ingest_failed_empty">ఆ పత్రం ఖాళీగా ఉన్నట్టుంది.</string>
+    <string name="ingest_failed_unsupported">ఈ రకమైన ఫైల్‌కు ఇంకా మద్దతు లేదు. వచన ఫైల్, PDF, లేదా ఫోటోను ప్రయత్నించండి.</string>
+    <string name="error_capture_unavailable">ఈ పరికరంలో కెమెరా యాప్ ఏదీ అందుబాటులో లేదు.</string>
+
+    <!-- Lesson screen -->
+    <string name="tab_explain">వివరించు</string>
+    <string name="tab_ask">అడుగు</string>
+    <string name="tab_quiz">ప్రశ్నావళి</string>
+    <string name="explain_generating">వివరిస్తోంది…</string>
+    <string name="action_english">ఆంగ్లం</string>
+    <string name="action_listen">వినండి</string>
+    <string name="tts_voice_missing">ఈ పరికరంలో %1$s స్వరం ఇన్‌స్టాల్ కాలేదు, కాబట్టి దీన్ని ఆంగ్లంలో చదువుతుంది. సెట్టింగ్‌లు › వచనం-నుండి-ప్రసంగం నుండి ఇన్‌స్టాల్ చేయండి.</string>
+    <string name="cd_listen">దీన్ని బిగ్గరగా చదవండి</string>
+    <string name="translating_inline">అనువదిస్తోంది…</string>
+
+    <!-- Ask -->
+    <string name="ask_hint">ఈ పత్రం గురించి ఒక ప్రశ్న అడగండి</string>
+    <string name="ask_send">అడుగు</string>
+    <string name="cd_ask_voice">మాట్లాడి అడగండి</string>
+    <string name="ask_thinking">పత్రంలో వెతుకుతోంది…</string>
+    <string name="ask_no_answer">ఇది ఈ పత్రంలో ఉన్నట్టు కనిపించడం లేదు.</string>
+
+    <!-- Quiz -->
+    <string name="quiz_progress">%2$d లో ప్రశ్న %1$d</string>
+    <string name="quiz_correct">సరైనది</string>
+    <string name="quiz_incorrect">సరిగ్గా కాదు</string>
+    <string name="quiz_score">మీరు %2$d లో %1$d సరిగ్గా చేశారు</string>
+    <string name="quiz_next">తర్వాత</string>
+    <string name="quiz_unavailable">ఈ పత్రం నుండి ఏ ప్రశ్నలూ తయారు చేయలేకపోయాం.</string>
+
+    <!-- Errors -->
+    <string name="error_generation_failed">ఉపాధ్యాయుడు దానికి సమాధానం ఇవ్వలేకపోయాడు. ప్రశ్నను వేరే విధంగా అడగండి.</string>
+    <string name="error_low_memory">ఈ పరికరంలో మెమరీ తక్కువగా ఉంది, కాబట్టి LearnBridge తన సరళమైన ఆఫ్‌లైన్ ఉపాధ్యాయుడిని ఉపయోగిస్తోంది.</string>
+
+    <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
+    <string name="explain_fallback_english">ఈ పత్రానికి %1$s ఇంకా సిద్ధం కాలేదు — బదులుగా ఆంగ్లం చూపిస్తోంది.</string>
+    <string name="explain_unavailable">ఈ పత్రానికి ఏ వివరణా తయారు చేయలేకపోయాం.</string>
+    <string name="cd_ask_input">ఈ పత్రం గురించి మీ ప్రశ్నను టైప్ చేయండి</string>
+    <string name="cd_ask_send">మీ ప్రశ్నను పంపండి</string>
+    <string name="cd_quiz_option">సమాధానం: %1$s</string>
+    <string name="cd_quiz_next">తర్వాతి ప్రశ్నకు వెళ్లండి</string>
+    <string name="cd_switch_to_target">పాఠాన్ని %1$s కు మార్చండి</string>
+    <string name="cd_switch_to_english">పాఠాన్ని ఆంగ్లానికి మార్చండి</string>
+    <string name="cd_long_press_for_languages">వేరే భాషను ఎంచుకోవడానికి నొక్కి పట్టుకోండి.</string>
+</resources>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Urdu chrome. Mirrors values/strings.xml key-for-key, except app_name, which is a product name and
+  is deliberately left to fall back. See values-hi/strings.xml for why these are reachable.
+
+  The only right-to-left target. Choosing it now flips the whole layout, not just the lesson pane —
+  android:supportsRtl is already true and SupportedLanguage.rtl still drives the lesson text
+  direction for the case where the chrome is in one language and the document in another.
+
+  MACHINE-DRAFTED, NOT YET READ BY A NATIVE SPEAKER. See README "Honest limitations".
+-->
+<resources>
+    <!-- Library screen -->
+    <string name="library_title">میری دستاویزات</string>
+    <string name="library_empty_title">ابھی سیکھنے کے لیے کچھ نہیں</string>
+    <string name="library_empty_body">درسی کتاب کے صفحے کی تصویر لیں، یا کوئی دستاویز درآمد کریں — LearnBridge اسے آپ کو انٹرنیٹ کے بغیر پڑھائے گا۔</string>
+    <string name="action_photo">صفحے کی تصویر لیں</string>
+    <string name="action_import">دستاویز درآمد کریں</string>
+    <string name="cd_photo">سیکھنے کے لیے صفحے کی تصویر لیں</string>
+    <string name="cd_import">سیکھنے کے لیے دستاویز درآمد کریں</string>
+
+    <!-- Language selection -->
+    <string name="teach_me_in">مجھے پڑھائیں</string>
+    <string name="cd_choose_language">سیکھنے کی زبان منتخب کریں</string>
+    <string name="choose_language_title">مجھے پڑھائیں</string>
+    <string name="language_needs_rendering">%1$s  (ابھی تیار نہیں)</string>
+    <string name="language_render_failed">اس دستاویز کے لیے وہ زبان تیار نہیں کی جا سکی۔</string>
+
+    <!-- Documents -->
+    <string name="document_meta">%1$d الفاظ</string>
+    <string name="delete_confirm">اس دستاویز کو اور LearnBridge نے اس سے جو کچھ سیکھا، سب ہٹا دیں؟</string>
+    <string name="delete">ہٹائیں</string>
+    <string name="cd_document">یہ سبق کھولیں</string>
+
+    <!-- Ingest -->
+    <string name="ingest_reading">صفحہ پڑھا جا رہا ہے…</string>
+    <string name="ingest_thinking">یہ کیسے پڑھانا ہے، طے کیا جا رہا ہے…</string>
+    <string name="ingest_translating">%1$s نسخہ تیار کیا جا رہا ہے…</string>
+    <string name="ingest_wait_note">یہ ہر دستاویز کے لیے ایک ہی بار ہوتا ہے، اس لیے بعد میں سبق فوراً کھلتا ہے۔</string>
+    <string name="ingest_failed_unreadable">اس فائل سے کوئی متن نہیں پڑھا جا سکا۔</string>
+    <string name="ingest_failed_empty">وہ دستاویز خالی لگتی ہے۔</string>
+    <string name="ingest_failed_unsupported">اس قسم کی فائل ابھی معاون نہیں ہے۔ کوئی متن فائل، PDF، یا تصویر آزمائیں۔</string>
+    <string name="error_capture_unavailable">اس آلے پر کوئی کیمرہ ایپ دستیاب نہیں ہے۔</string>
+
+    <!-- Lesson screen -->
+    <string name="tab_explain">سمجھائیں</string>
+    <string name="tab_ask">پوچھیں</string>
+    <string name="tab_quiz">سوالنامہ</string>
+    <string name="explain_generating">سمجھایا جا رہا ہے…</string>
+    <string name="action_english">انگریزی</string>
+    <string name="action_listen">سنیں</string>
+    <string name="tts_voice_missing">اس آلے پر %1$s کی کوئی آواز نصب نہیں ہے، اس لیے اسے انگریزی میں پڑھا جائے گا۔ اسے ترتیبات › متن سے تقریر سے نصب کریں۔</string>
+    <string name="cd_listen">اسے بلند آواز میں پڑھیں</string>
+    <string name="translating_inline">ترجمہ ہو رہا ہے…</string>
+
+    <!-- Ask -->
+    <string name="ask_hint">اس دستاویز کے بارے میں سوال پوچھیں</string>
+    <string name="ask_send">پوچھیں</string>
+    <string name="cd_ask_voice">بول کر پوچھیں</string>
+    <string name="ask_thinking">دستاویز میں تلاش کیا جا رہا ہے…</string>
+    <string name="ask_no_answer">ایسا لگتا ہے کہ یہ اس دستاویز میں شامل نہیں ہے۔</string>
+
+    <!-- Quiz -->
+    <string name="quiz_progress">%2$d میں سے سوال %1$d</string>
+    <string name="quiz_correct">درست</string>
+    <string name="quiz_incorrect">بالکل درست نہیں</string>
+    <string name="quiz_score">آپ نے %2$d میں سے %1$d درست کیے</string>
+    <string name="quiz_next">اگلا</string>
+    <string name="quiz_unavailable">اس دستاویز سے کوئی سوال نہیں بنایا جا سکا۔</string>
+
+    <!-- Errors -->
+    <string name="error_generation_failed">استاد اس کا جواب نہیں دے سکا۔ سوال کسی اور طرح پوچھیں۔</string>
+    <string name="error_low_memory">اس آلے میں یادداشت کم ہے، اس لیے LearnBridge اپنا سادہ آف لائن استاد استعمال کر رہا ہے۔</string>
+
+    <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
+    <string name="explain_fallback_english">اس دستاویز کے لیے %1$s ابھی تیار نہیں — اس کے بجائے انگریزی دکھائی جا رہی ہے۔</string>
+    <string name="explain_unavailable">اس دستاویز کے لیے کوئی وضاحت نہیں بنائی جا سکی۔</string>
+    <string name="cd_ask_input">اس دستاویز کے بارے میں اپنا سوال لکھیں</string>
+    <string name="cd_ask_send">اپنا سوال بھیجیں</string>
+    <string name="cd_quiz_option">جواب: %1$s</string>
+    <string name="cd_quiz_next">اگلے سوال پر جائیں</string>
+    <string name="cd_switch_to_target">سبق کو %1$s میں بدلیں</string>
+    <string name="cd_switch_to_english">سبق کو انگریزی میں بدلیں</string>
+    <string name="cd_long_press_for_languages">دوسری زبان منتخب کرنے کے لیے دبا کر رکھیں۔</string>
+</resources>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Sanskrit chrome. Mirrors values/strings.xml key-for-key, except app_name, which is a product name
+  and is deliberately left to fall back. See values-hi/strings.xml for why these are reachable.
+
+  MACHINE-DRAFTED, NOT YET READ BY A NATIVE SPEAKER. See README "Honest limitations". Sanskrit is
+  the one target here with essentially no modern software-UI register, so these read as coined
+  rather than conventional — the finding this closes calls the whole file a draft for that reason.
+-->
+<resources>
+    <!-- Library screen -->
+    <string name="library_title">मम लेखपत्राणि</string>
+    <string name="library_empty_title">अधुना पठनीयं किमपि नास्ति</string>
+    <string name="library_empty_body">पाठ्यपुस्तकस्य पृष्ठस्य चित्रं गृह्णातु, अथवा लेखपत्रम् आनयतु — LearnBridge तत् अन्तर्जालं विना एव भवन्तं पाठयिष्यति।</string>
+    <string name="action_photo">पृष्ठस्य चित्रं गृह्णातु</string>
+    <string name="action_import">लेखपत्रम् आनयतु</string>
+    <string name="cd_photo">पठनार्थं पृष्ठस्य चित्रं गृह्णातु</string>
+    <string name="cd_import">पठनार्थं लेखपत्रम् आनयतु</string>
+
+    <!-- Language selection -->
+    <string name="teach_me_in">मां पाठयतु</string>
+    <string name="cd_choose_language">पठनस्य भाषां चिनोतु</string>
+    <string name="choose_language_title">मां पाठयतु</string>
+    <string name="language_needs_rendering">%1$s  (अधुना न सज्जम्)</string>
+    <string name="language_render_failed">अस्य लेखपत्रस्य कृते सा भाषा सज्जीकर्तुं न शक्यते।</string>
+
+    <!-- Documents -->
+    <string name="document_meta">%1$d शब्दाः</string>
+    <string name="delete_confirm">इदं लेखपत्रं, तथा LearnBridge इत्यनेन ततः यत् किमपि ज्ञातम्, तत् सर्वम् अपनयतु वा?</string>
+    <string name="delete">अपनयतु</string>
+    <string name="cd_document">इमं पाठम् उद्घाटयतु</string>
+
+    <!-- Ingest -->
+    <string name="ingest_reading">पृष्ठं पठ्यते…</string>
+    <string name="ingest_thinking">इदं कथं पाठनीयम् इति विचार्यते…</string>
+    <string name="ingest_translating">%1$s आवृत्तिः सज्जीक्रियते…</string>
+    <string name="ingest_wait_note">इदं प्रतिलेखपत्रम् एकवारम् एव भवति, अतः तदनन्तरं पाठः तत्क्षणम् उद्घाट्यते।</string>
+    <string name="ingest_failed_unreadable">तस्मात् सञ्चिकातः किमपि पाठ्यं न प्राप्तम्।</string>
+    <string name="ingest_failed_empty">तत् लेखपत्रं रिक्तम् इव भाति।</string>
+    <string name="ingest_failed_unsupported">एतादृशी सञ्चिका अधुना न स्वीक्रियते। पाठ्यसञ्चिकाम्, PDF, अथवा चित्रं प्रयत्नं करोतु।</string>
+    <string name="error_capture_unavailable">अस्मिन् यन्त्रे किमपि छायाचित्रग्राहकम् अनुप्रयोगः नास्ति।</string>
+
+    <!-- Lesson screen -->
+    <string name="tab_explain">व्याख्या</string>
+    <string name="tab_ask">पृच्छतु</string>
+    <string name="tab_quiz">प्रश्नावली</string>
+    <string name="explain_generating">व्याख्यायते…</string>
+    <string name="action_english">आङ्ग्लभाषा</string>
+    <string name="action_listen">शृणोतु</string>
+    <string name="tts_voice_missing">अस्मिन् यन्त्रे %1$s इत्यस्य कोऽपि स्वरः न स्थापितः, अतः इदम् आङ्ग्लभाषायां पठिष्यते। विन्यासः › पाठ्यात्-वाणी इत्यस्मात् तं स्थापयतु।</string>
+    <string name="cd_listen">इदम् उच्चैः पठतु</string>
+    <string name="translating_inline">अनुवादः क्रियते…</string>
+
+    <!-- Ask -->
+    <string name="ask_hint">अस्य लेखपत्रस्य विषये प्रश्नं पृच्छतु</string>
+    <string name="ask_send">पृच्छतु</string>
+    <string name="cd_ask_voice">उक्त्वा पृच्छतु</string>
+    <string name="ask_thinking">लेखपत्रे अन्विष्यते…</string>
+    <string name="ask_no_answer">इदम् अस्मिन् लेखपत्रे अन्तर्भूतम् इति न भाति।</string>
+
+    <!-- Quiz -->
+    <string name="quiz_progress">%2$d इत्येषु प्रश्नः %1$d</string>
+    <string name="quiz_correct">सम्यक्</string>
+    <string name="quiz_incorrect">न सर्वथा सम्यक्</string>
+    <string name="quiz_score">भवता %2$d इत्येषु %1$d सम्यक् कृताः</string>
+    <string name="quiz_next">अग्रे</string>
+    <string name="quiz_unavailable">अस्मात् लेखपत्रात् कोऽपि प्रश्नः रचयितुं न शक्यते।</string>
+
+    <!-- Errors -->
+    <string name="error_generation_failed">अध्यापकः तस्य उत्तरं दातुं न शक्तवान्। प्रश्नम् अन्यथा पृच्छतु।</string>
+    <string name="error_low_memory">अस्मिन् यन्त्रे स्मृतिः अल्पा, अतः LearnBridge स्वस्य सरलम् अन्तर्जालरहितम् अध्यापकं प्रयुङ्क्ते।</string>
+
+    <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
+    <string name="explain_fallback_english">अस्य लेखपत्रस्य कृते %1$s अधुना न सज्जम् — तत्स्थाने आङ्ग्लभाषा दर्श्यते।</string>
+    <string name="explain_unavailable">अस्य लेखपत्रस्य कृते काचित् व्याख्या रचयितुं न शक्यते।</string>
+    <string name="cd_ask_input">अस्य लेखपत्रस्य विषये स्वप्रश्नं लिखतु</string>
+    <string name="cd_ask_send">स्वप्रश्नं प्रेषयतु</string>
+    <string name="cd_quiz_option">उत्तरम्: %1$s</string>
+    <string name="cd_quiz_next">अग्रिमं प्रश्नं गच्छतु</string>
+    <string name="cd_switch_to_target">पाठं %1$s इत्यस्मिन् परिवर्तयतु</string>
+    <string name="cd_switch_to_english">पाठम् आङ्ग्लभाषायां परिवर्तयतु</string>
+    <string name="cd_long_press_for_languages">अन्यां भाषां चेतुं निपीड्य धारयतु।</string>
+</resources>

@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Every user-facing string lives here, never inline in a layout or Kotlin file. values-hi/ mirrors
-  this file key-for-key; a missing key there silently falls back to English, which is the
-  localization gap to avoid rather than inherit.
+  Every user-facing string lives here, never inline in a layout or Kotlin file. All thirteen
+  values-*/ directories mirror this file key-for-key; a missing key there silently falls back to
+  English, which is the localization gap to avoid rather than inherit. Adding a string here means
+  adding it to thirteen other files — that cost is the point, because a half-translated screen is
+  what this app exists not to ship.
+
+  app_name is the one deliberate exception: a product name, not translated anywhere.
+
+  The same thirteen are listed in res/xml/locales_config.xml and in SupportedLanguage. Keep all
+  three in step.
 -->
 <resources>
-    <string name="app_name">LearnBridge AI</string>
+    <!-- A product name. translatable="false" so lint stops asking for thirteen copies of it. -->
+    <string name="app_name" translatable="false">LearnBridge AI</string>
 
     <!-- Library screen -->
     <string name="library_title">My Documents</string>

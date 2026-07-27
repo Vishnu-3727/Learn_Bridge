@@ -263,8 +263,15 @@ all thirteen targets, and asserts each result lands in that language's own Unico
   than left to rot unmeasured. `MtEngine` still takes its decoder as a parameter if it comes back.
 - **"Plant" sometimes renders as "संयंत्र"** (industrial plant) rather than "पौधा" — lexical
   ambiguity in the translation model.
-- **Language is chosen before import**, because the lesson is rendered during ingest. Adding a second
-  language to an existing document means translating it again.
+- **A second language costs a second render.** The lesson is rendered during ingest, so the language
+  chosen there is the only instant one. Long-pressing the lesson's language toggle offers the other
+  twelve: one the document already holds is a database read, any other translates the document again
+  and says so before you tap.
+- **The chrome translations have not been read by a native speaker.** All thirteen `values-*`
+  directories now carry all 55 strings, and every one of them was drafted by a machine. Key coverage
+  and format specifiers are checked by lint; wording, register and honorific level are not. Sanskrit
+  is the weakest — there is barely a modern software-UI register to draw on. Treat these as a
+  starting point for a reader, not as shipped copy.
 - **Transliteration is mechanical, not linguistic.** It maps script faithfully, but does not apply the
   orthographic conventions a native typesetter would; Tamil output in particular reads slightly
   transliterated rather than natively composed.

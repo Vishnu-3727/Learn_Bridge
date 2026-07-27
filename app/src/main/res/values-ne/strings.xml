@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nepali chrome. Mirrors values/strings.xml key-for-key, except app_name, which is a product name
+  and is deliberately left to fall back. See values-hi/strings.xml for why these are reachable.
+
+  MACHINE-DRAFTED, NOT YET READ BY A NATIVE SPEAKER. See README "Honest limitations".
+-->
+<resources>
+    <!-- Library screen -->
+    <string name="library_title">मेरा कागजातहरू</string>
+    <string name="library_empty_title">अझै सिक्नलाई केही छैन</string>
+    <string name="library_empty_body">पाठ्यपुस्तकको पानाको फोटो खिच्नुहोस्, वा कुनै कागजात आयात गर्नुहोस् — LearnBridge ले त्यो तपाईंलाई इन्टरनेटविना सिकाउनेछ।</string>
+    <string name="action_photo">पानाको फोटो खिच्नुहोस्</string>
+    <string name="action_import">कागजात आयात गर्नुहोस्</string>
+    <string name="cd_photo">सिक्नका लागि पानाको फोटो खिच्नुहोस्</string>
+    <string name="cd_import">सिक्नका लागि कागजात आयात गर्नुहोस्</string>
+
+    <!-- Language selection -->
+    <string name="teach_me_in">मलाई सिकाउनुहोस्</string>
+    <string name="cd_choose_language">सिक्ने भाषा छान्नुहोस्</string>
+    <string name="choose_language_title">मलाई सिकाउनुहोस्</string>
+    <string name="language_needs_rendering">%1$s  (अझै तयार छैन)</string>
+    <string name="language_render_failed">यो कागजातका लागि त्यो भाषा तयार गर्न सकिएन।</string>
+
+    <!-- Documents -->
+    <string name="document_meta">%1$d शब्द</string>
+    <string name="delete_confirm">यो कागजात र LearnBridge ले यसबाट सिकेको सबै कुरा हटाउने?</string>
+    <string name="delete">हटाउनुहोस्</string>
+    <string name="cd_document">यो पाठ खोल्नुहोस्</string>
+
+    <!-- Ingest -->
+    <string name="ingest_reading">पाना पढ्दै…</string>
+    <string name="ingest_thinking">यो कसरी सिकाउने भन्ने पत्ता लगाउँदै…</string>
+    <string name="ingest_translating">%1$s संस्करण तयार गर्दै…</string>
+    <string name="ingest_wait_note">यो प्रत्येक कागजातका लागि एक पटक मात्र हुन्छ, त्यसैले पछि पाठ तुरुन्तै खुल्छ।</string>
+    <string name="ingest_failed_unreadable">त्यो फाइलबाट कुनै पाठ पढ्न सकिएन।</string>
+    <string name="ingest_failed_empty">त्यो कागजात खाली देखिन्छ।</string>
+    <string name="ingest_failed_unsupported">यस प्रकारको फाइल अझै समर्थित छैन। पाठ फाइल, PDF, वा फोटो प्रयास गर्नुहोस्।</string>
+    <string name="error_capture_unavailable">यो यन्त्रमा कुनै क्यामेरा एप उपलब्ध छैन।</string>
+
+    <!-- Lesson screen -->
+    <string name="tab_explain">बुझाउनुहोस्</string>
+    <string name="tab_ask">सोध्नुहोस्</string>
+    <string name="tab_quiz">प्रश्नोत्तरी</string>
+    <string name="explain_generating">बुझाउँदै…</string>
+    <string name="action_english">अङ्ग्रेजी</string>
+    <string name="action_listen">सुन्नुहोस्</string>
+    <string name="tts_voice_missing">यो यन्त्रमा %1$s को कुनै आवाज स्थापना गरिएको छैन, त्यसैले यो अङ्ग्रेजीमा पढिनेछ। सेटिङ › पाठ-देखि-वाणी बाट स्थापना गर्नुहोस्।</string>
+    <string name="cd_listen">यो ठूलो स्वरमा पढ्नुहोस्</string>
+    <string name="translating_inline">अनुवाद हुँदै…</string>
+
+    <!-- Ask -->
+    <string name="ask_hint">यो कागजातबारे प्रश्न सोध्नुहोस्</string>
+    <string name="ask_send">सोध्नुहोस्</string>
+    <string name="cd_ask_voice">बोलेर सोध्नुहोस्</string>
+    <string name="ask_thinking">कागजातभित्र खोज्दै…</string>
+    <string name="ask_no_answer">यो कुरा यस कागजातमा समेटिएको देखिँदैन।</string>
+
+    <!-- Quiz -->
+    <string name="quiz_progress">%2$d मध्ये प्रश्न %1$d</string>
+    <string name="quiz_correct">सही</string>
+    <string name="quiz_incorrect">ठ्याक्कै होइन</string>
+    <string name="quiz_score">तपाईंले %2$d मध्ये %1$d सही गर्नुभयो</string>
+    <string name="quiz_next">अर्को</string>
+    <string name="quiz_unavailable">यो कागजातबाट कुनै प्रश्न बनाउन सकिएन।</string>
+
+    <!-- Errors -->
+    <string name="error_generation_failed">शिक्षकले त्यसको उत्तर दिन सकेन। प्रश्न अर्कै तरिकाले सोध्नुहोस्।</string>
+    <string name="error_low_memory">यो यन्त्रमा मेमोरी कम छ, त्यसैले LearnBridge ले आफ्नो सरल अफलाइन शिक्षक प्रयोग गरिरहेको छ।</string>
+
+    <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
+    <string name="explain_fallback_english">यो कागजातका लागि %1$s अझै तयार छैन — त्यसको सट्टा अङ्ग्रेजी देखाइँदै छ।</string>
+    <string name="explain_unavailable">यो कागजातका लागि कुनै व्याख्या बनाउन सकिएन।</string>
+    <string name="cd_ask_input">यो कागजातबारे आफ्नो प्रश्न लेख्नुहोस्</string>
+    <string name="cd_ask_send">आफ्नो प्रश्न पठाउनुहोस्</string>
+    <string name="cd_quiz_option">उत्तर: %1$s</string>
+    <string name="cd_quiz_next">अर्को प्रश्नमा जानुहोस्</string>
+    <string name="cd_switch_to_target">पाठलाई %1$s मा बदल्नुहोस्</string>
+    <string name="cd_switch_to_english">पाठलाई अङ्ग्रेजीमा बदल्नुहोस्</string>
+    <string name="cd_long_press_for_languages">अर्को भाषा छान्न थिचिराख्नुहोस्।</string>
+</resources>

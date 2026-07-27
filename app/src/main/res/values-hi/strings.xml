@@ -1,11 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Hindi strings for the lesson screen's new user-facing keys only. The rest of the app's strings
-  fall back to values/strings.xml (English) — see that file's header for why a missing key here is
-  an accepted gap rather than a bug, and add to this file key-for-key as more screens gain a Hindi
-  translation.
+  Hindi chrome. Mirrors values/strings.xml key-for-key, except app_name, which is a product name and
+  is deliberately left to fall back.
+
+  Reachable because LearnBridgeApp.targetLanguage applies the teaching language to the UI as well —
+  see that setter. Before that existed these strings only appeared on a phone whose entire system
+  locale was Hindi.
+
+  MACHINE-DRAFTED, NOT YET READ BY A NATIVE SPEAKER. See README "Honest limitations".
 -->
 <resources>
+    <!-- Library screen -->
+    <string name="library_title">मेरे दस्तावेज़</string>
+    <string name="library_empty_title">अभी सीखने के लिए कुछ नहीं है</string>
+    <string name="library_empty_body">किसी पाठ्यपुस्तक का पन्ना फ़ोटो लें, या कोई दस्तावेज़ आयात करें — LearnBridge उसे आपको बिना इंटरनेट के पढ़ाएगा।</string>
+    <string name="action_photo">पन्ने की फ़ोटो लें</string>
+    <string name="action_import">दस्तावेज़ आयात करें</string>
+    <string name="cd_photo">सीखने के लिए किसी पन्ने की फ़ोटो लें</string>
+    <string name="cd_import">सीखने के लिए कोई दस्तावेज़ आयात करें</string>
+
+    <!-- Language selection -->
+    <string name="teach_me_in">मुझे पढ़ाएँ</string>
+    <string name="cd_choose_language">सीखने की भाषा चुनें</string>
+    <string name="choose_language_title">मुझे पढ़ाएँ</string>
+    <string name="language_needs_rendering">%1$s  (अभी तैयार नहीं)</string>
+    <string name="language_render_failed">इस दस्तावेज़ के लिए वह भाषा तैयार नहीं की जा सकी।</string>
+
+    <!-- Documents -->
+    <string name="document_meta">%1$d शब्द</string>
+    <string name="delete_confirm">इस दस्तावेज़ को और LearnBridge ने इससे जो कुछ सीखा, सब हटा दें?</string>
+    <string name="delete">हटाएँ</string>
+    <string name="cd_document">यह पाठ खोलें</string>
+
+    <!-- Ingest -->
+    <string name="ingest_reading">पन्ना पढ़ा जा रहा है…</string>
+    <string name="ingest_thinking">यह कैसे पढ़ाना है, यह तय किया जा रहा है…</string>
+    <string name="ingest_translating">%1$s संस्करण तैयार किया जा रहा है…</string>
+    <string name="ingest_wait_note">यह हर दस्तावेज़ के लिए एक ही बार होता है, इसलिए उसके बाद पाठ तुरंत खुलता है।</string>
+    <string name="ingest_failed_unreadable">उस फ़ाइल से कोई पाठ नहीं पढ़ा जा सका।</string>
+    <string name="ingest_failed_empty">वह दस्तावेज़ खाली लगता है।</string>
+    <string name="ingest_failed_unsupported">इस प्रकार की फ़ाइल अभी समर्थित नहीं है। कोई टेक्स्ट फ़ाइल, PDF, या फ़ोटो आज़माएँ।</string>
+    <string name="error_capture_unavailable">इस डिवाइस पर कोई कैमरा ऐप उपलब्ध नहीं है।</string>
+
+    <!-- Lesson screen -->
+    <string name="tab_explain">समझाएँ</string>
+    <string name="tab_ask">पूछें</string>
+    <string name="tab_quiz">प्रश्नोत्तरी</string>
+    <string name="explain_generating">समझाया जा रहा है…</string>
+    <string name="action_english">अंग्रेज़ी</string>
+    <string name="action_listen">सुनें</string>
+    <string name="tts_voice_missing">इस डिवाइस पर %1$s की कोई आवाज़ इंस्टॉल नहीं है, इसलिए इसे अंग्रेज़ी में पढ़ा जाएगा। इसे सेटिंग्स › टेक्स्ट-टू-स्पीच से इंस्टॉल करें।</string>
+    <string name="cd_listen">इसे ज़ोर से पढ़ें</string>
+    <string name="translating_inline">अनुवाद हो रहा है…</string>
+
+    <!-- Ask -->
+    <string name="ask_hint">इस दस्तावेज़ के बारे में कोई प्रश्न पूछें</string>
+    <string name="ask_send">पूछें</string>
+    <string name="cd_ask_voice">बोलकर पूछें</string>
+    <string name="ask_thinking">दस्तावेज़ में देखा जा रहा है…</string>
+    <string name="ask_no_answer">ऐसा लगता है कि यह इस दस्तावेज़ में शामिल नहीं है।</string>
+
+    <!-- Quiz -->
+    <string name="quiz_progress">%2$d में से प्रश्न %1$d</string>
+    <string name="quiz_correct">सही</string>
+    <string name="quiz_incorrect">बिल्कुल सही नहीं</string>
+    <string name="quiz_score">आपने %2$d में से %1$d सही किए</string>
+    <string name="quiz_next">आगे</string>
+    <string name="quiz_unavailable">इस दस्तावेज़ से कोई प्रश्न नहीं बनाया जा सका।</string>
+
+    <!-- Errors -->
+    <string name="error_generation_failed">शिक्षक उसका उत्तर नहीं दे सका। प्रश्न किसी और तरह से पूछें।</string>
+    <string name="error_low_memory">इस डिवाइस में मेमोरी कम है, इसलिए LearnBridge अपने सरल ऑफ़लाइन शिक्षक का उपयोग कर रहा है।</string>
+
+    <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
     <string name="explain_fallback_english">इस दस्तावेज़ के लिए %1$s अभी तैयार नहीं है — इसके बजाय अंग्रेज़ी दिखाई जा रही है।</string>
     <string name="explain_unavailable">इस दस्तावेज़ के लिए कोई व्याख्या नहीं बनाई जा सकी।</string>
     <string name="cd_ask_input">इस दस्तावेज़ के बारे में अपना प्रश्न लिखें</string>
@@ -14,4 +81,5 @@
     <string name="cd_quiz_next">अगले प्रश्न पर जाएँ</string>
     <string name="cd_switch_to_target">पाठ को %1$s में बदलें</string>
     <string name="cd_switch_to_english">पाठ को अंग्रेज़ी में बदलें</string>
+    <string name="cd_long_press_for_languages">दूसरी भाषा चुनने के लिए दबाकर रखें।</string>
 </resources>

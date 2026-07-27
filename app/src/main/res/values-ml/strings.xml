@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Malayalam chrome. Mirrors values/strings.xml key-for-key, except app_name, which is a product name
+  and is deliberately left to fall back. See values-hi/strings.xml for why these are reachable.
+
+  MACHINE-DRAFTED, NOT YET READ BY A NATIVE SPEAKER. See README "Honest limitations".
+-->
+<resources>
+    <!-- Library screen -->
+    <string name="library_title">എന്റെ രേഖകൾ</string>
+    <string name="library_empty_title">പഠിക്കാൻ ഇതുവരെ ഒന്നുമില്ല</string>
+    <string name="library_empty_body">പാഠപുസ്തകത്തിന്റെ ഒരു താൾ ഫോട്ടോ എടുക്കുക, അല്ലെങ്കിൽ ഒരു രേഖ ഇറക്കുമതി ചെയ്യുക — LearnBridge അത് ഇന്റർനെറ്റ് ഇല്ലാതെ തന്നെ നിങ്ങളെ പഠിപ്പിക്കും.</string>
+    <string name="action_photo">താൾ ഫോട്ടോ എടുക്കുക</string>
+    <string name="action_import">രേഖ ഇറക്കുമതി ചെയ്യുക</string>
+    <string name="cd_photo">പഠിക്കാൻ ഒരു താൾ ഫോട്ടോ എടുക്കുക</string>
+    <string name="cd_import">പഠിക്കാൻ ഒരു രേഖ ഇറക്കുമതി ചെയ്യുക</string>
+
+    <!-- Language selection -->
+    <string name="teach_me_in">എന്നെ പഠിപ്പിക്കുക</string>
+    <string name="cd_choose_language">പഠിക്കേണ്ട ഭാഷ തിരഞ്ഞെടുക്കുക</string>
+    <string name="choose_language_title">എന്നെ പഠിപ്പിക്കുക</string>
+    <string name="language_needs_rendering">%1$s  (ഇതുവരെ തയ്യാറായിട്ടില്ല)</string>
+    <string name="language_render_failed">ഈ രേഖയ്ക്ക് ആ ഭാഷ തയ്യാറാക്കാൻ കഴിഞ്ഞില്ല.</string>
+
+    <!-- Documents -->
+    <string name="document_meta">%1$d വാക്കുകൾ</string>
+    <string name="delete_confirm">ഈ രേഖയും LearnBridge അതിൽ നിന്ന് പഠിച്ചതെല്ലാം നീക്കം ചെയ്യണോ?</string>
+    <string name="delete">നീക്കുക</string>
+    <string name="cd_document">ഈ പാഠം തുറക്കുക</string>
+
+    <!-- Ingest -->
+    <string name="ingest_reading">താൾ വായിക്കുന്നു…</string>
+    <string name="ingest_thinking">ഇത് എങ്ങനെ പഠിപ്പിക്കണമെന്ന് ആലോചിക്കുന്നു…</string>
+    <string name="ingest_translating">%1$s പതിപ്പ് തയ്യാറാക്കുന്നു…</string>
+    <string name="ingest_wait_note">ഇത് ഓരോ രേഖയ്ക്കും ഒരിക്കൽ മാത്രമേ നടക്കൂ, അതിനാൽ പിന്നീട് പാഠം ഉടനെ തുറക്കും.</string>
+    <string name="ingest_failed_unreadable">ആ ഫയലിൽ നിന്ന് ഒരു എഴുത്തും വായിക്കാൻ കഴിഞ്ഞില്ല.</string>
+    <string name="ingest_failed_empty">ആ രേഖ ശൂന്യമാണെന്ന് തോന്നുന്നു.</string>
+    <string name="ingest_failed_unsupported">ഇത്തരം ഫയലിന് ഇതുവരെ പിന്തുണയില്ല. ഒരു ടെക്സ്റ്റ് ഫയൽ, PDF, അല്ലെങ്കിൽ ഫോട്ടോ പരീക്ഷിക്കുക.</string>
+    <string name="error_capture_unavailable">ഈ ഉപകരണത്തിൽ ക്യാമറ ആപ്പ് ഒന്നും ലഭ്യമല്ല.</string>
+
+    <!-- Lesson screen -->
+    <string name="tab_explain">വിശദീകരിക്കുക</string>
+    <string name="tab_ask">ചോദിക്കുക</string>
+    <string name="tab_quiz">ചോദ്യാവലി</string>
+    <string name="explain_generating">വിശദീകരിക്കുന്നു…</string>
+    <string name="action_english">ഇംഗ്ലീഷ്</string>
+    <string name="action_listen">കേൾക്കുക</string>
+    <string name="tts_voice_missing">ഈ ഉപകരണത്തിൽ %1$s ശബ്ദം ഇൻസ്റ്റാൾ ചെയ്തിട്ടില്ല, അതിനാൽ ഇത് ഇംഗ്ലീഷിൽ വായിക്കും. ക്രമീകരണങ്ങൾ › ടെക്സ്റ്റ്-ടു-സ്പീച്ച് എന്നതിൽ നിന്ന് ഇൻസ്റ്റാൾ ചെയ്യുക.</string>
+    <string name="cd_listen">ഇത് ഉറക്കെ വായിക്കുക</string>
+    <string name="translating_inline">വിവർത്തനം ചെയ്യുന്നു…</string>
+
+    <!-- Ask -->
+    <string name="ask_hint">ഈ രേഖയെക്കുറിച്ച് ഒരു ചോദ്യം ചോദിക്കുക</string>
+    <string name="ask_send">ചോദിക്കുക</string>
+    <string name="cd_ask_voice">സംസാരിച്ച് ചോദിക്കുക</string>
+    <string name="ask_thinking">രേഖയിൽ തിരയുന്നു…</string>
+    <string name="ask_no_answer">ഇത് ഈ രേഖയിൽ ഉൾപ്പെട്ടതായി തോന്നുന്നില്ല.</string>
+
+    <!-- Quiz -->
+    <string name="quiz_progress">%2$d ൽ ചോദ്യം %1$d</string>
+    <string name="quiz_correct">ശരി</string>
+    <string name="quiz_incorrect">കൃത്യമല്ല</string>
+    <string name="quiz_score">നിങ്ങൾ %2$d ൽ %1$d ശരിയാക്കി</string>
+    <string name="quiz_next">അടുത്തത്</string>
+    <string name="quiz_unavailable">ഈ രേഖയിൽ നിന്ന് ചോദ്യങ്ങളൊന്നും ഉണ്ടാക്കാൻ കഴിഞ്ഞില്ല.</string>
+
+    <!-- Errors -->
+    <string name="error_generation_failed">അധ്യാപകന് അതിന് ഉത്തരം നൽകാൻ കഴിഞ്ഞില്ല. ചോദ്യം മറ്റൊരു വിധത്തിൽ ചോദിക്കുക.</string>
+    <string name="error_low_memory">ഈ ഉപകരണത്തിൽ മെമ്മറി കുറവാണ്, അതിനാൽ LearnBridge അതിന്റെ ലളിതമായ ഓഫ്‌ലൈൻ അധ്യാപകനെ ഉപയോഗിക്കുന്നു.</string>
+
+    <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
+    <string name="explain_fallback_english">ഈ രേഖയ്ക്ക് %1$s ഇതുവരെ തയ്യാറായിട്ടില്ല — പകരം ഇംഗ്ലീഷ് കാണിക്കുന്നു.</string>
+    <string name="explain_unavailable">ഈ രേഖയ്ക്ക് ഒരു വിശദീകരണവും ഉണ്ടാക്കാൻ കഴിഞ്ഞില്ല.</string>
+    <string name="cd_ask_input">ഈ രേഖയെക്കുറിച്ചുള്ള നിങ്ങളുടെ ചോദ്യം ടൈപ്പ് ചെയ്യുക</string>
+    <string name="cd_ask_send">നിങ്ങളുടെ ചോദ്യം അയയ്ക്കുക</string>
+    <string name="cd_quiz_option">ഉത്തരം: %1$s</string>
+    <string name="cd_quiz_next">അടുത്ത ചോദ്യത്തിലേക്ക് പോകുക</string>
+    <string name="cd_switch_to_target">പാഠം %1$s ലേക്ക് മാറ്റുക</string>
+    <string name="cd_switch_to_english">പാഠം ഇംഗ്ലീഷിലേക്ക് മാറ്റുക</string>
+    <string name="cd_long_press_for_languages">മറ്റൊരു ഭാഷ തിരഞ്ഞെടുക്കാൻ അമർത്തിപ്പിടിക്കുക.</string>
+</resources>

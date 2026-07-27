@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Bengali chrome. Mirrors values/strings.xml key-for-key, except app_name, which is a product name
+  and is deliberately left to fall back. See values-hi/strings.xml for why these are reachable.
+
+  MACHINE-DRAFTED, NOT YET READ BY A NATIVE SPEAKER. See README "Honest limitations".
+-->
+<resources>
+    <!-- Library screen -->
+    <string name="library_title">আমার নথিপত্র</string>
+    <string name="library_empty_title">এখনো শেখার কিছু নেই</string>
+    <string name="library_empty_body">পাঠ্যবইয়ের একটি পাতার ছবি তুলুন, বা একটি নথি আমদানি করুন — LearnBridge সেটি আপনাকে ইন্টারনেট ছাড়াই শেখাবে।</string>
+    <string name="action_photo">পাতার ছবি তুলুন</string>
+    <string name="action_import">নথি আমদানি করুন</string>
+    <string name="cd_photo">শেখার জন্য একটি পাতার ছবি তুলুন</string>
+    <string name="cd_import">শেখার জন্য একটি নথি আমদানি করুন</string>
+
+    <!-- Language selection -->
+    <string name="teach_me_in">আমাকে শেখান</string>
+    <string name="cd_choose_language">শেখার ভাষা বেছে নিন</string>
+    <string name="choose_language_title">আমাকে শেখান</string>
+    <string name="language_needs_rendering">%1$s  (এখনো প্রস্তুত নয়)</string>
+    <string name="language_render_failed">এই নথির জন্য সেই ভাষা প্রস্তুত করা যায়নি।</string>
+
+    <!-- Documents -->
+    <string name="document_meta">%1$d শব্দ</string>
+    <string name="delete_confirm">এই নথি এবং LearnBridge এটি থেকে যা কিছু শিখেছে, সব সরিয়ে দেবেন?</string>
+    <string name="delete">সরান</string>
+    <string name="cd_document">এই পাঠটি খুলুন</string>
+
+    <!-- Ingest -->
+    <string name="ingest_reading">পাতা পড়া হচ্ছে…</string>
+    <string name="ingest_thinking">এটি কীভাবে শেখানো যায় তা ভাবা হচ্ছে…</string>
+    <string name="ingest_translating">%1$s সংস্করণ প্রস্তুত করা হচ্ছে…</string>
+    <string name="ingest_wait_note">এটি প্রতিটি নথির জন্য একবারই ঘটে, তাই পরে পাঠটি সঙ্গে সঙ্গে খোলে।</string>
+    <string name="ingest_failed_unreadable">ওই ফাইল থেকে কোনো লেখা পড়া যায়নি।</string>
+    <string name="ingest_failed_empty">ওই নথিটি ফাঁকা মনে হচ্ছে।</string>
+    <string name="ingest_failed_unsupported">এই ধরনের ফাইল এখনো সমর্থিত নয়। একটি লেখার ফাইল, PDF, বা ছবি চেষ্টা করুন।</string>
+    <string name="error_capture_unavailable">এই ডিভাইসে কোনো ক্যামেরা অ্যাপ নেই।</string>
+
+    <!-- Lesson screen -->
+    <string name="tab_explain">ব্যাখ্যা</string>
+    <string name="tab_ask">জিজ্ঞাসা</string>
+    <string name="tab_quiz">কুইজ</string>
+    <string name="explain_generating">ব্যাখ্যা করা হচ্ছে…</string>
+    <string name="action_english">ইংরেজি</string>
+    <string name="action_listen">শুনুন</string>
+    <string name="tts_voice_missing">এই ডিভাইসে %1$s-এর কোনো কণ্ঠ ইনস্টল করা নেই, তাই এটি ইংরেজিতে পড়া হবে। সেটিংস › টেক্সট-টু-স্পিচ থেকে ইনস্টল করুন।</string>
+    <string name="cd_listen">এটি জোরে পড়ুন</string>
+    <string name="translating_inline">অনুবাদ করা হচ্ছে…</string>
+
+    <!-- Ask -->
+    <string name="ask_hint">এই নথি সম্পর্কে একটি প্রশ্ন করুন</string>
+    <string name="ask_send">জিজ্ঞাসা</string>
+    <string name="cd_ask_voice">বলে প্রশ্ন করুন</string>
+    <string name="ask_thinking">নথির মধ্যে খোঁজা হচ্ছে…</string>
+    <string name="ask_no_answer">এটি এই নথিতে আছে বলে মনে হচ্ছে না।</string>
+
+    <!-- Quiz -->
+    <string name="quiz_progress">%2$d-এর মধ্যে প্রশ্ন %1$d</string>
+    <string name="quiz_correct">সঠিক</string>
+    <string name="quiz_incorrect">ঠিক নয়</string>
+    <string name="quiz_score">আপনি %2$d-এর মধ্যে %1$d সঠিক করেছেন</string>
+    <string name="quiz_next">পরবর্তী</string>
+    <string name="quiz_unavailable">এই নথি থেকে কোনো প্রশ্ন তৈরি করা যায়নি।</string>
+
+    <!-- Errors -->
+    <string name="error_generation_failed">শিক্ষক সেটির উত্তর দিতে পারেননি। প্রশ্নটি অন্যভাবে করুন।</string>
+    <string name="error_low_memory">এই ডিভাইসে মেমরি কম, তাই LearnBridge তার সরল অফলাইন শিক্ষক ব্যবহার করছে।</string>
+
+    <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
+    <string name="explain_fallback_english">এই নথির জন্য %1$s এখনো প্রস্তুত নয় — বদলে ইংরেজি দেখানো হচ্ছে।</string>
+    <string name="explain_unavailable">এই নথির জন্য কোনো ব্যাখ্যা তৈরি করা যায়নি।</string>
+    <string name="cd_ask_input">এই নথি সম্পর্কে আপনার প্রশ্ন লিখুন</string>
+    <string name="cd_ask_send">আপনার প্রশ্ন পাঠান</string>
+    <string name="cd_quiz_option">উত্তর: %1$s</string>
+    <string name="cd_quiz_next">পরবর্তী প্রশ্নে যান</string>
+    <string name="cd_switch_to_target">পাঠটি %1$s-এ পাল্টান</string>
+    <string name="cd_switch_to_english">পাঠটি ইংরেজিতে পাল্টান</string>
+    <string name="cd_long_press_for_languages">অন্য ভাষা বেছে নিতে চেপে ধরে রাখুন।</string>
+</resources>

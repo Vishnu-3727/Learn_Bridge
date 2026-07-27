@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Marathi chrome. Mirrors values/strings.xml key-for-key, except app_name, which is a product name
+  and is deliberately left to fall back. See values-hi/strings.xml for why these are reachable.
+
+  MACHINE-DRAFTED, NOT YET READ BY A NATIVE SPEAKER. See README "Honest limitations".
+-->
+<resources>
+    <!-- Library screen -->
+    <string name="library_title">माझी कागदपत्रे</string>
+    <string name="library_empty_title">अजून शिकण्यासारखे काही नाही</string>
+    <string name="library_empty_body">पाठ्यपुस्तकाच्या पानाचा फोटो काढा, किंवा एखादे दस्तऐवज आयात करा — LearnBridge ते तुम्हाला इंटरनेटशिवाय शिकवेल.</string>
+    <string name="action_photo">पानाचा फोटो काढा</string>
+    <string name="action_import">दस्तऐवज आयात करा</string>
+    <string name="cd_photo">शिकण्यासाठी पानाचा फोटो काढा</string>
+    <string name="cd_import">शिकण्यासाठी दस्तऐवज आयात करा</string>
+
+    <!-- Language selection -->
+    <string name="teach_me_in">मला शिकवा</string>
+    <string name="cd_choose_language">शिकण्याची भाषा निवडा</string>
+    <string name="choose_language_title">मला शिकवा</string>
+    <string name="language_needs_rendering">%1$s  (अजून तयार नाही)</string>
+    <string name="language_render_failed">या दस्तऐवजासाठी ती भाषा तयार करता आली नाही.</string>
+
+    <!-- Documents -->
+    <string name="document_meta">%1$d शब्द</string>
+    <string name="delete_confirm">हे दस्तऐवज आणि LearnBridge ने त्यातून शिकलेले सर्व काही काढून टाकायचे?</string>
+    <string name="delete">काढा</string>
+    <string name="cd_document">हा धडा उघडा</string>
+
+    <!-- Ingest -->
+    <string name="ingest_reading">पान वाचत आहे…</string>
+    <string name="ingest_thinking">हे कसे शिकवायचे ते ठरवत आहे…</string>
+    <string name="ingest_translating">%1$s आवृत्ती तयार करत आहे…</string>
+    <string name="ingest_wait_note">हे प्रत्येक दस्तऐवजासाठी एकदाच होते, त्यामुळे नंतर धडा लगेच उघडतो.</string>
+    <string name="ingest_failed_unreadable">त्या फाइलमधून कोणताही मजकूर वाचता आला नाही.</string>
+    <string name="ingest_failed_empty">ते दस्तऐवज रिकामे दिसते.</string>
+    <string name="ingest_failed_unsupported">या प्रकारची फाइल अजून समर्थित नाही. मजकूर फाइल, PDF, किंवा फोटो वापरून पहा.</string>
+    <string name="error_capture_unavailable">या उपकरणावर कोणतेही कॅमेरा ॲप उपलब्ध नाही.</string>
+
+    <!-- Lesson screen -->
+    <string name="tab_explain">समजावा</string>
+    <string name="tab_ask">विचारा</string>
+    <string name="tab_quiz">प्रश्नमंजुषा</string>
+    <string name="explain_generating">समजावून सांगत आहे…</string>
+    <string name="action_english">इंग्रजी</string>
+    <string name="action_listen">ऐका</string>
+    <string name="tts_voice_missing">या उपकरणावर %1$s चा आवाज स्थापित केलेला नाही, त्यामुळे तो इंग्रजीत वाचला जाईल. सेटिंग्ज › मजकूर-ते-भाषण मधून तो स्थापित करा.</string>
+    <string name="cd_listen">हे मोठ्याने वाचा</string>
+    <string name="translating_inline">भाषांतर होत आहे…</string>
+
+    <!-- Ask -->
+    <string name="ask_hint">या दस्तऐवजाबद्दल प्रश्न विचारा</string>
+    <string name="ask_send">विचारा</string>
+    <string name="cd_ask_voice">बोलून विचारा</string>
+    <string name="ask_thinking">दस्तऐवजात शोधत आहे…</string>
+    <string name="ask_no_answer">हे या दस्तऐवजात समाविष्ट असल्याचे दिसत नाही.</string>
+
+    <!-- Quiz -->
+    <string name="quiz_progress">%2$d पैकी प्रश्न %1$d</string>
+    <string name="quiz_correct">बरोबर</string>
+    <string name="quiz_incorrect">अगदी बरोबर नाही</string>
+    <string name="quiz_score">तुम्हाला %2$d पैकी %1$d बरोबर आले</string>
+    <string name="quiz_next">पुढे</string>
+    <string name="quiz_unavailable">या दस्तऐवजातून कोणतेही प्रश्न तयार करता आले नाहीत.</string>
+
+    <!-- Errors -->
+    <string name="error_generation_failed">शिक्षकाला त्याचे उत्तर देता आले नाही. प्रश्न वेगळ्या प्रकारे विचारा.</string>
+    <string name="error_low_memory">या उपकरणावर मेमरी कमी आहे, त्यामुळे LearnBridge त्याचा साधा ऑफलाइन शिक्षक वापरत आहे.</string>
+
+    <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
+    <string name="explain_fallback_english">या दस्तऐवजासाठी %1$s अजून तयार नाही — त्याऐवजी इंग्रजी दाखवत आहे.</string>
+    <string name="explain_unavailable">या दस्तऐवजासाठी कोणतेही स्पष्टीकरण तयार करता आले नाही.</string>
+    <string name="cd_ask_input">या दस्तऐवजाबद्दल तुमचा प्रश्न लिहा</string>
+    <string name="cd_ask_send">तुमचा प्रश्न पाठवा</string>
+    <string name="cd_quiz_option">उत्तर: %1$s</string>
+    <string name="cd_quiz_next">पुढच्या प्रश्नाकडे जा</string>
+    <string name="cd_switch_to_target">धडा %1$s मध्ये बदला</string>
+    <string name="cd_switch_to_english">धडा इंग्रजीत बदला</string>
+    <string name="cd_long_press_for_languages">दुसरी भाषा निवडण्यासाठी दाबून धरा.</string>
+</resources>

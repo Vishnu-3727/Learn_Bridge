@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Odia chrome. Mirrors values/strings.xml key-for-key, except app_name, which is a product name and
+  is deliberately left to fall back. See values-hi/strings.xml for why these are reachable.
+
+  MACHINE-DRAFTED, NOT YET READ BY A NATIVE SPEAKER. See README "Honest limitations".
+-->
+<resources>
+    <!-- Library screen -->
+    <string name="library_title">ମୋର ଦଲିଲ</string>
+    <string name="library_empty_title">ଏପର୍ଯ୍ୟନ୍ତ ଶିଖିବାକୁ କିଛି ନାହିଁ</string>
+    <string name="library_empty_body">ପାଠ୍ୟପୁସ୍ତକର ଏକ ପୃଷ୍ଠାର ଫଟୋ ନିଅନ୍ତୁ, କିମ୍ବା ଏକ ଦଲିଲ ଆମଦାନି କରନ୍ତୁ — LearnBridge ତାହା ଆପଣଙ୍କୁ ଇଣ୍ଟରନେଟ୍ ବିନା ଶିଖାଇବ।</string>
+    <string name="action_photo">ପୃଷ୍ଠାର ଫଟୋ ନିଅନ୍ତୁ</string>
+    <string name="action_import">ଦଲିଲ ଆମଦାନି କରନ୍ତୁ</string>
+    <string name="cd_photo">ଶିଖିବା ପାଇଁ ଏକ ପୃଷ୍ଠାର ଫଟୋ ନିଅନ୍ତୁ</string>
+    <string name="cd_import">ଶିଖିବା ପାଇଁ ଏକ ଦଲିଲ ଆମଦାନି କରନ୍ତୁ</string>
+
+    <!-- Language selection -->
+    <string name="teach_me_in">ମୋତେ ଶିଖାନ୍ତୁ</string>
+    <string name="cd_choose_language">ଶିଖିବାର ଭାଷା ବାଛନ୍ତୁ</string>
+    <string name="choose_language_title">ମୋତେ ଶିଖାନ୍ତୁ</string>
+    <string name="language_needs_rendering">%1$s  (ଏପର୍ଯ୍ୟନ୍ତ ପ୍ରସ୍ତୁତ ନୁହେଁ)</string>
+    <string name="language_render_failed">ଏହି ଦଲିଲ ପାଇଁ ସେହି ଭାଷା ପ୍ରସ୍ତୁତ କରାଯାଇପାରିଲା ନାହିଁ।</string>
+
+    <!-- Documents -->
+    <string name="document_meta">%1$d ଶବ୍ଦ</string>
+    <string name="delete_confirm">ଏହି ଦଲିଲ ଏବଂ LearnBridge ଏଥିରୁ ଯାହା ଶିଖିଛି, ସବୁ ହଟାଇଦେବେ?</string>
+    <string name="delete">ହଟାନ୍ତୁ</string>
+    <string name="cd_document">ଏହି ପାଠ ଖୋଲନ୍ତୁ</string>
+
+    <!-- Ingest -->
+    <string name="ingest_reading">ପୃଷ୍ଠା ପଢ଼ାଯାଉଛି…</string>
+    <string name="ingest_thinking">ଏହା କିପରି ଶିଖାଇବେ ତାହା ଭାବୁଛି…</string>
+    <string name="ingest_translating">%1$s ସଂସ୍କରଣ ପ୍ରସ୍ତୁତ କରାଯାଉଛି…</string>
+    <string name="ingest_wait_note">ଏହା ପ୍ରତ୍ୟେକ ଦଲିଲ ପାଇଁ ଥରେ ମାତ୍ର ହୁଏ, ତେଣୁ ପରେ ପାଠ ସଙ୍ଗେ ସଙ୍ଗେ ଖୋଲେ।</string>
+    <string name="ingest_failed_unreadable">ସେହି ଫାଇଲରୁ କୌଣସି ଲେଖା ପଢ଼ାଯାଇପାରିଲା ନାହିଁ।</string>
+    <string name="ingest_failed_empty">ସେହି ଦଲିଲ ଖାଲି ଦେଖାଯାଉଛି।</string>
+    <string name="ingest_failed_unsupported">ଏହି ପ୍ରକାରର ଫାଇଲ ଏପର୍ଯ୍ୟନ୍ତ ସମର୍ଥିତ ନୁହେଁ। ଏକ ଲେଖା ଫାଇଲ, PDF, କିମ୍ବା ଫଟୋ ଚେଷ୍ଟା କରନ୍ତୁ।</string>
+    <string name="error_capture_unavailable">ଏହି ଉପକରଣରେ କୌଣସି କ୍ୟାମେରା ଆପ୍ ଉପଲବ୍ଧ ନାହିଁ।</string>
+
+    <!-- Lesson screen -->
+    <string name="tab_explain">ବୁଝାନ୍ତୁ</string>
+    <string name="tab_ask">ପଚାରନ୍ତୁ</string>
+    <string name="tab_quiz">ପ୍ରଶ୍ନୋତ୍ତର</string>
+    <string name="explain_generating">ବୁଝାଯାଉଛି…</string>
+    <string name="action_english">ଇଂରାଜୀ</string>
+    <string name="action_listen">ଶୁଣନ୍ତୁ</string>
+    <string name="tts_voice_missing">ଏହି ଉପକରଣରେ %1$s ର କୌଣସି ସ୍ୱର ସ୍ଥାପିତ ହୋଇନାହିଁ, ତେଣୁ ଏହା ଇଂରାଜୀରେ ପଢ଼ାଯିବ। ସେଟିଂସ୍ › ଲେଖା-ରୁ-ବାଣୀ ରୁ ସ୍ଥାପନ କରନ୍ତୁ।</string>
+    <string name="cd_listen">ଏହା ଉଚ୍ଚ ସ୍ୱରରେ ପଢ଼ନ୍ତୁ</string>
+    <string name="translating_inline">ଅନୁବାଦ ହେଉଛି…</string>
+
+    <!-- Ask -->
+    <string name="ask_hint">ଏହି ଦଲିଲ ବିଷୟରେ ଏକ ପ୍ରଶ୍ନ ପଚାରନ୍ତୁ</string>
+    <string name="ask_send">ପଚାରନ୍ତୁ</string>
+    <string name="cd_ask_voice">କହି ପଚାରନ୍ତୁ</string>
+    <string name="ask_thinking">ଦଲିଲ ଭିତରେ ଖୋଜାଯାଉଛି…</string>
+    <string name="ask_no_answer">ଏହା ଏହି ଦଲିଲରେ ଅନ୍ତର୍ଭୁକ୍ତ ବୋଲି ମନେ ହେଉନାହିଁ।</string>
+
+    <!-- Quiz -->
+    <string name="quiz_progress">%2$d ମଧ୍ୟରୁ ପ୍ରଶ୍ନ %1$d</string>
+    <string name="quiz_correct">ଠିକ୍</string>
+    <string name="quiz_incorrect">ପୁରା ଠିକ୍ ନୁହେଁ</string>
+    <string name="quiz_score">ଆପଣ %2$d ମଧ୍ୟରୁ %1$d ଠିକ୍ କରିଛନ୍ତି</string>
+    <string name="quiz_next">ପରବର୍ତ୍ତୀ</string>
+    <string name="quiz_unavailable">ଏହି ଦଲିଲରୁ କୌଣସି ପ୍ରଶ୍ନ ତିଆରି କରାଯାଇପାରିଲା ନାହିଁ।</string>
+
+    <!-- Errors -->
+    <string name="error_generation_failed">ଶିକ୍ଷକ ତାହାର ଉତ୍ତର ଦେଇପାରିଲେ ନାହିଁ। ପ୍ରଶ୍ନଟି ଅନ୍ୟ ଭାବରେ ପଚାରନ୍ତୁ।</string>
+    <string name="error_low_memory">ଏହି ଉପକରଣରେ ମେମୋରୀ କମ୍, ତେଣୁ LearnBridge ତାହାର ସରଳ ଅଫଲାଇନ୍ ଶିକ୍ଷକ ବ୍ୟବହାର କରୁଛି।</string>
+
+    <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
+    <string name="explain_fallback_english">ଏହି ଦଲିଲ ପାଇଁ %1$s ଏପର୍ଯ୍ୟନ୍ତ ପ୍ରସ୍ତୁତ ନୁହେଁ — ଏହା ବଦଳରେ ଇଂରାଜୀ ଦେଖାଯାଉଛି।</string>
+    <string name="explain_unavailable">ଏହି ଦଲିଲ ପାଇଁ କୌଣସି ବ୍ୟାଖ୍ୟା ତିଆରି କରାଯାଇପାରିଲା ନାହିଁ।</string>
+    <string name="cd_ask_input">ଏହି ଦଲିଲ ବିଷୟରେ ଆପଣଙ୍କ ପ୍ରଶ୍ନ ଲେଖନ୍ତୁ</string>
+    <string name="cd_ask_send">ଆପଣଙ୍କ ପ୍ରଶ୍ନ ପଠାନ୍ତୁ</string>
+    <string name="cd_quiz_option">ଉତ୍ତର: %1$s</string>
+    <string name="cd_quiz_next">ପରବର୍ତ୍ତୀ ପ୍ରଶ୍ନକୁ ଯାଆନ୍ତୁ</string>
+    <string name="cd_switch_to_target">ପାଠକୁ %1$s କୁ ବଦଳାନ୍ତୁ</string>
+    <string name="cd_switch_to_english">ପାଠକୁ ଇଂରାଜୀକୁ ବଦଳାନ୍ତୁ</string>
+    <string name="cd_long_press_for_languages">ଅନ୍ୟ ଭାଷା ବାଛିବାକୁ ଦବାଇ ଧରନ୍ତୁ।</string>
+</resources>

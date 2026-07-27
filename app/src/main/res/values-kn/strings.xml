@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Kannada chrome. Mirrors values/strings.xml key-for-key, except app_name, which is a product name
+  and is deliberately left to fall back. See values-hi/strings.xml for why these are reachable.
+
+  MACHINE-DRAFTED, NOT YET READ BY A NATIVE SPEAKER. See README "Honest limitations".
+-->
+<resources>
+    <!-- Library screen -->
+    <string name="library_title">ನನ್ನ ದಾಖಲೆಗಳು</string>
+    <string name="library_empty_title">ಇನ್ನೂ ಕಲಿಯಲು ಏನೂ ಇಲ್ಲ</string>
+    <string name="library_empty_body">ಪಠ್ಯಪುಸ್ತಕದ ಪುಟವನ್ನು ಫೋಟೊ ತೆಗೆಯಿರಿ, ಅಥವಾ ಒಂದು ದಾಖಲೆಯನ್ನು ಆಮದು ಮಾಡಿ — LearnBridge ಅದನ್ನು ಇಂಟರ್ನೆಟ್ ಇಲ್ಲದೆಯೇ ನಿಮಗೆ ಕಲಿಸುತ್ತದೆ.</string>
+    <string name="action_photo">ಪುಟವನ್ನು ಫೋಟೊ ತೆಗೆಯಿರಿ</string>
+    <string name="action_import">ದಾಖಲೆಯನ್ನು ಆಮದು ಮಾಡಿ</string>
+    <string name="cd_photo">ಕಲಿಯಲು ಒಂದು ಪುಟವನ್ನು ಫೋಟೊ ತೆಗೆಯಿರಿ</string>
+    <string name="cd_import">ಕಲಿಯಲು ಒಂದು ದಾಖಲೆಯನ್ನು ಆಮದು ಮಾಡಿ</string>
+
+    <!-- Language selection -->
+    <string name="teach_me_in">ನನಗೆ ಕಲಿಸಿ</string>
+    <string name="cd_choose_language">ಕಲಿಯುವ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="choose_language_title">ನನಗೆ ಕಲಿಸಿ</string>
+    <string name="language_needs_rendering">%1$s  (ಇನ್ನೂ ಸಿದ್ಧವಾಗಿಲ್ಲ)</string>
+    <string name="language_render_failed">ಈ ದಾಖಲೆಗಾಗಿ ಆ ಭಾಷೆಯನ್ನು ಸಿದ್ಧಪಡಿಸಲಾಗಲಿಲ್ಲ.</string>
+
+    <!-- Documents -->
+    <string name="document_meta">%1$d ಪದಗಳು</string>
+    <string name="delete_confirm">ಈ ದಾಖಲೆಯನ್ನು ಮತ್ತು LearnBridge ಅದರಿಂದ ಕಲಿತ ಎಲ್ಲವನ್ನೂ ತೆಗೆದುಹಾಕಬೇಕೆ?</string>
+    <string name="delete">ತೆಗೆದುಹಾಕಿ</string>
+    <string name="cd_document">ಈ ಪಾಠವನ್ನು ತೆರೆಯಿರಿ</string>
+
+    <!-- Ingest -->
+    <string name="ingest_reading">ಪುಟವನ್ನು ಓದಲಾಗುತ್ತಿದೆ…</string>
+    <string name="ingest_thinking">ಇದನ್ನು ಹೇಗೆ ಕಲಿಸುವುದೆಂದು ಯೋಚಿಸಲಾಗುತ್ತಿದೆ…</string>
+    <string name="ingest_translating">%1$s ಆವೃತ್ತಿಯನ್ನು ಸಿದ್ಧಪಡಿಸಲಾಗುತ್ತಿದೆ…</string>
+    <string name="ingest_wait_note">ಇದು ಪ್ರತಿ ದಾಖಲೆಗೆ ಒಮ್ಮೆ ಮಾತ್ರ ನಡೆಯುತ್ತದೆ, ಆದ್ದರಿಂದ ನಂತರ ಪಾಠ ತಕ್ಷಣ ತೆರೆಯುತ್ತದೆ.</string>
+    <string name="ingest_failed_unreadable">ಆ ಫೈಲ್‌ನಿಂದ ಯಾವುದೇ ಪಠ್ಯವನ್ನು ಓದಲಾಗಲಿಲ್ಲ.</string>
+    <string name="ingest_failed_empty">ಆ ದಾಖಲೆ ಖಾಲಿ ಇರುವಂತೆ ಕಾಣುತ್ತದೆ.</string>
+    <string name="ingest_failed_unsupported">ಈ ಬಗೆಯ ಫೈಲ್‌ಗೆ ಇನ್ನೂ ಬೆಂಬಲವಿಲ್ಲ. ಪಠ್ಯ ಫೈಲ್, PDF, ಅಥವಾ ಫೋಟೊ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <string name="error_capture_unavailable">ಈ ಸಾಧನದಲ್ಲಿ ಯಾವುದೇ ಕ್ಯಾಮೆರಾ ಅಪ್ಲಿಕೇಶನ್ ಲಭ್ಯವಿಲ್ಲ.</string>
+
+    <!-- Lesson screen -->
+    <string name="tab_explain">ವಿವರಿಸಿ</string>
+    <string name="tab_ask">ಕೇಳಿ</string>
+    <string name="tab_quiz">ರಸಪ್ರಶ್ನೆ</string>
+    <string name="explain_generating">ವಿವರಿಸಲಾಗುತ್ತಿದೆ…</string>
+    <string name="action_english">ಇಂಗ್ಲಿಷ್</string>
+    <string name="action_listen">ಆಲಿಸಿ</string>
+    <string name="tts_voice_missing">ಈ ಸಾಧನದಲ್ಲಿ %1$s ಧ್ವನಿ ಸ್ಥಾಪಿಸಿಲ್ಲ, ಆದ್ದರಿಂದ ಇದನ್ನು ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ಓದಲಾಗುತ್ತದೆ. ಸೆಟ್ಟಿಂಗ್‌ಗಳು › ಪಠ್ಯದಿಂದ-ಧ್ವನಿ ಇಂದ ಸ್ಥಾಪಿಸಿ.</string>
+    <string name="cd_listen">ಇದನ್ನು ಗಟ್ಟಿಯಾಗಿ ಓದಿ</string>
+    <string name="translating_inline">ಅನುವಾದಿಸಲಾಗುತ್ತಿದೆ…</string>
+
+    <!-- Ask -->
+    <string name="ask_hint">ಈ ದಾಖಲೆಯ ಬಗ್ಗೆ ಒಂದು ಪ್ರಶ್ನೆ ಕೇಳಿ</string>
+    <string name="ask_send">ಕೇಳಿ</string>
+    <string name="cd_ask_voice">ಮಾತನಾಡಿ ಕೇಳಿ</string>
+    <string name="ask_thinking">ದಾಖಲೆಯಲ್ಲಿ ಹುಡುಕಲಾಗುತ್ತಿದೆ…</string>
+    <string name="ask_no_answer">ಇದು ಈ ದಾಖಲೆಯಲ್ಲಿ ಒಳಗೊಂಡಿರುವಂತೆ ಕಾಣುತ್ತಿಲ್ಲ.</string>
+
+    <!-- Quiz -->
+    <string name="quiz_progress">%2$d ರಲ್ಲಿ ಪ್ರಶ್ನೆ %1$d</string>
+    <string name="quiz_correct">ಸರಿ</string>
+    <string name="quiz_incorrect">ಸರಿಯಾಗಿಲ್ಲ</string>
+    <string name="quiz_score">ನೀವು %2$d ರಲ್ಲಿ %1$d ಸರಿಯಾಗಿ ಉತ್ತರಿಸಿದ್ದೀರಿ</string>
+    <string name="quiz_next">ಮುಂದೆ</string>
+    <string name="quiz_unavailable">ಈ ದಾಖಲೆಯಿಂದ ಯಾವುದೇ ಪ್ರಶ್ನೆಗಳನ್ನು ರಚಿಸಲಾಗಲಿಲ್ಲ.</string>
+
+    <!-- Errors -->
+    <string name="error_generation_failed">ಶಿಕ್ಷಕರಿಗೆ ಅದಕ್ಕೆ ಉತ್ತರಿಸಲಾಗಲಿಲ್ಲ. ಪ್ರಶ್ನೆಯನ್ನು ಬೇರೆ ರೀತಿಯಲ್ಲಿ ಕೇಳಿ.</string>
+    <string name="error_low_memory">ಈ ಸಾಧನದಲ್ಲಿ ಮೆಮೊರಿ ಕಡಿಮೆ ಇದೆ, ಆದ್ದರಿಂದ LearnBridge ತನ್ನ ಸರಳ ಆಫ್‌ಲೈನ್ ಶಿಕ್ಷಕರನ್ನು ಬಳಸುತ್ತಿದೆ.</string>
+
+    <!-- Lesson screen: added when Explain/Ask/Quiz were wired up. -->
+    <string name="explain_fallback_english">ಈ ದಾಖಲೆಗಾಗಿ %1$s ಇನ್ನೂ ಸಿದ್ಧವಾಗಿಲ್ಲ — ಬದಲಿಗೆ ಇಂಗ್ಲಿಷ್ ತೋರಿಸಲಾಗುತ್ತಿದೆ.</string>
+    <string name="explain_unavailable">ಈ ದಾಖಲೆಗಾಗಿ ಯಾವುದೇ ವಿವರಣೆಯನ್ನು ರಚಿಸಲಾಗಲಿಲ್ಲ.</string>
+    <string name="cd_ask_input">ಈ ದಾಖಲೆಯ ಬಗ್ಗೆ ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಟೈಪ್ ಮಾಡಿ</string>
+    <string name="cd_ask_send">ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಕಳುಹಿಸಿ</string>
+    <string name="cd_quiz_option">ಉತ್ತರ: %1$s</string>
+    <string name="cd_quiz_next">ಮುಂದಿನ ಪ್ರಶ್ನೆಗೆ ಹೋಗಿ</string>
+    <string name="cd_switch_to_target">ಪಾಠವನ್ನು %1$s ಗೆ ಬದಲಾಯಿಸಿ</string>
+    <string name="cd_switch_to_english">ಪಾಠವನ್ನು ಇಂಗ್ಲಿಷ್‌ಗೆ ಬದಲಾಯಿಸಿ</string>
+    <string name="cd_long_press_for_languages">ಬೇರೆ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಲು ಒತ್ತಿ ಹಿಡಿಯಿರಿ.</string>
+</resources>
