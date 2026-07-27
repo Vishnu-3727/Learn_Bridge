@@ -202,7 +202,16 @@ its extractive tutor; every feature still works.
 **The model weights are not in this repository** (~459 MB of ONNX translation graphs). A clone
 compiles and runs without them and falls back to the extractive tutor, so a build with no assets at
 all is a supported configuration rather than a broken one — translation is simply unavailable and the
-language toggle stays disabled. Stage them into `engine/src/main/assets/`.
+language toggle stays disabled. Stage them into `engine/src/main/assets/`, and stage exactly these
+five files:
+
+```
+encoder_int8.onnx  decoder_init_int8.onnx  decoder_step_int8.onnx  dict.SRC.json  dict.TGT.json
+```
+
+That is the EN→target direction, which is the only one the app constructs. The export also produces
+`dict.SRC_HI.json` and `dict.TGT_EN.json` for HI→EN; those are 3.7 MB the APK cannot use, because the
+graphs that direction needs are not staged either. Leave them out.
 
 The optional generative model is **not** bundled during development — push it to the device instead,
 so a rebuild does not reinstall a 1.5 GB APK:
@@ -243,8 +252,9 @@ all thirteen targets, and asserts each result lands in that language's own Unico
   is then rendered into the lesson's language, which can force a model swap mid-conversation —
   measured at ~14 s. The screen says so while it happens. Explain and Quiz avoid it entirely by being
   rendered once, at import.
-- **Hindi input is not supported.** The HI→EN translation direction exists in the assets but is not
-  wired up, and routing speech → HI→EN → tutor → EN→HI would stack three lossy hops.
+- **Hindi input is not supported.** The engine can do HI→EN, but neither its graphs nor its
+  vocabularies are staged, so the direction would fail at model load rather than merely go unused.
+  Routing a document through HI→EN → tutor → EN→HI would stack three lossy hops anyway.
 - **The extractive tutor selects, it does not paraphrase.** Without a generative model it returns the
   document's own sentences, chosen well, rather than simplified rewrites.
 - **Greedy decoding drifts on long sentences.** A beam-search decoder is implemented but not enabled;
