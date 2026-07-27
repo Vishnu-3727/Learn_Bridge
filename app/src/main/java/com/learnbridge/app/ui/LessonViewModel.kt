@@ -1,6 +1,7 @@
 package com.learnbridge.app.ui
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.learnbridge.app.LearnBridgeApp
@@ -44,10 +45,18 @@ data class LessonUiState(
      */
     val translationAvailable: Boolean = false,
     /**
-     * The non-English language this document was rendered into. Read from the document's own rows, so
-     * a lesson imported in Marathi keeps showing Marathi even if the app's preference later changes.
+     * The non-English language the toggle currently switches to. Read from the document's own rows,
+     * so a lesson imported in Marathi keeps showing Marathi even if the app's preference later
+     * changes; changed by [LessonViewModel.chooseLanguage] when a second language is added.
      */
     val translationLang: String = LessonPipeline.LANG_HI,
+    /** Every non-English language this document already holds, so the chooser can mark them ready. */
+    val renderedLangs: List<String> = emptyList(),
+    /** The language being rendered right now, or null. Non-null blocks a second render and is what
+     *  puts the wait on screen — this is a model load plus every fragment of every artifact. */
+    val rendering: String? = null,
+    /** One-shot: the last chosen language produced no rows. Cleared by [LessonViewModel.consumeRenderFailure]. */
+    val renderFailed: Boolean = false,
     val explain: ExplainUi = ExplainUi(),
     val ask: AskUi = AskUi(),
     val quiz: QuizUi = QuizUi(),
@@ -271,22 +280,90 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Doc-level: true if EITHER artifact kind has a Hindi row. Checked once per doc, not per pane, so
-     * the toggle can be disabled up front rather than discovered broken after a tap.
+     * Doc-level: which non-English languages this document holds. Checked once per doc, not per pane,
+     * so the toggle can be disabled up front rather than discovered broken after a tap.
+     *
+     * [preferred] keeps a language the student just chose selected; otherwise the first rendered one
+     * wins, which for a document with a single translation is the one it was imported with.
      */
-    private fun refreshTranslationAvailability() {
+    private fun refreshTranslationAvailability(preferred: String? = null) {
         val docId = _state.value.docId
         viewModelScope.launch(Dispatchers.IO) {
-            // Which language this document actually carries, read from its rows rather than from the
-            // app's current preference — a document keeps whatever it was ingested with.
-            val code = docStore.translationLanguage(docId)
-            val explain = code?.let { docStore.artifacts(docId, LessonPipeline.KIND_EXPLANATION, it) }.orEmpty()
-            val quiz = code?.let { docStore.artifacts(docId, LessonPipeline.KIND_QUIZ, it) }.orEmpty()
+            // Which languages this document actually carries, read from its rows rather than from the
+            // app's current preference — a document keeps whatever it was rendered into.
+            val codes = docStore.translationLanguages(docId)
+            val selected = preferred?.takeIf { it in codes } ?: codes.firstOrNull()
+            val explain = selected?.let { docStore.artifacts(docId, LessonPipeline.KIND_EXPLANATION, it) }.orEmpty()
+            val quiz = selected?.let { docStore.artifacts(docId, LessonPipeline.KIND_QUIZ, it) }.orEmpty()
             val available = explain.isNotEmpty() || quiz.isNotEmpty()
             _state.update {
-                it.copy(translationAvailable = available, translationLang = code ?: LessonPipeline.LANG_HI)
+                it.copy(
+                    translationAvailable = available,
+                    translationLang = selected ?: LessonPipeline.LANG_HI,
+                    renderedLangs = codes,
+                )
             }
         }
+    }
+
+    /**
+     * Renders this document into [language] and shows it, or just switches to it when the rows are
+     * already there.
+     *
+     * The expensive path is the whole of [LessonPipeline.translateInto] — a model acquisition plus
+     * every fragment of every artifact — which is why [LessonUiState.rendering] exists: the wait is
+     * on screen rather than behind a frozen button, and a second request during it is refused.
+     *
+     * A failed render leaves the lesson exactly as it was: translateInto logs and returns without
+     * writing partial rows, and the refresh below then finds no rows for [language] and keeps the
+     * previous selection.
+     */
+    fun chooseLanguage(language: SupportedLanguage) {
+        val current = _state.value
+        if (current.rendering != null) return
+
+        if (language == SupportedLanguage.ENGLISH) {
+            _state.update { it.copy(lang = LessonPipeline.LANG_EN) }
+            loadExplain()
+            loadQuiz(preserveProgress = true)
+            return
+        }
+
+        if (language.code in current.renderedLangs) {
+            _state.update { it.copy(lang = language.code, translationLang = language.code) }
+            loadExplain()
+            loadQuiz(preserveProgress = true)
+            return
+        }
+
+        _state.update { it.copy(rendering = language.code) }
+        viewModelScope.launch {
+            withContext(Dispatchers.Default) {
+                runCatching { app.lessonPipeline().translateInto(docId = current.docId, language = language) }
+                    .onFailure { Log.w(TAG, "doc ${current.docId}: ${language.code} render failed (${it.message})") }
+            }
+            val rows = withContext(Dispatchers.IO) {
+                docStore.artifacts(current.docId, LessonPipeline.KIND_EXPLANATION, language.code)
+            }
+            val rendered = rows.isNotEmpty()
+            _state.update {
+                it.copy(
+                    rendering = null,
+                    lang = if (rendered) language.code else it.lang,
+                    renderFailed = !rendered,
+                )
+            }
+            refreshTranslationAvailability(preferred = language.code)
+            if (rendered) {
+                loadExplain()
+                loadQuiz(preserveProgress = true)
+            }
+        }
+    }
+
+    /** Clears the one-shot "that language could not be rendered" flag once the screen has shown it. */
+    fun consumeRenderFailure() {
+        _state.update { it.copy(renderFailed = false) }
     }
 
     /**
@@ -377,5 +454,6 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
 
     private companion object {
         const val NO_DOC = -1L
+        const val TAG = "LessonViewModel"
     }
 }

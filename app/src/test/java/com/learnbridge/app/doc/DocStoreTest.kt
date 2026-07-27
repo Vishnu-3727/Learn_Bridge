@@ -127,6 +127,30 @@ class DocStoreTest {
         )
     }
 
+    /**
+     * The query this replaced took whichever row SQLite returned first, with no ORDER BY. That was
+     * survivable only while a document could hold exactly one translation; a lesson rendered into a
+     * second language afterwards would have made the toggle's target depend on storage order.
+     */
+    @Test
+    fun `translationLanguages returns every rendered language, ordered, and never English`() {
+        val docId = store.insertDocument("Doc", null, 10)
+        store.putArtifact(docId, "explanation", "en", 0, "english")
+        store.putArtifact(docId, "explanation", "ur", 0, "urdu")
+        store.putArtifact(docId, "explanation", "hi", 0, "hindi")
+        store.putArtifact(docId, "quiz", "hi", 0, "hindi quiz") // same language, second kind
+
+        assertEquals(listOf("hi", "ur"), store.translationLanguages(docId))
+    }
+
+    @Test
+    fun `a document with no translation reports none`() {
+        val docId = store.insertDocument("Doc", null, 10)
+        store.putArtifact(docId, "explanation", "en", 0, "english only")
+
+        assertTrue(store.translationLanguages(docId).isEmpty())
+    }
+
     @Test
     fun `saveText and savedText round-trip through the filesystem`() {
         val docId = store.insertDocument("Doc", null, 10)

@@ -170,6 +170,14 @@ class LessonActivity : AppCompatActivity() {
         quizNext.setOnClickListener { viewModel.nextQuizQuestion() }
 
         languageToggle.setOnClickListener { viewModel.toggleLanguage() }
+        // Long-press rather than a second button: switching between the two languages a lesson
+        // already has is the common action and stays one tap, while adding a thirteenth-language
+        // rendering — minutes of model work — is deliberately the less casual gesture. Announced in
+        // the toggle's contentDescription so it is not discoverable by accident only.
+        languageToggle.setOnLongClickListener {
+            chooseLanguage()
+            true
+        }
         listenButton.setOnClickListener { speakCurrent() }
     }
 
@@ -191,7 +199,10 @@ class LessonActivity : AppCompatActivity() {
             LessonTab.QUIZ -> renderQuiz(state.quiz, state.lang)
         }
 
-        languageToggle.isEnabled = state.translationAvailable
+        renderRendering(state)
+        // Disabled while a rendering runs: the model is busy, and a second request would be refused
+        // by the ViewModel anyway — better to say so with the button than to swallow the tap.
+        languageToggle.isEnabled = state.translationAvailable && state.rendering == null
         // Labelled with the target language's own endonym — हिंदी, मराठी, தமிழ், اردو — never a
         // hardcoded language name. A Tamil lesson must not offer a button that says "हिंदी".
         val target = SupportedLanguage.byCode(state.translationLang) ?: SupportedLanguage.HINDI
@@ -200,7 +211,56 @@ class LessonActivity : AppCompatActivity() {
         languageToggle.contentDescription = getString(
             if (switchingToTarget) R.string.cd_switch_to_target else R.string.cd_switch_to_english,
             target.endonym,
-        )
+        ) + " " + getString(R.string.cd_long_press_for_languages)
+    }
+
+    /**
+     * The wait while a lesson is rendered into a language it does not have yet, and the note when
+     * that fails.
+     *
+     * Shown on whichever pane is up rather than as a blocking overlay: unlike an import, there is
+     * already a readable lesson on screen in another language, and the student can keep reading it.
+     */
+    private fun renderRendering(state: LessonUiState) {
+        val language = state.rendering?.let { SupportedLanguage.byCode(it) }
+        if (language != null) {
+            inlineStatus.text = getString(R.string.ingest_translating, language.endonym)
+            inlineStatus.visibility = View.VISIBLE
+        }
+        if (state.renderFailed) {
+            Toast.makeText(this, R.string.language_render_failed, Toast.LENGTH_LONG).show()
+            viewModel.consumeRenderFailure()
+        }
+    }
+
+    /**
+     * Offers every supported language, not only the ones already rendered: the whole point is adding
+     * one. The already-rendered ones are the instant path; anything else costs a full render, which
+     * [renderRendering] then puts on screen.
+     */
+    private fun chooseLanguage() {
+        val state = lastState ?: return
+        if (state.rendering != null) return
+
+        val options = listOf(SupportedLanguage.ENGLISH) + SupportedLanguage.targets
+        val labels = options.map { language ->
+            when {
+                language == SupportedLanguage.ENGLISH -> language.endonym
+                language.code in state.renderedLangs -> language.endonym
+                // Marked because choosing it is a minutes-long model run, not a database read.
+                else -> getString(R.string.language_needs_rendering, language.endonym)
+            }
+        }.toTypedArray()
+        val current = options.indexOfFirst { it.code == state.lang }
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.choose_language_title)
+            .setSingleChoiceItems(labels, current) { dialog, which ->
+                viewModel.chooseLanguage(options[which])
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     /** Selection is never colour-only: bold weight and [View.isSelected] (read aloud by screen

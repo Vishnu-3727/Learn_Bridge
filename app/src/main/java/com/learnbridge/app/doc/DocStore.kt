@@ -215,19 +215,25 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
     }
 
     /**
-     * The non-English language this document was rendered into, or null if it has none.
+     * Every non-English language this document has been rendered into, empty if it has none.
      *
      * Discovered from the stored rows rather than read from a setting, because a document keeps the
-     * language it was ingested with. Changing the app's preference must not make an existing lesson
+     * languages it was rendered into. Changing the app's preference must not make an existing lesson
      * claim a translation it does not have.
+     *
+     * `ORDER BY lang`, and a list rather than one row: the earlier version took whichever row SQLite
+     * happened to return first, which was harmless only while a document could hold exactly one
+     * translation. A document can now be rendered into a second language after import.
      */
-    fun translationLanguage(docId: Long): String? {
+    fun translationLanguages(docId: Long): List<String> {
+        val result = mutableListOf<String>()
         readableDatabase.rawQuery(
-            "SELECT lang FROM artifacts WHERE docId = ? AND lang <> 'en' LIMIT 1",
+            "SELECT DISTINCT lang FROM artifacts WHERE docId = ? AND lang <> 'en' ORDER BY lang",
             arrayOf(docId.toString()),
         ).use { cursor ->
-            return if (cursor.moveToFirst()) cursor.getString(0) else null
+            while (cursor.moveToNext()) result += cursor.getString(0)
         }
+        return result
     }
 
     /** Writes [text] to `filesDir/docs/<docId>.txt`. Called once, right after extraction. */

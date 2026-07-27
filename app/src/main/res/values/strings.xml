@@ -20,6 +20,10 @@
     <string name="teach_me_in">Teach me in</string>
     <string name="cd_choose_language">Choose the language to learn in</string>
     <string name="choose_language_title">Teach me in</string>
+    <!-- Marks a language the lesson has not been rendered into yet: choosing it starts a real
+         translation run rather than a database read, and the student should know before tapping. -->
+    <string name="language_needs_rendering">%1$s  (not prepared yet)</string>
+    <string name="language_render_failed">That language could not be prepared for this document.</string>
 
     <!-- Documents -->
     <string name="document_meta">%1$d words</string>
@@ -85,4 +89,6 @@
     <!-- %1$s is the language's own endonym, so a screen reader announces the real target. -->
     <string name="cd_switch_to_target">Switch the lesson to %1$s</string>
     <string name="cd_switch_to_english">Switch the lesson to English</string>
+    <!-- Appended to the toggle's description: a long press is otherwise invisible to a screen reader. -->
+    <string name="cd_long_press_for_languages">Press and hold to choose another language.</string>
 </resources>
