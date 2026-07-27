@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The one theme attribute that needs API 27. Declaring it in values/ made lint an error rather than
+  a warning, which is why CI could not run lint at all. The platform would have ignored the
+  attribute on API 24-26 regardless — this states that intent instead of relying on it.
+-->
+<resources>
+    <style name="Theme.LearnBridge" parent="Base.Theme.LearnBridge">
+        <!-- Light icons on the dark navigation bar. Matches windowLightStatusBar in the base. -->
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>

@@ -2,16 +2,20 @@
 <!--
   One theme, permanently dark — no values-night variant. The visual identity is the dark surface
   plus the emerald accent; a light variant would be a second design nobody has drawn.
+
+  android:windowLightNavigationBar is API 27, and minSdk is 24, so it lives in values-v27/ rather
+  than here — declared on a Base.* style that both variants extend, so the split costs one
+  indirection instead of a duplicated theme.
 -->
 <resources>
-    <style name="Theme.LearnBridge" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <!-- Everything that is safe on every API this app supports. Never applied directly. -->
+    <style name="Base.Theme.LearnBridge" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/bg_primary</item>
         <item name="android:colorBackground">@color/bg_primary</item>
 
         <item name="android:statusBarColor">@color/status_bar</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">@color/bg_primary</item>
-        <item name="android:windowLightNavigationBar">false</item>
 
         <item name="colorPrimary">@color/accent</item>
         <item name="colorPrimaryVariant">@color/accent_pressed</item>
@@ -26,6 +30,9 @@
         <item name="colorControlActivated">@color/accent</item>
         <item name="rippleColor">@color/accent_dim</item>
     </style>
+
+    <!-- What the manifest points at. values-v27/ overrides this one, not the Base above it. -->
+    <style name="Theme.LearnBridge" parent="Base.Theme.LearnBridge" />
 
     <!-- Content cards: input, explanation, quiz items. 16dp radius / 0 elevation, applied once
          here rather than repeated on every CardView. -->
