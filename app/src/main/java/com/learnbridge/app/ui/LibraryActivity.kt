@@ -21,6 +21,7 @@ import com.learnbridge.app.lang.SupportedLanguage
 import com.learnbridge.app.teach.IngestProgress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 
 /**
@@ -192,6 +193,10 @@ class LibraryActivity : AppCompatActivity() {
         lifecycleScope.launch {
             app.lessonPipeline()
                 .ingest(uri)
+                // Before flowOn, so the deletion runs on IO. Terminal for every outcome — imported,
+                // failed, or cancelled by leaving the screen — which is exactly when the photo stops
+                // being needed. A file import prunes too: it only ever finds stale captures.
+                .onCompletion { app.pruneCaptures() }
                 .flowOn(Dispatchers.IO)
                 .collect { progress -> onProgress(progress) }
         }

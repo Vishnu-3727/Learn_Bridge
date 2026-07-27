@@ -62,10 +62,23 @@ class LearnBridgeApp : Application() {
      * instead of crashing — page capture is a convenience, and importing a file is always available.
      */
     fun newCaptureUri(): Uri? = runCatching {
-        val dir = File(filesDir, "captures").apply { mkdirs() }
-        val file = File(dir, "page_${System.currentTimeMillis()}.jpg")
+        val file = File(capturesDir.apply { mkdirs() }, "page_${System.currentTimeMillis()}.jpg")
         FileProvider.getUriForFile(this, "$packageName.files", file)
     }.onFailure { Log.w(TAG, "Could not create a capture Uri: ${it.message}") }.getOrNull()
+
+    /**
+     * Deletes every captured page. Ingest reads the photo once and never needs it again, and each one
+     * is 2-4 MB on a device chosen for being cheap — nothing else ever removed them.
+     *
+     * Deletes the whole directory rather than one named file so that a capture stranded by a cancelled
+     * camera intent or a process kill mid-import is collected too. Safe because the only file in here
+     * that matters is the one an ingest is currently reading, and every caller runs after that.
+     */
+    fun pruneCaptures() {
+        capturesDir.listFiles()?.forEach { it.delete() }
+    }
+
+    private val capturesDir: File get() = File(filesDir, "captures")
 
     private val prefs by lazy { getSharedPreferences(PREFS, Context.MODE_PRIVATE) }
 
