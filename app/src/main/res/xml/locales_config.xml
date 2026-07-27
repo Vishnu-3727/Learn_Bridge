@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The thirteen languages LearnBridge ships chrome for, plus the English source it falls back to.
+  Must stay in step with SupportedLanguage.entries and with the values-* directories: a locale
+  listed here with no values-<code>/strings.xml is an entry the system offers and the app ignores.
+
+  This file exists for the platform's per-app language page (Settings › Apps › LearnBridge ›
+  Language, API 33+). The app's own "Teach me in" picker does not need it — that path goes through
+  AppCompatDelegate — but without it the system page shows nothing, and a student who looks for the
+  setting where the OS puts it should find it there too.
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android"
+    android:defaultLocale="en">
+    <locale android:name="en" />
+    <locale android:name="hi" />
+    <locale android:name="mr" />
+    <locale android:name="ne" />
+    <locale android:name="sa" />
+    <locale android:name="ur" />
+    <locale android:name="ta" />
+    <locale android:name="te" />
+    <locale android:name="kn" />
+    <locale android:name="ml" />
+    <locale android:name="bn" />
+    <locale android:name="gu" />
+    <locale android:name="pa" />
+    <locale android:name="or" />
+</locale-config>

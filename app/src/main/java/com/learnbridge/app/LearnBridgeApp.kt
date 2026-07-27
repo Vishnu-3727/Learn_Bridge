@@ -4,7 +4,9 @@ import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.FileProvider
+import androidx.core.os.LocaleListCompat
 import com.learnbridge.app.doc.DocStore
 import com.learnbridge.app.lang.LessonTranslator
 import com.learnbridge.app.lang.SupportedLanguage
@@ -48,12 +50,38 @@ class LearnBridgeApp : Application() {
      *
      * All of these come out of one 472 MB export: the target language is only the second input token,
      * so supporting six costs no extra weights and no extra memory.
+     *
+     * Writing this also moves the app's own chrome into that language. Every caller that changes the
+     * teaching language goes through here, so the two cannot drift apart — and without it the tabs,
+     * buttons and errors of an app whose thesis is "learn in your language" stay English unless the
+     * whole phone is already set to that language, which on a shared or hand-me-down device it
+     * usually is not.
      */
     var targetLanguage: SupportedLanguage
         get() = prefs.getString(KEY_TARGET_LANG, null)
             ?.let { SupportedLanguage.byCode(it) }
             ?: SupportedLanguage.DEFAULT_TARGET
-        set(value) = prefs.edit().putString(KEY_TARGET_LANG, value.code).apply()
+        set(value) {
+            prefs.edit().putString(KEY_TARGET_LANG, value.code).apply()
+            applyChromeLanguage(value)
+        }
+
+    /**
+     * Applies [language] to the UI. AppCompat persists the choice itself and restores it before the
+     * first Activity of the next launch, so this is not re-applied at startup — doing that would
+     * force Hindi chrome on a student who has never opened the picker, purely because Hindi is the
+     * default *teaching* target.
+     *
+     * On API 33+ this delegates to the platform LocaleManager; below that AppCompat recreates the
+     * visible Activities. Either way the caller's screen redraws in the new language.
+     *
+     * ponytail: there is no way back to English chrome from the in-app picker, because English is
+     * the source language and never a teaching target. Settings › Apps › LearnBridge › Language
+     * offers it. Add an English row here if that turns out to be where students look.
+     */
+    private fun applyChromeLanguage(language: SupportedLanguage) {
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(language.code))
+    }
 
     /**
      * A content Uri the system camera app may write a captured page into.
