@@ -11,8 +11,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.learnbridge.app.LearnBridgeApp
 import com.learnbridge.app.R
 import com.learnbridge.app.doc.DocStore
@@ -20,8 +23,6 @@ import com.learnbridge.app.doc.ImportResult
 import com.learnbridge.app.lang.SupportedLanguage
 import com.learnbridge.app.teach.IngestProgress
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 
 /**
@@ -34,6 +35,8 @@ import kotlinx.coroutines.launch
 class LibraryActivity : AppCompatActivity() {
 
     private val app: LearnBridgeApp get() = application as LearnBridgeApp
+
+    private val viewModel: LibraryViewModel by viewModels()
 
     private lateinit var documentList: LinearLayout
     private lateinit var emptyState: View
@@ -81,6 +84,15 @@ class LibraryActivity : AppCompatActivity() {
         languageChooser = findViewById(R.id.languageChooser)
         languageChooser.setOnClickListener { chooseLanguage() }
         renderLanguage()
+
+        // repeatOnLifecycle(STARTED), not a bare launch: a Done arriving while the app is backgrounded
+        // must not try to start the lesson Activity — the platform blocks background starts and the
+        // navigation would simply be lost. Held in the ViewModel until the screen is visible again.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.progress.collect { onProgress(it) }
+            }
+        }
     }
 
     private fun renderLanguage() {
@@ -181,36 +193,43 @@ class LibraryActivity : AppCompatActivity() {
     }
 
     /**
-     * Runs the whole ingest with the overlay up.
+     * Hands the import to [LibraryViewModel], which owns it from here.
      *
      * The overlay is deliberately blocking and deliberately honest about taking a while: this is the
      * one moment in the app that genuinely needs tens of seconds, because it generates the lesson and
-     * its Hindi in a single pass so that opening the lesson later is instant. Naming each stage as it
-     * happens is what makes the wait read as work rather than as a hang.
+     * its translation in a single pass so that opening the lesson later is instant. Naming each stage
+     * as it happens is what makes the wait read as work rather than as a hang.
      */
     private fun ingest(uri: Uri) {
         setBusy(true)
-        lifecycleScope.launch {
-            app.lessonPipeline()
-                .ingest(uri)
-                // Before flowOn, so the deletion runs on IO. Terminal for every outcome — imported,
-                // failed, or cancelled by leaving the screen — which is exactly when the photo stops
-                // being needed. A file import prunes too: it only ever finds stale captures.
-                .onCompletion { app.pruneCaptures() }
-                .flowOn(Dispatchers.IO)
-                .collect { progress -> onProgress(progress) }
-        }
+        viewModel.ingest(uri)
     }
 
-    private fun onProgress(progress: IngestProgress) {
+    private fun onProgress(progress: IngestProgress?) {
         when (progress) {
-            IngestProgress.Reading -> ingestStatus.setText(R.string.ingest_reading)
-            IngestProgress.Teaching -> ingestStatus.setText(R.string.ingest_thinking)
-            IngestProgress.Translating ->
+            // Nothing in flight: either no import has run, or a terminal one has been acted on.
+            null -> setBusy(false)
+
+            IngestProgress.Reading -> {
+                setBusy(true)
+                ingestStatus.setText(R.string.ingest_reading)
+            }
+
+            IngestProgress.Teaching -> {
+                setBusy(true)
+                ingestStatus.setText(R.string.ingest_thinking)
+            }
+
+            IngestProgress.Translating -> {
+                setBusy(true)
                 ingestStatus.text = getString(R.string.ingest_translating, app.targetLanguage.endonym)
+            }
 
             is IngestProgress.Done -> {
                 setBusy(false)
+                // Consumed before navigating: this is an event, and the flow would otherwise replay
+                // it and reopen the lesson every time the library came back to the foreground.
+                viewModel.consumeResult()
                 refreshDocuments()
                 startActivity(
                     Intent(this, LessonActivity::class.java)
@@ -221,6 +240,7 @@ class LibraryActivity : AppCompatActivity() {
 
             is IngestProgress.Failed -> {
                 setBusy(false)
+                viewModel.consumeResult()
                 Toast.makeText(this, progress.reason.message(), Toast.LENGTH_LONG).show()
             }
         }
