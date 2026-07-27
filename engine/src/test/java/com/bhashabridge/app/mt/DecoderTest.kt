@@ -6,9 +6,11 @@ import org.junit.Test
 
 /**
  * Correctness of the decode algorithms against a synthetic [LogitsSource] — no ONNX, no Android, no
- * model. This proves the *algorithms* (argmax, EOS/cap stopping, penalties, beam scoring/pruning),
- * NOT parity with v3.4.1's output: parity needs the real decoder graph and is a Phase 5/6 on-device
- * check. See DECODING_ARCHITECTURE.md.
+ * model. This proves the *algorithms* (argmax, EOS/cap stopping, penalties), NOT parity with v3.4.1's
+ * output: parity needs the real decoder graph and is an on-device check.
+ *
+ * [lookaheadModel] still rewards looking ahead even though nothing here does: it is the case a beam
+ * decoder would have to beat, and the reason to keep it is the day one comes back.
  */
 class DecoderTest {
 
@@ -44,20 +46,6 @@ class DecoderTest {
     fun `greedy takes the locally-best token and stops at eos`() {
         val out = GreedyDecoder(cfg).decode(lookaheadModel(), sourceLen = 8)
         assertArrayEquals(longArrayOf(0, 1), out) // start, t1, then eos (not appended)
-    }
-
-    @Test
-    fun `beam looks ahead and beats greedy`() {
-        val out = BeamSearchDecoder(beamWidth = 2, config = cfg).decode(lookaheadModel(), sourceLen = 8)
-        assertArrayEquals(longArrayOf(0, 2, 3), out)
-    }
-
-    @Test
-    fun `beam width 1 is greedy`() {
-        val model = lookaheadModel()
-        val greedy = GreedyDecoder(cfg).decode(model, 8)
-        val beam1 = BeamSearchDecoder(beamWidth = 1, config = cfg).decode(model, 8)
-        assertArrayEquals(greedy, beam1)
     }
 
     @Test

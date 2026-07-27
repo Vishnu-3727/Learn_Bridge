@@ -257,8 +257,10 @@ all thirteen targets, and asserts each result lands in that language's own Unico
   Routing a document through HI→EN → tutor → EN→HI would stack three lossy hops anyway.
 - **The extractive tutor selects, it does not paraphrase.** Without a generative model it returns the
   document's own sentences, chosen well, rather than simplified rewrites.
-- **Greedy decoding drifts on long sentences.** A beam-search decoder is implemented but not enabled;
-  it forces the translation engine onto an uncached path and needs measurement before switching.
+- **Greedy decoding drifts on long sentences.** Which is why long text is split before translation
+  rather than truncated after. A beam-search decoder was written and never enabled — with the current
+  uncached decoder graph it costs a full forward pass per beam per step — so it was removed rather
+  than left to rot unmeasured. `MtEngine` still takes its decoder as a parameter if it comes back.
 - **"Plant" sometimes renders as "संयंत्र"** (industrial plant) rather than "पौधा" — lexical
   ambiguity in the translation model.
 - **Language is chosen before import**, because the lesson is rendered during ingest. Adding a second
