@@ -5,6 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.learnbridge.app.LearnBridgeApp
 import com.learnbridge.app.doc.Retrieval
+import com.learnbridge.app.lang.LessonTranslator
+import com.learnbridge.app.lang.SupportedLanguage
 import com.learnbridge.app.teach.LessonParser
 import com.learnbridge.app.teach.LessonPipeline
 import com.learnbridge.app.teach.Prompts
@@ -32,8 +34,8 @@ data class LessonUiState(
     val docId: Long,
     val docTitle: String,
     val tab: LessonTab = LessonTab.EXPLAIN,
-    /** The language the Explain/Quiz artifacts are requested in. Ask always answers in English —
-     *  see [LessonViewModel.sendQuestion]. */
+    /** The language the Explain/Quiz artifacts are requested in, and the one an Ask answer is
+     *  rendered into once generated — see [LessonViewModel.sendQuestion]. */
     val lang: String = LessonPipeline.LANG_EN,
     /**
      * Whether this document has artifacts in its target language at all. Gates the toggle; see
@@ -65,7 +67,9 @@ data class AskUi(
     val output: AskOutput = AskOutput.Empty,
 ) {
     /** True while a question is in flight, for disabling the send button. */
-    val busy: Boolean get() = output is AskOutput.InProgress || output is AskOutput.Streaming
+    val busy: Boolean get() = output is AskOutput.InProgress ||
+        output is AskOutput.Streaming ||
+        output is AskOutput.Rendering
 }
 
 /** The Ask pane's result, one state per stage of a single question. */
@@ -74,8 +78,16 @@ sealed interface AskOutput {
     data object InProgress : AskOutput
     data object Streaming : AskOutput
 
-    /** [answer] is null when [LessonParser.parseAnswer] decided the document does not cover it. */
-    data class Final(val answer: String?) : AskOutput
+    /** The generated English answer is being rendered into [lang]. A visible state rather than a
+     *  silent pause because it can cost a model swap — see [LessonViewModel.sendQuestion]. */
+    data class Rendering(val lang: String) : AskOutput
+
+    /**
+     * [answer] is null when [LessonParser.parseAnswer] decided the document does not cover it.
+     * [lang] is the language [answer] is actually written in, which stays English when translation
+     * was not asked for or did not succeed — the Listen button reads it to pick a voice.
+     */
+    data class Final(val answer: String?, val lang: String = LessonPipeline.LANG_EN) : AskOutput
     data class Failed(val message: String) : AskOutput
 }
 
@@ -112,6 +124,14 @@ data class QuizUi(
     fun next(): QuizUi =
         if (!answered) this else copy(currentIndex = currentIndex + 1, selectedIndex = null, answered = false)
 }
+
+/**
+ * The language an answer should be rendered into: the one the lesson is being read in, or null when
+ * that is English — or a code no longer in [SupportedLanguage] — and the model's own English output
+ * already suits. Pure, so the decision is testable without an engine.
+ */
+internal fun answerTarget(lang: String): SupportedLanguage? =
+    SupportedLanguage.byCode(lang)?.takeIf { it != SupportedLanguage.ENGLISH }
 
 /** The decision behind the language toggle and Explain's fallback: what to show, and in what language. */
 data class FallbackResult<T>(val rows: List<T>, val lang: String, val fellBack: Boolean)
@@ -153,6 +173,9 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
 
     private val _state = MutableStateFlow(LessonUiState(docId = NO_DOC, docTitle = ""))
     val state: StateFlow<LessonUiState> = _state.asStateFlow()
+
+    /** One per screen, not per question, so its memo spans a whole session of asking. */
+    private val translator by lazy { LessonTranslator(modelHost) }
 
     private val _tokens = MutableSharedFlow<String>(extraBufferCapacity = 64)
     val tokens: SharedFlow<String> = _tokens.asSharedFlow()
@@ -309,7 +332,31 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
             }
 
             val answer = LessonParser.parseAnswer(full.toString())
-            _state.update { it.copy(ask = it.ask.copy(output = AskOutput.Final(answer))) }
+            // Read now, not from `current`: the student may have toggled the lesson's language while
+            // the answer was streaming, and the answer belongs to the language they are reading in.
+            val target = answerTarget(_state.value.lang)
+            if (answer == null || target == null) {
+                _state.update { it.copy(ask = it.ask.copy(output = AskOutput.Final(answer))) }
+                return@launch
+            }
+
+            _state.update { it.copy(ask = it.ask.copy(output = AskOutput.Rendering(target.code))) }
+            // English text into the lesson's language. The teacher generates in English whatever the
+            // lesson language is, so without this a Tamil lesson answered in English, in an English
+            // voice. Unlike Explain and Quiz — rendered once at import — this is per question and can
+            // cost a model swap, which is what AskOutput.Rendering puts on screen.
+            val rendered = runCatching { translator.render(answer.lines(), target).joinToString("\n") }
+                // A translation failure keeps the English answer rather than losing it. Same rule as
+                // the generation failure above: readable in the wrong language beats nothing.
+                .getOrNull()
+            _state.update {
+                val output = if (rendered == null) {
+                    AskOutput.Final(answer)
+                } else {
+                    AskOutput.Final(rendered, target.code)
+                }
+                it.copy(ask = it.ask.copy(output = output))
+            }
         }
     }
 

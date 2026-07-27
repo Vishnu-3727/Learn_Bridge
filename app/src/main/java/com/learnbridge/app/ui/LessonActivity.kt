@@ -250,6 +250,14 @@ class LessonActivity : AppCompatActivity() {
                 inlineStatus.visibility = View.VISIBLE
             }
 
+            is AskOutput.Rendering -> {
+                // The English answer stays on screen underneath: it is a real answer, and reading it
+                // beats an empty pane while the translator loads.
+                val language = SupportedLanguage.byCode(output.lang) ?: SupportedLanguage.HINDI
+                inlineStatus.text = getString(R.string.ingest_translating, language.endonym)
+                inlineStatus.visibility = View.VISIBLE
+            }
+
             AskOutput.Streaming -> {
                 // Replayed rather than appended: this branch runs whenever Ask becomes visible again,
                 // including after a mid-stream detour through Explain, which overwrote contentText.
@@ -350,8 +358,9 @@ class LessonActivity : AppCompatActivity() {
      * direction here is what made every non-English lesson — Tamil, Bengali, Urdu, all of them —
      * come out of the Hindi voice.
      *
-     * Ask is always answered in English (see [LessonViewModel.sendQuestion]), so it is the one pane
-     * whose voice does not follow the lesson language.
+     * Ask reads [AskOutput.Final.lang] rather than the lesson's language: the answer is generated in
+     * English and rendered afterwards, and a rendering that failed stays English, so what is on
+     * screen is the only trustworthy source for which voice to use.
      */
     private fun speakCurrent() {
         val state = lastState ?: return
@@ -363,8 +372,9 @@ class LessonActivity : AppCompatActivity() {
                 // displayedLang, not state.lang: Explain falls back to English when the requested
                 // language has no rows yet, and the voice must follow what is on screen.
                 state.explain.points.joinToString(". ") to localeFor(state.explain.displayedLang)
-            LessonTab.ASK ->
-                ((state.ask.output as? AskOutput.Final)?.answer ?: "") to SupportedLanguage.ENGLISH.locale
+            LessonTab.ASK -> (state.ask.output as? AskOutput.Final).let {
+                (it?.answer ?: "") to localeFor(it?.lang ?: LessonPipeline.LANG_EN)
+            }
             LessonTab.QUIZ -> quizSpeechFor(state)
         }
         if (text.isBlank()) return

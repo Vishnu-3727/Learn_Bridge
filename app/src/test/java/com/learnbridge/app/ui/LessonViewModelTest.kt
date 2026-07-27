@@ -1,5 +1,6 @@
 package com.learnbridge.app.ui
 
+import com.learnbridge.app.lang.SupportedLanguage
 import com.learnbridge.app.teach.LessonParser
 import com.learnbridge.app.teach.Prompts
 import com.learnbridge.app.teach.QuizItem
@@ -156,8 +157,35 @@ class LessonViewModelTest {
         assertFalse(AskUi(output = AskOutput.Empty).busy)
         assertTrue(AskUi(output = AskOutput.InProgress).busy)
         assertTrue(AskUi(output = AskOutput.Streaming).busy)
+        assertTrue("rendering into the lesson language is still in flight", AskUi(output = AskOutput.Rendering("ta")).busy)
         assertFalse(AskUi(output = AskOutput.Final("answer")).busy)
         assertFalse(AskUi(output = AskOutput.Failed("error")).busy)
+    }
+
+    // --- ask: which language the answer is rendered into ---
+
+    @Test
+    fun `an answer is rendered into the language the lesson is being read in`() {
+        assertEquals(SupportedLanguage.TAMIL, answerTarget("ta"))
+        assertEquals(SupportedLanguage.HINDI, answerTarget("hi"))
+    }
+
+    @Test
+    fun `an English lesson leaves the generated answer alone`() {
+        // The teacher already generates English, so translating would be a model swap for nothing.
+        assertEquals(null, answerTarget("en"))
+    }
+
+    @Test
+    fun `an unknown language code leaves the answer alone rather than guessing`() {
+        assertEquals(null, answerTarget("zz"))
+    }
+
+    @Test
+    fun `an answer defaults to English until something says otherwise`() {
+        // What the Listen button reads to choose a voice: a rendering that never ran, or that failed
+        // and fell back, must not claim the lesson's language.
+        assertEquals("en", AskOutput.Final("answer").lang)
     }
 
     // --- what survives a language toggle mid-quiz ---
