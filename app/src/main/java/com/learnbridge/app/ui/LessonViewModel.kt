@@ -360,16 +360,12 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    /** In memory only: the score lives as long as the screen does. Nothing reads a stored history,
+     *  so nothing writes one — see the quiz_results removal. */
     fun answerQuiz(selectedIndex: Int) {
-        val current = _state.value
-        val quiz = current.quiz
+        val quiz = _state.value.quiz
         if (quiz.answered || quiz.isDone) return
-
-        val itemOrdinal = quiz.currentIndex // matches the artifact ordinal LessonPipeline wrote it at.
-        val correct = selectedIndex == quiz.items[itemOrdinal].shuffledOptions().second
-
         _state.update { it.copy(quiz = it.quiz.answer(selectedIndex)) }
-        viewModelScope.launch(Dispatchers.IO) { docStore.recordQuizResult(current.docId, itemOrdinal, correct) }
     }
 
     fun nextQuizQuestion() {

@@ -9,7 +9,7 @@ import java.io.File
 /**
  * Purpose:  Every piece of ingested-document state the app persists: the document list, its chunk
  *           text (for FTS retrieval), generated artifacts (explanations and quiz items, per
- *           language), and quiz results. The only type in the app that touches this database.
+ *           language). The only type in the app that touches this database.
  * Owns:     The single writable [SQLiteDatabase] backing the doc.* tables, plus the plain-text mirror
  *           at `filesDir/docs/<docId>.txt`.
  * Lifetime: One instance per process is enough (SQLiteOpenHelper is safe to share); construct once
@@ -73,16 +73,6 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
             )
             """.trimIndent()
         )
-        db.execSQL(
-            """
-            CREATE TABLE quiz_results(
-                docId INTEGER NOT NULL,
-                itemOrdinal INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                answeredAt INTEGER NOT NULL
-            )
-            """.trimIndent()
-        )
         // UNIQUE, not a plain index, and that is load-bearing rather than defensive: it is what lets
         // putArtifact replace a row in a single atomic statement instead of delete-then-insert.
         //
@@ -98,6 +88,8 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
         db.execSQL("DROP TABLE IF EXISTS documents")
         db.execSQL("DROP TABLE IF EXISTS chunks_fts")
         db.execSQL("DROP TABLE IF EXISTS artifacts")
+        // Kept although nothing creates quiz_results any more: a device that installed an earlier
+        // build still has the table, and this is the one place that will ever clear it.
         db.execSQL("DROP TABLE IF EXISTS quiz_results")
         onCreate(db)
     }
@@ -170,7 +162,7 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
         return rows
     }
 
-    /** Removes the document and every row that references it — chunks, artifacts, quiz results — plus its saved text. */
+    /** Removes the document and every row that references it — chunks and artifacts — plus its saved text. */
     fun deleteDocument(docId: Long) {
         val idArg = arrayOf(docId.toString())
         val db = writableDatabase
@@ -179,7 +171,6 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
             db.delete("documents", "id = ?", idArg)
             db.delete("chunks_fts", "doc_id = ?", idArg)
             db.delete("artifacts", "docId = ?", idArg)
-            db.delete("quiz_results", "docId = ?", idArg)
             db.setTransactionSuccessful()
         } finally {
             db.endTransaction()
@@ -237,16 +228,6 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
         ).use { cursor ->
             return if (cursor.moveToFirst()) cursor.getString(0) else null
         }
-    }
-
-    fun recordQuizResult(docId: Long, itemOrdinal: Int, correct: Boolean) {
-        val values = ContentValues().apply {
-            put("docId", docId)
-            put("itemOrdinal", itemOrdinal)
-            put("correct", if (correct) 1 else 0)
-            put("answeredAt", System.currentTimeMillis())
-        }
-        writableDatabase.insert("quiz_results", null, values)
     }
 
     /** Writes [text] to `filesDir/docs/<docId>.txt`. Called once, right after extraction. */

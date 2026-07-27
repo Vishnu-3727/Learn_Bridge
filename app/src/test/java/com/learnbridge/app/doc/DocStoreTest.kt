@@ -73,12 +73,11 @@ class DocStoreTest {
     }
 
     @Test
-    fun `deleteDocument leaves no orphan rows in chunks, artifacts or quiz_results`() {
+    fun `deleteDocument leaves no orphan rows in chunks or artifacts`() {
         val docId = store.insertDocument("Doc", null, 10)
         store.setStatus(docId, DocStore.STATUS_READY)
         store.insertChunks(docId, listOf(Chunk(0, "intro"), Chunk(1, "body")))
         store.putArtifact(docId, "explanation", "en", 0, "explanation text")
-        store.recordQuizResult(docId, 0, correct = true)
         store.saveText(docId, "the extracted text")
 
         store.deleteDocument(docId)
