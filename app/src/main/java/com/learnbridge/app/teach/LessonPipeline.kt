@@ -113,8 +113,12 @@ class LessonPipeline(
             emit(IngestProgress.Teaching)
             val keyPoints = generateEnglish(docId, lead)
 
-            emit(IngestProgress.Translating)
-            translateInto(docId, keyPoints, target)
+            // Not announced when the target is English: translateInto returns immediately in that
+            // case, and "Preparing the English version…" would name work that never happens.
+            if (target != SupportedLanguage.ENGLISH) {
+                emit(IngestProgress.Translating)
+                translateInto(docId, keyPoints, target)
+            }
 
             store.setStatus(docId, DocStore.STATUS_READY)
             // Committed: from here the document is a real lesson and must survive a cancelled

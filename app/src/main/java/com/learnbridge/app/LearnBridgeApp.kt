@@ -48,6 +48,10 @@ class LearnBridgeApp : Application() {
      * The language lessons are rendered into. Chosen before import, because rendering happens during
      * ingest — switching afterwards means translating that document again.
      *
+     * May be [SupportedLanguage.ENGLISH], which is not a translation target but the source: the
+     * import then skips the translation pass and the lesson exists in English alone until one is
+     * added from the lesson screen.
+     *
      * All of these come out of one 472 MB export: the target language is only the second input token,
      * so supporting six costs no extra weights and no extra memory.
      *

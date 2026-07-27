@@ -133,9 +133,14 @@ class LibraryActivity : AppCompatActivity() {
     /**
      * Chosen before import rather than inside the lesson, because the lesson is rendered into this
      * language during ingest — changing it afterwards means translating the document again.
+     *
+     * English is offered alongside the thirteen targets even though it is the *source* language, not
+     * a translation target. Picking it means the import skips the translation pass entirely: faster,
+     * and the honest choice for a student who reads English comfortably and wants the tutoring rather
+     * than the translating. A language can still be added later from the lesson's own chooser.
      */
     private fun chooseLanguage() {
-        val options = SupportedLanguage.targets
+        val options = listOf(SupportedLanguage.ENGLISH) + SupportedLanguage.targets
         val labels = options.map { it.endonym }.toTypedArray()
         val current = options.indexOf(app.targetLanguage)
 

@@ -169,7 +169,12 @@ class LessonActivity : AppCompatActivity() {
 
         quizNext.setOnClickListener { viewModel.nextQuizQuestion() }
 
-        languageToggle.setOnClickListener { viewModel.toggleLanguage() }
+        // With two languages in the database this swaps between them. With one — an English-only
+        // import — there is nothing to swap to, so the tap offers the chooser rather than doing
+        // nothing at all.
+        languageToggle.setOnClickListener {
+            if (lastState?.translationAvailable == true) viewModel.toggleLanguage() else chooseLanguage()
+        }
         // Long-press rather than a second button: switching between the two languages a lesson
         // already has is the common action and stays one tap, while adding a thirteenth-language
         // rendering — minutes of model work — is deliberately the less casual gesture. Announced in
@@ -200,9 +205,14 @@ class LessonActivity : AppCompatActivity() {
         }
 
         renderRendering(state)
-        // Disabled while a rendering runs: the model is busy, and a second request would be refused
-        // by the ViewModel anyway — better to say so with the button than to swallow the tap.
-        languageToggle.isEnabled = state.translationAvailable && state.rendering == null
+        // Disabled only while a rendering runs: the model is busy, and a second request would be
+        // refused by the ViewModel anyway — better to say so with the button than to swallow the tap.
+        //
+        // Deliberately NOT also gated on translationAvailable. A document imported in English carries
+        // no translation, and the long press is the only route to adding one — gating the button
+        // disabled that route and stranded the lesson in English permanently. The tap is handled
+        // instead: with nothing to toggle between, it opens the chooser.
+        languageToggle.isEnabled = state.rendering == null
         // Labelled with the target language's own endonym — हिंदी, मराठी, தமிழ், اردو — never a
         // hardcoded language name. A Tamil lesson must not offer a button that says "हिंदी".
         val target = SupportedLanguage.byCode(state.translationLang) ?: SupportedLanguage.HINDI

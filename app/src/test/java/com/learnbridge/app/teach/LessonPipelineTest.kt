@@ -101,11 +101,25 @@ class LessonPipelineTest {
 
     @Test
     fun `progress is reported in order`() = runTest {
-        val states = pipeline().ingest(textUri("water.txt", lesson)).toList()
+        val states = pipeline(SupportedLanguage.HINDI).ingest(textUri("water.txt", lesson)).toList()
 
         assertEquals(IngestProgress.Reading, states.first())
         assertTrue(states.contains(IngestProgress.Teaching))
         assertTrue(states.contains(IngestProgress.Translating))
+        assertTrue(states.last() is IngestProgress.Done)
+    }
+
+    /**
+     * English is the source, so there is nothing to render into and the stage must not be announced.
+     * This asserted the opposite while the pipeline emitted Translating unconditionally — the stage
+     * appeared, translateInto returned immediately, and the screen named work that never happened.
+     */
+    @Test
+    fun `an English import never reports a translation stage`() = runTest {
+        val states = pipeline(SupportedLanguage.ENGLISH).ingest(textUri("water.txt", lesson)).toList()
+
+        assertTrue(states.contains(IngestProgress.Teaching))
+        assertFalse("English needs no translation stage", states.contains(IngestProgress.Translating))
         assertTrue(states.last() is IngestProgress.Done)
     }
 
