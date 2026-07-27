@@ -67,6 +67,15 @@
     <string name="quiz_next">ପରବର୍ତ୍ତୀ</string>
     <string name="quiz_unavailable">ଏହି ଦଲିଲରୁ କୌଣସି ପ୍ରଶ୍ନ ତିଆରି କରାଯାଇପାରିଲା ନାହିଁ।</string>
 
+    <string name="privacy_entry">ଆପଣଙ୍କ ଡାଟା</string>
+    <string name="privacy_summary">LearnBridge ଯାହା ଜାଣେ ସବୁ ଏହି ଫୋନରେ ରହେ। ଏହାର ଇଣ୍ଟରନେଟ୍ ଅନୁମତି ନାହିଁ, ତେଣୁ କିଛି ବି କୌଣସିଠାରେ ପଠାଯାଇପାରିବ ନାହିଁ।\n\nଏଠାରେ ରଖାଯାଇଛି: ଆପଣ ଆମଦାନି କରିଥିବା ଦଲିଲ, ସେଥିରୁ ତିଆରି ପାଠ ଓ ପ୍ରଶ୍ନ, ଏବଂ ଆପଣଙ୍କ ଉତ୍ତରରୁ ଯାହା ଶିଖିଥିବା ଜଣାପଡ଼େ।</string>
+    <string name="privacy_export">ମୁଁ ଯାହା ଶିଖିଛି ରପ୍ତାନି କରନ୍ତୁ</string>
+    <string name="privacy_export_failed">ତାହା ରପ୍ତାନି କରାଯାଇପାରିଲା ନାହିଁ।</string>
+    <string name="privacy_export_share">LearnBridge ରୁ ରପ୍ତାନି</string>
+    <string name="privacy_erase">ସବୁ ଲିଭାନ୍ତୁ</string>
+    <string name="privacy_erase_confirm">ପ୍ରତ୍ୟେକ ଦଲିଲ, ପାଠ ଓ ପ୍ରଶ୍ନୋତ୍ତର, ଏବଂ LearnBridge ଆପଣଙ୍କ ବିଷୟରେ ଯାହା ଶିଖିଛି ସବୁ ଲିଭାଇଦେବେ? ଏହା ଫେରାଇ ଅଣାଯାଇପାରିବ ନାହିଁ।</string>
+    <string name="privacy_erased">ସବୁ ଲିଭାଇ ଦିଆଗଲା।</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">ଶିକ୍ଷକ ତାହାର ଉତ୍ତର ଦେଇପାରିଲେ ନାହିଁ। ପ୍ରଶ୍ନଟି ଅନ୍ୟ ଭାବରେ ପଚାରନ୍ତୁ।</string>
     <string name="error_low_memory">ଏହି ଉପକରଣରେ ମେମୋରୀ କମ୍, ତେଣୁ LearnBridge ତାହାର ସରଳ ଅଫଲାଇନ୍ ଶିକ୍ଷକ ବ୍ୟବହାର କରୁଛି।</string>

@@ -99,6 +99,31 @@ class LearnBridgeApp : Application() {
     }.onFailure { Log.w(TAG, "Could not create a capture Uri: ${it.message}") }.getOrNull()
 
     /**
+     * Writes every (name, content) pair into `filesDir/export/` and returns shareable Uris for them.
+     * Empty if anything failed — a partial export is worse than none, because the share sheet would
+     * hand out a Uri for a file that is not there.
+     *
+     * Takes all the files at once rather than one per call, and that is the whole point of the
+     * signature: the directory is emptied first, so writing the second file through a one-at-a-time
+     * version deleted the first. It did exactly that, and the share silently offered a Uri pointing
+     * at nothing. Clearing and writing belong in one operation.
+     *
+     * The directory is emptied so a stale export cannot be shared by mistake, and so a file saying
+     * what the app has concluded about a student does not sit on disk indefinitely afterwards.
+     */
+    fun writeExports(files: List<Pair<String, String>>): List<Uri> = runCatching {
+        val dir = File(filesDir, "export").apply {
+            listFiles()?.forEach { it.delete() }
+            mkdirs()
+        }
+        files.map { (name, content) ->
+            val file = File(dir, name)
+            file.writeText(content)
+            FileProvider.getUriForFile(this, "$packageName.files", file)
+        }
+    }.onFailure { Log.w(TAG, "Could not write the export: ${it.message}") }.getOrDefault(emptyList())
+
+    /**
      * Deletes every captured page. Ingest reads the photo once and never needs it again, and each one
      * is 2-4 MB on a device chosen for being cheap — nothing else ever removed them.
      *

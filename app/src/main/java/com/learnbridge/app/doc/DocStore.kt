@@ -198,6 +198,33 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
     }
 
     /**
+     * Erases every document, artifact, chunk and mastery record, and the extracted text on disk.
+     *
+     * Irreversible, and meant to be: this backs the one control that lets a student take back
+     * everything the app has worked out about them. The tables are emptied rather than dropped, so
+     * the schema — and therefore the schema version — is untouched and the next import needs no
+     * migration.
+     *
+     * Deliberately does not touch preferences. The teaching language and the remembered device tier
+     * are settings, not things learned about the student, and silently resetting the app's language
+     * as a side effect of deleting data would be its own surprise.
+     */
+    fun deleteEverything() {
+        val db = writableDatabase
+        db.beginTransaction()
+        try {
+            db.delete("documents", null, null)
+            db.delete("chunks_fts", null, null)
+            db.delete("artifacts", null, null)
+            db.delete("mastery", null, null)
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+        docsDir(appContext).listFiles()?.forEach { it.delete() }
+    }
+
+    /**
      * Replaces any existing row for this (docId, kind, lang, ordinal) — regeneration is idempotent.
      *
      * One statement, not a delete followed by an insert. The two-statement version had a window in

@@ -71,6 +71,15 @@
     <string name="quiz_next">اگلا</string>
     <string name="quiz_unavailable">اس دستاویز سے کوئی سوال نہیں بنایا جا سکا۔</string>
 
+    <string name="privacy_entry">آپ کا ڈیٹا</string>
+    <string name="privacy_summary">LearnBridge جو کچھ جانتا ہے وہ اسی فون پر رہتا ہے۔ اس کے پاس انٹرنیٹ کی اجازت نہیں، اس لیے کچھ بھی کہیں نہیں بھیجا جا سکتا۔\n\nیہاں محفوظ ہے: آپ کی درآمد کردہ دستاویزات، ان سے بنے سبق اور سوالات، اور آپ کے جوابات سے جو ظاہر ہوتا ہے کہ آپ نے سیکھا۔</string>
+    <string name="privacy_export">میں نے جو سیکھا اسے برآمد کریں</string>
+    <string name="privacy_export_failed">اسے برآمد نہیں کیا جا سکا۔</string>
+    <string name="privacy_export_share">LearnBridge سے برآمد</string>
+    <string name="privacy_erase">سب کچھ حذف کریں</string>
+    <string name="privacy_erase_confirm">ہر دستاویز، سبق اور سوالنامہ، اور LearnBridge نے آپ کے بارے میں جو کچھ سیکھا، سب حذف کر دیں؟ اسے واپس نہیں لایا جا سکتا۔</string>
+    <string name="privacy_erased">سب کچھ حذف کر دیا گیا۔</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">استاد اس کا جواب نہیں دے سکا۔ سوال کسی اور طرح پوچھیں۔</string>
     <string name="error_low_memory">اس آلے میں یادداشت کم ہے، اس لیے LearnBridge اپنا سادہ آف لائن استاد استعمال کر رہا ہے۔</string>

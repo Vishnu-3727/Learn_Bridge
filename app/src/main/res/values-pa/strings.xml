@@ -67,6 +67,15 @@
     <string name="quiz_next">ਅੱਗੇ</string>
     <string name="quiz_unavailable">ਇਸ ਦਸਤਾਵੇਜ਼ ਤੋਂ ਕੋਈ ਸਵਾਲ ਨਹੀਂ ਬਣਾਏ ਜਾ ਸਕੇ।</string>
 
+    <string name="privacy_entry">ਤੁਹਾਡਾ ਡਾਟਾ</string>
+    <string name="privacy_summary">LearnBridge ਜੋ ਵੀ ਜਾਣਦਾ ਹੈ ਉਹ ਇਸੇ ਫ਼ੋਨ ਉੱਤੇ ਰਹਿੰਦਾ ਹੈ। ਇਸ ਕੋਲ ਇੰਟਰਨੈੱਟ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ, ਇਸ ਲਈ ਕੁਝ ਵੀ ਕਿਤੇ ਨਹੀਂ ਭੇਜਿਆ ਜਾ ਸਕਦਾ।\n\nਇੱਥੇ ਰੱਖਿਆ ਹੈ: ਤੁਹਾਡੇ ਆਯਾਤ ਕੀਤੇ ਦਸਤਾਵੇਜ਼, ਉਹਨਾਂ ਤੋਂ ਬਣੇ ਪਾਠ ਤੇ ਸਵਾਲ, ਅਤੇ ਤੁਹਾਡੇ ਜਵਾਬਾਂ ਤੋਂ ਜੋ ਸਿੱਖਿਆ ਜਾਪਦਾ ਹੈ।</string>
+    <string name="privacy_export">ਜੋ ਮੈਂ ਸਿੱਖਿਆ ਉਹ ਨਿਰਯਾਤ ਕਰੋ</string>
+    <string name="privacy_export_failed">ਉਹ ਨਿਰਯਾਤ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ।</string>
+    <string name="privacy_export_share">LearnBridge ਤੋਂ ਨਿਰਯਾਤ</string>
+    <string name="privacy_erase">ਸਭ ਕੁਝ ਮਿਟਾਓ</string>
+    <string name="privacy_erase_confirm">ਹਰ ਦਸਤਾਵੇਜ਼, ਪਾਠ ਤੇ ਸਵਾਲ-ਜਵਾਬ, ਅਤੇ LearnBridge ਨੇ ਤੁਹਾਡੇ ਬਾਰੇ ਜੋ ਸਿੱਖਿਆ, ਸਭ ਮਿਟਾ ਦੇਈਏ? ਇਹ ਵਾਪਸ ਨਹੀਂ ਲਿਆਂਦਾ ਜਾ ਸਕਦਾ।</string>
+    <string name="privacy_erased">ਸਭ ਕੁਝ ਮਿਟਾ ਦਿੱਤਾ ਗਿਆ।</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">ਅਧਿਆਪਕ ਉਸ ਦਾ ਜਵਾਬ ਨਹੀਂ ਦੇ ਸਕਿਆ। ਸਵਾਲ ਕਿਸੇ ਹੋਰ ਤਰੀਕੇ ਨਾਲ ਪੁੱਛੋ।</string>
     <string name="error_low_memory">ਇਸ ਡਿਵਾਈਸ ਵਿੱਚ ਮੈਮਰੀ ਘੱਟ ਹੈ, ਇਸ ਲਈ LearnBridge ਆਪਣਾ ਸਾਦਾ ਔਫ਼ਲਾਈਨ ਅਧਿਆਪਕ ਵਰਤ ਰਿਹਾ ਹੈ।</string>

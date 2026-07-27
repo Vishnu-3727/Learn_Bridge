@@ -67,6 +67,15 @@
     <string name="quiz_next">അടുത്തത്</string>
     <string name="quiz_unavailable">ഈ രേഖയിൽ നിന്ന് ചോദ്യങ്ങളൊന്നും ഉണ്ടാക്കാൻ കഴിഞ്ഞില്ല.</string>
 
+    <string name="privacy_entry">നിങ്ങളുടെ ഡാറ്റ</string>
+    <string name="privacy_summary">LearnBridge അറിയുന്നതെല്ലാം ഈ ഫോണിൽ തന്നെ നിൽക്കും. ഇതിന് ഇന്റർനെറ്റ് അനുമതിയില്ല, അതിനാൽ ഒന്നും എവിടേക്കും അയയ്ക്കാനാവില്ല.\n\nഇവിടെ സൂക്ഷിച്ചിരിക്കുന്നത്: നിങ്ങൾ ഇറക്കുമതി ചെയ്ത രേഖകൾ, അവയിൽ നിന്നുണ്ടാക്കിയ പാഠങ്ങളും ചോദ്യങ്ങളും, നിങ്ങളുടെ ഉത്തരങ്ങൾ സൂചിപ്പിക്കുന്ന പഠനം.</string>
+    <string name="privacy_export">ഞാൻ പഠിച്ചത് കയറ്റുമതി ചെയ്യുക</string>
+    <string name="privacy_export_failed">അത് കയറ്റുമതി ചെയ്യാൻ കഴിഞ്ഞില്ല.</string>
+    <string name="privacy_export_share">LearnBridge ൽ നിന്ന് കയറ്റുമതി</string>
+    <string name="privacy_erase">എല്ലാം ഇല്ലാതാക്കുക</string>
+    <string name="privacy_erase_confirm">എല്ലാ രേഖയും പാഠവും ചോദ്യാവലിയും, LearnBridge നിങ്ങളെക്കുറിച്ച് പഠിച്ചതെല്ലാം ഇല്ലാതാക്കണോ? ഇത് തിരികെ ലഭിക്കില്ല.</string>
+    <string name="privacy_erased">എല്ലാം ഇല്ലാതാക്കി.</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">അധ്യാപകന് അതിന് ഉത്തരം നൽകാൻ കഴിഞ്ഞില്ല. ചോദ്യം മറ്റൊരു വിധത്തിൽ ചോദിക്കുക.</string>
     <string name="error_low_memory">ഈ ഉപകരണത്തിൽ മെമ്മറി കുറവാണ്, അതിനാൽ LearnBridge അതിന്റെ ലളിതമായ ഓഫ്‌ലൈൻ അധ്യാപകനെ ഉപയോഗിക്കുന്നു.</string>

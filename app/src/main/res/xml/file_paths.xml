@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Only the captures/ subdirectory of app-private files is shared, and only so the system camera app
-  can write a photographed page into it via ACTION_IMAGE_CAPTURE. Nothing else is exposed.
+  Two named subdirectories of app-private files, and nothing else. Neither is a whole-of-filesDir
+  grant: the documents, the database and the extracted text stay unreachable to every other app.
+
+  captures/ so the system camera can write a photographed page in via ACTION_IMAGE_CAPTURE.
+  export/   so the student can send their own Learning Twin somewhere. That is the one path by
+            which anything leaves this app, and it only opens when they ask for it.
 -->
 <paths>
     <files-path
         name="captures"
         path="captures/" />
+    <files-path
+        name="export"
+        path="export/" />
 </paths>

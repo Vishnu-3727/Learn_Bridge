@@ -67,6 +67,15 @@
     <string name="quiz_next">পরবর্তী</string>
     <string name="quiz_unavailable">এই নথি থেকে কোনো প্রশ্ন তৈরি করা যায়নি।</string>
 
+    <string name="privacy_entry">আপনার ডেটা</string>
+    <string name="privacy_summary">LearnBridge যা জানে তার সবই এই ফোনেই থাকে। এর ইন্টারনেট অনুমতি নেই, তাই কিছুই কোথাও পাঠানো যায় না।\n\nএখানে রাখা আছে: আপনার আমদানি করা নথি, সেগুলি থেকে তৈরি পাঠ ও প্রশ্ন, এবং আপনার উত্তর থেকে যা শেখা বোঝা যায়।</string>
+    <string name="privacy_export">আমি যা শিখেছি রপ্তানি করুন</string>
+    <string name="privacy_export_failed">সেটি রপ্তানি করা যায়নি।</string>
+    <string name="privacy_export_share">LearnBridge থেকে রপ্তানি</string>
+    <string name="privacy_erase">সব মুছে ফেলুন</string>
+    <string name="privacy_erase_confirm">প্রতিটি নথি, পাঠ ও কুইজ, এবং LearnBridge আপনার সম্পর্কে যা শিখেছে সব মুছে ফেলবেন? এটি ফিরিয়ে আনা যাবে না।</string>
+    <string name="privacy_erased">সব মুছে ফেলা হয়েছে।</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">শিক্ষক সেটির উত্তর দিতে পারেননি। প্রশ্নটি অন্যভাবে করুন।</string>
     <string name="error_low_memory">এই ডিভাইসে মেমরি কম, তাই LearnBridge তার সরল অফলাইন শিক্ষক ব্যবহার করছে।</string>

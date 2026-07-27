@@ -67,6 +67,15 @@
     <string name="quiz_next">अर्को</string>
     <string name="quiz_unavailable">यो कागजातबाट कुनै प्रश्न बनाउन सकिएन।</string>
 
+    <string name="privacy_entry">तपाईंको डेटा</string>
+    <string name="privacy_summary">LearnBridge लाई थाहा भएको सबै कुरा यही फोनमै रहन्छ। यसलाई इन्टरनेटको अनुमति छैन, त्यसैले केही पनि कतै पठाउन सकिँदैन।\n\nयहाँ राखिएको छ: तपाईंले आयात गरेका कागजातहरू, तिनबाट बनेका पाठ र प्रश्नहरू, र तपाईंका उत्तरहरूले देखाएको सिकाइ।</string>
+    <string name="privacy_export">मैले सिकेको निर्यात गर्नुहोस्</string>
+    <string name="privacy_export_failed">त्यो निर्यात गर्न सकिएन।</string>
+    <string name="privacy_export_share">LearnBridge बाट निर्यात</string>
+    <string name="privacy_erase">सबै मेटाउनुहोस्</string>
+    <string name="privacy_erase_confirm">हरेक कागजात, पाठ र प्रश्नोत्तरी, र LearnBridge ले तपाईंबारे सिकेको सबै कुरा मेटाउने? यो फिर्ता ल्याउन सकिँदैन।</string>
+    <string name="privacy_erased">सबै मेटाइयो।</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">शिक्षकले त्यसको उत्तर दिन सकेन। प्रश्न अर्कै तरिकाले सोध्नुहोस्।</string>
     <string name="error_low_memory">यो यन्त्रमा मेमोरी कम छ, त्यसैले LearnBridge ले आफ्नो सरल अफलाइन शिक्षक प्रयोग गरिरहेको छ।</string>

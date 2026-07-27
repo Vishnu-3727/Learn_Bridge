@@ -71,6 +71,15 @@
     <string name="quiz_next">அடுத்து</string>
     <string name="quiz_unavailable">இந்த ஆவணத்திலிருந்து எந்தக் கேள்வியையும் உருவாக்க முடியவில்லை.</string>
 
+    <string name="privacy_entry">உங்கள் தரவு</string>
+    <string name="privacy_summary">LearnBridge அறிந்த அனைத்தும் இந்த ஃபோனிலேயே இருக்கும். இதற்கு இணைய அனுமதி இல்லை, எனவே எதுவும் எங்கும் அனுப்ப முடியாது.\n\nஇங்கே சேமிக்கப்பட்டவை: நீங்கள் இறக்குமதி செய்த ஆவணங்கள், அவற்றிலிருந்து உருவான பாடங்கள் மற்றும் கேள்விகள், உங்கள் பதில்கள் காட்டும் கற்றல்.</string>
+    <string name="privacy_export">நான் கற்றதை ஏற்றுமதி செய்</string>
+    <string name="privacy_export_failed">அதை ஏற்றுமதி செய்ய முடியவில்லை.</string>
+    <string name="privacy_export_share">LearnBridge இலிருந்து ஏற்றுமதி</string>
+    <string name="privacy_erase">அனைத்தையும் நீக்கு</string>
+    <string name="privacy_erase_confirm">ஒவ்வொரு ஆவணம், பாடம், வினாடி வினா, மற்றும் LearnBridge உங்களைப் பற்றி கற்ற அனைத்தையும் நீக்கவா? இதை மீட்க முடியாது.</string>
+    <string name="privacy_erased">அனைத்தும் நீக்கப்பட்டது.</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">ஆசிரியரால் அதற்குப் பதிலளிக்க முடியவில்லை. கேள்வியை வேறு விதமாகக் கேளுங்கள்.</string>
     <string name="error_low_memory">இந்தச் சாதனத்தில் நினைவகம் குறைவு, எனவே LearnBridge தனது எளிய ஆஃப்லைன் ஆசிரியரைப் பயன்படுத்துகிறது.</string>

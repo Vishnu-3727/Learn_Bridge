@@ -69,6 +69,15 @@
     <string name="quiz_next">अग्रे</string>
     <string name="quiz_unavailable">अस्मात् लेखपत्रात् कोऽपि प्रश्नः रचयितुं न शक्यते।</string>
 
+    <string name="privacy_entry">भवतः दत्तांशः</string>
+    <string name="privacy_summary">LearnBridge यत् जानाति तत् सर्वम् अस्मिन् एव दूरवाण्यां तिष्ठति। अस्य अन्तर्जालानुमतिः नास्ति, अतः किमपि कुत्रापि प्रेषयितुं न शक्यते।\n\nअत्र स्थापितम्: भवता आनीतानि लेखपत्राणि, तेभ्यः रचिताः पाठाः प्रश्नाश्च, भवतः उत्तरेभ्यः यत् ज्ञातम् इति च।</string>
+    <string name="privacy_export">यत् मया ज्ञातं तत् निर्यातयतु</string>
+    <string name="privacy_export_failed">तत् निर्यातयितुं न शक्यते।</string>
+    <string name="privacy_export_share">LearnBridge इत्यस्मात् निर्यातः</string>
+    <string name="privacy_erase">सर्वम् अपनयतु</string>
+    <string name="privacy_erase_confirm">प्रतिलेखपत्रं, पाठं, प्रश्नावलीं च, तथा LearnBridge इत्यनेन भवतः विषये यत् ज्ञातं तत् सर्वम् अपनयतु वा? इदं पुनः आनेतुं न शक्यते।</string>
+    <string name="privacy_erased">सर्वम् अपनीतम्।</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">अध्यापकः तस्य उत्तरं दातुं न शक्तवान्। प्रश्नम् अन्यथा पृच्छतु।</string>
     <string name="error_low_memory">अस्मिन् यन्त्रे स्मृतिः अल्पा, अतः LearnBridge स्वस्य सरलम् अन्तर्जालरहितम् अध्यापकं प्रयुङ्क्ते।</string>

@@ -67,6 +67,15 @@
     <string name="quiz_next">पुढे</string>
     <string name="quiz_unavailable">या दस्तऐवजातून कोणतेही प्रश्न तयार करता आले नाहीत.</string>
 
+    <string name="privacy_entry">तुमचा डेटा</string>
+    <string name="privacy_summary">LearnBridge ला जे माहीत आहे ते याच फोनवर राहते. त्याला इंटरनेटची परवानगी नाही, त्यामुळे काहीही कुठेही पाठवले जाऊ शकत नाही.\n\nइथे ठेवले आहे: तुम्ही आयात केलेली कागदपत्रे, त्यांतून बनवलेले धडे आणि प्रश्न, आणि तुमच्या उत्तरांवरून तुम्ही काय शिकलात.</string>
+    <string name="privacy_export">मी काय शिकलो ते निर्यात करा</string>
+    <string name="privacy_export_failed">ते निर्यात करता आले नाही.</string>
+    <string name="privacy_export_share">LearnBridge मधून निर्यात</string>
+    <string name="privacy_erase">सर्व काही हटवा</string>
+    <string name="privacy_erase_confirm">प्रत्येक दस्तऐवज, धडा आणि प्रश्नमंजुषा, आणि LearnBridge ने तुमच्याबद्दल शिकलेले सर्व काही हटवायचे? हे परत आणता येणार नाही.</string>
+    <string name="privacy_erased">सर्व काही हटवले गेले.</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">शिक्षकाला त्याचे उत्तर देता आले नाही. प्रश्न वेगळ्या प्रकारे विचारा.</string>
     <string name="error_low_memory">या उपकरणावर मेमरी कमी आहे, त्यामुळे LearnBridge त्याचा साधा ऑफलाइन शिक्षक वापरत आहे.</string>

@@ -21,12 +21,16 @@ import com.learnbridge.app.LearnBridgeApp
 import com.learnbridge.app.R
 import com.learnbridge.app.doc.DocStore
 import com.learnbridge.app.doc.ImportResult
+import com.learnbridge.app.doc.LearnerExport
 import com.learnbridge.app.doc.Mastery
 import com.learnbridge.app.doc.Revision
 import com.learnbridge.app.lang.SupportedLanguage
 import com.learnbridge.app.teach.IngestProgress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.roundToInt
 
 /**
@@ -50,6 +54,7 @@ class LibraryActivity : AppCompatActivity() {
     private lateinit var importButton: Button
     private lateinit var languageChooser: TextView
     private lateinit var reviseNext: TextView
+    private lateinit var privacyEntry: TextView
 
     /**
      * OpenDocument rather than GetContent: it returns a durably readable Uri, and the document's
@@ -112,6 +117,8 @@ class LibraryActivity : AppCompatActivity() {
         photoButton = findViewById(R.id.photoButton)
         importButton = findViewById(R.id.importButton)
         reviseNext = findViewById(R.id.reviseNext)
+        privacyEntry = findViewById(R.id.privacyEntry)
+        privacyEntry.setOnClickListener { showPrivacy() }
 
         photoButton.setOnClickListener { launchCamera() }
         importButton.setOnClickListener { pickDocument.launch(IMPORTABLE_TYPES) }
@@ -157,6 +164,91 @@ class LibraryActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
             .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    /**
+     * What is stored, and the two things a student is entitled to do about it: take a copy, or take
+     * it all back.
+     *
+     * A dialog rather than a settings screen, because there are exactly two actions and no settings.
+     * The summary is plain language on purpose — this is where a claim about privacy is either kept
+     * or merely asserted, and it is read by parents at least as often as by students.
+     */
+    private fun showPrivacy() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.privacy_entry)
+            .setMessage(R.string.privacy_summary)
+            .setPositiveButton(R.string.privacy_export) { _, _ -> exportLearnerData() }
+            .setNegativeButton(R.string.privacy_erase) { _, _ -> confirmEraseEverything() }
+            .setNeutralButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    /**
+     * Writes the Twin as prose and as JSON, then hands both to the share sheet.
+     *
+     * Two formats because "export my data" means reading it to one person and parsing it to another,
+     * and one format serves only half of them. Neither carries document text — the export is what the
+     * app concluded, not a copy of material the student already has.
+     *
+     * This is the only route by which anything in here reaches another app, and it opens on a tap
+     * rather than on a policy: nothing is sent, the student is handed the file and chooses.
+     */
+    private fun exportLearnerData() {
+        lifecycleScope.launch {
+            val rows = withDb {
+                val mastery = app.docStore.allMastery().associateBy { it.docId }
+                app.docStore.listDocuments().map { LearnerExport.Row(it, mastery[it.id]) }
+            }
+            val stamp = SimpleDateFormat("yyyyMMdd-HHmm", Locale.US).format(Date())
+            val uris = withDb {
+                app.writeExports(
+                    listOf(
+                        "learnbridge-$stamp.txt" to LearnerExport.asText(rows),
+                        "learnbridge-$stamp.json" to LearnerExport.asJson(rows),
+                    )
+                )
+            }
+            if (uris.size < 2) {
+                Toast.makeText(this@LibraryActivity, R.string.privacy_export_failed, Toast.LENGTH_LONG).show()
+                return@launch
+            }
+            share(uris)
+        }
+    }
+
+    private fun share(uris: List<Uri>) {
+        val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+            type = "text/plain"
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+            // Without this the receiving app gets a Uri it has no permission to open, and the share
+            // appears to succeed while delivering nothing.
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val chooser = Intent.createChooser(intent, getString(R.string.privacy_export_share))
+        if (intent.resolveActivity(packageManager) == null) {
+            Toast.makeText(this, R.string.privacy_export_failed, Toast.LENGTH_LONG).show()
+            return
+        }
+        startActivity(chooser)
+    }
+
+    /** Irreversible, so it is asked twice: once by opening this, once by confirming it. */
+    private fun confirmEraseEverything() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setMessage(R.string.privacy_erase_confirm)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.privacy_erase) { _, _ ->
+                lifecycleScope.launch {
+                    withDb {
+                        app.docStore.deleteEverything()
+                        app.pruneCaptures()
+                    }
+                    Toast.makeText(this@LibraryActivity, R.string.privacy_erased, Toast.LENGTH_LONG).show()
+                    refreshDocuments()
+                }
+            }
             .show()
     }
 

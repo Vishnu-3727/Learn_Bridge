@@ -89,6 +89,17 @@
     <string name="quiz_next">Next</string>
     <string name="quiz_unavailable">No questions could be generated from this document.</string>
 
+    <!-- Your data. Plain language on purpose: this is the screen where a promise about privacy is
+         either kept or merely claimed, and it is read by parents as often as by students. -->
+    <string name="privacy_entry">Your data</string>
+    <string name="privacy_summary">Everything LearnBridge knows stays on this phone. It has no internet permission, so nothing can be sent anywhere.\n\nStored here: the documents you imported, the lessons and quizzes made from them, and what your quiz answers suggest you have learned.</string>
+    <string name="privacy_export">Export what I have learned</string>
+    <string name="privacy_export_failed">That could not be exported.</string>
+    <string name="privacy_export_share">Export from LearnBridge</string>
+    <string name="privacy_erase">Delete everything</string>
+    <string name="privacy_erase_confirm">Delete every document, lesson and quiz, and everything LearnBridge has learned about you? This cannot be undone.</string>
+    <string name="privacy_erased">Everything was deleted.</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">The tutor could not answer that. Try asking differently.</string>
     <string name="error_low_memory">This device is short on memory, so LearnBridge is using its simpler offline tutor.</string>

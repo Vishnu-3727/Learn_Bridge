@@ -67,6 +67,15 @@
     <string name="quiz_next">తర్వాత</string>
     <string name="quiz_unavailable">ఈ పత్రం నుండి ఏ ప్రశ్నలూ తయారు చేయలేకపోయాం.</string>
 
+    <string name="privacy_entry">మీ డేటా</string>
+    <string name="privacy_summary">LearnBridge కు తెలిసినదంతా ఈ ఫోన్‌లోనే ఉంటుంది. దీనికి ఇంటర్నెట్ అనుమతి లేదు, కాబట్టి ఏదీ ఎక్కడికీ పంపబడదు.\n\nఇక్కడ ఉంచినవి: మీరు దిగుమతి చేసిన పత్రాలు, వాటి నుండి తయారైన పాఠాలు, ప్రశ్నలు, మీ సమాధానాలు సూచించే నేర్చుకోవడం.</string>
+    <string name="privacy_export">నేను నేర్చుకున్నది ఎగుమతి చేయండి</string>
+    <string name="privacy_export_failed">దాన్ని ఎగుమతి చేయలేకపోయాం.</string>
+    <string name="privacy_export_share">LearnBridge నుండి ఎగుమతి</string>
+    <string name="privacy_erase">అన్నీ తొలగించు</string>
+    <string name="privacy_erase_confirm">ప్రతి పత్రం, పాఠం, ప్రశ్నావళి, మరియు LearnBridge మీ గురించి నేర్చుకున్నదంతా తొలగించాలా? దీన్ని తిరిగి పొందలేరు.</string>
+    <string name="privacy_erased">అన్నీ తొలగించబడ్డాయి.</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">ఉపాధ్యాయుడు దానికి సమాధానం ఇవ్వలేకపోయాడు. ప్రశ్నను వేరే విధంగా అడగండి.</string>
     <string name="error_low_memory">ఈ పరికరంలో మెమరీ తక్కువగా ఉంది, కాబట్టి LearnBridge తన సరళమైన ఆఫ్‌లైన్ ఉపాధ్యాయుడిని ఉపయోగిస్తోంది.</string>

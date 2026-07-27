@@ -71,6 +71,15 @@
     <string name="quiz_next">आगे</string>
     <string name="quiz_unavailable">इस दस्तावेज़ से कोई प्रश्न नहीं बनाया जा सका।</string>
 
+    <string name="privacy_entry">आपका डेटा</string>
+    <string name="privacy_summary">LearnBridge जो कुछ जानता है वह इसी फ़ोन पर रहता है। इसके पास इंटरनेट की अनुमति नहीं है, इसलिए कुछ भी कहीं नहीं भेजा जा सकता।\n\nयहाँ रखा है: आपके आयात किए दस्तावेज़, उनसे बने पाठ और प्रश्न, और आपके उत्तरों से जो लगता है कि आपने सीखा।</string>
+    <string name="privacy_export">मैंने जो सीखा उसे निर्यात करें</string>
+    <string name="privacy_export_failed">उसे निर्यात नहीं किया जा सका।</string>
+    <string name="privacy_export_share">LearnBridge से निर्यात</string>
+    <string name="privacy_erase">सब कुछ हटाएँ</string>
+    <string name="privacy_erase_confirm">हर दस्तावेज़, पाठ और प्रश्नोत्तरी, और LearnBridge ने आपके बारे में जो कुछ सीखा, सब हटा दें? इसे वापस नहीं लाया जा सकता।</string>
+    <string name="privacy_erased">सब कुछ हटा दिया गया।</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">शिक्षक उसका उत्तर नहीं दे सका। प्रश्न किसी और तरह से पूछें।</string>
     <string name="error_low_memory">इस डिवाइस में मेमोरी कम है, इसलिए LearnBridge अपने सरल ऑफ़लाइन शिक्षक का उपयोग कर रहा है।</string>

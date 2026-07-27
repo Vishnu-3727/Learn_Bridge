@@ -67,6 +67,15 @@
     <string name="quiz_next">આગળ</string>
     <string name="quiz_unavailable">આ દસ્તાવેજમાંથી કોઈ પ્રશ્ન બનાવી શકાયો નથી.</string>
 
+    <string name="privacy_entry">તમારો ડેટા</string>
+    <string name="privacy_summary">LearnBridge જે કંઈ જાણે છે તે આ જ ફોન પર રહે છે. તેની પાસે ઇન્ટરનેટની પરવાનગી નથી, તેથી કંઈ પણ ક્યાંય મોકલી શકાતું નથી.\n\nઅહીં રાખ્યું છે: તમે આયાત કરેલા દસ્તાવેજો, તેમાંથી બનેલા પાઠ અને પ્રશ્નો, અને તમારા જવાબો પરથી જે શીખ્યા લાગે છે.</string>
+    <string name="privacy_export">મેં જે શીખ્યું તે નિકાસ કરો</string>
+    <string name="privacy_export_failed">તે નિકાસ કરી શકાયું નથી.</string>
+    <string name="privacy_export_share">LearnBridge માંથી નિકાસ</string>
+    <string name="privacy_erase">બધું કાઢી નાખો</string>
+    <string name="privacy_erase_confirm">દરેક દસ્તાવેજ, પાઠ અને પ્રશ્નોત્તરી, અને LearnBridge એ તમારા વિશે જે શીખ્યું તે બધું કાઢી નાખવું? આ પાછું લાવી શકાશે નહીં.</string>
+    <string name="privacy_erased">બધું કાઢી નાખવામાં આવ્યું.</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">શિક્ષક તેનો જવાબ આપી શક્યા નહીં. પ્રશ્ન બીજી રીતે પૂછો.</string>
     <string name="error_low_memory">આ ઉપકરણમાં મેમરી ઓછી છે, તેથી LearnBridge તેના સરળ ઑફલાઇન શિક્ષકનો ઉપયોગ કરી રહ્યું છે.</string>

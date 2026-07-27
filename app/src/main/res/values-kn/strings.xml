@@ -67,6 +67,15 @@
     <string name="quiz_next">ಮುಂದೆ</string>
     <string name="quiz_unavailable">ಈ ದಾಖಲೆಯಿಂದ ಯಾವುದೇ ಪ್ರಶ್ನೆಗಳನ್ನು ರಚಿಸಲಾಗಲಿಲ್ಲ.</string>
 
+    <string name="privacy_entry">ನಿಮ್ಮ ಡೇಟಾ</string>
+    <string name="privacy_summary">LearnBridge ಗೆ ತಿಳಿದಿರುವುದೆಲ್ಲ ಈ ಫೋನಿನಲ್ಲೇ ಇರುತ್ತದೆ. ಇದಕ್ಕೆ ಇಂಟರ್ನೆಟ್ ಅನುಮತಿ ಇಲ್ಲ, ಆದ್ದರಿಂದ ಏನೂ ಎಲ್ಲಿಗೂ ಕಳುಹಿಸಲಾಗದು.\n\nಇಲ್ಲಿ ಇರಿಸಿರುವುದು: ನೀವು ಆಮದು ಮಾಡಿದ ದಾಖಲೆಗಳು, ಅವುಗಳಿಂದ ರಚಿತವಾದ ಪಾಠಗಳು ಮತ್ತು ಪ್ರಶ್ನೆಗಳು, ನಿಮ್ಮ ಉತ್ತರಗಳು ಸೂಚಿಸುವ ಕಲಿಕೆ.</string>
+    <string name="privacy_export">ನಾನು ಕಲಿತದ್ದನ್ನು ರಫ್ತು ಮಾಡಿ</string>
+    <string name="privacy_export_failed">ಅದನ್ನು ರಫ್ತು ಮಾಡಲಾಗಲಿಲ್ಲ.</string>
+    <string name="privacy_export_share">LearnBridge ಇಂದ ರಫ್ತು</string>
+    <string name="privacy_erase">ಎಲ್ಲವನ್ನೂ ಅಳಿಸಿ</string>
+    <string name="privacy_erase_confirm">ಪ್ರತಿ ದಾಖಲೆ, ಪಾಠ ಮತ್ತು ರಸಪ್ರಶ್ನೆ, ಹಾಗೂ LearnBridge ನಿಮ್ಮ ಬಗ್ಗೆ ಕಲಿತ ಎಲ್ಲವನ್ನೂ ಅಳಿಸಬೇಕೆ? ಇದನ್ನು ಮರಳಿ ಪಡೆಯಲಾಗದು.</string>
+    <string name="privacy_erased">ಎಲ್ಲವನ್ನೂ ಅಳಿಸಲಾಗಿದೆ.</string>
+
     <!-- Errors -->
     <string name="error_generation_failed">ಶಿಕ್ಷಕರಿಗೆ ಅದಕ್ಕೆ ಉತ್ತರಿಸಲಾಗಲಿಲ್ಲ. ಪ್ರಶ್ನೆಯನ್ನು ಬೇರೆ ರೀತಿಯಲ್ಲಿ ಕೇಳಿ.</string>
     <string name="error_low_memory">ಈ ಸಾಧನದಲ್ಲಿ ಮೆಮೊರಿ ಕಡಿಮೆ ಇದೆ, ಆದ್ದರಿಂದ LearnBridge ತನ್ನ ಸರಳ ಆಫ್‌ಲೈನ್ ಶಿಕ್ಷಕರನ್ನು ಬಳಸುತ್ತಿದೆ.</string>
