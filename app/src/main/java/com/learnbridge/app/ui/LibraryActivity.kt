@@ -21,10 +21,12 @@ import com.learnbridge.app.LearnBridgeApp
 import com.learnbridge.app.R
 import com.learnbridge.app.doc.DocStore
 import com.learnbridge.app.doc.ImportResult
+import com.learnbridge.app.doc.Mastery
 import com.learnbridge.app.lang.SupportedLanguage
 import com.learnbridge.app.teach.IngestProgress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /**
  * Purpose:  Launcher screen. Lists imported documents and offers the two ways in — photograph a page
@@ -168,19 +170,21 @@ class LibraryActivity : AppCompatActivity() {
     private fun refreshDocuments() {
         lifecycleScope.launch {
             val rows = withDb { app.docStore.listDocuments() }
-            renderDocuments(rows)
+            // One query for the whole Twin rather than one per row: the table holds a record per
+            // document the student has been quizzed on, which is at most as many rows as the list.
+            val mastery = withDb { app.docStore.allMastery().associateBy { it.docId } }
+            renderDocuments(rows, mastery)
         }
     }
 
-    private fun renderDocuments(rows: List<DocStore.DocumentRow>) {
+    private fun renderDocuments(rows: List<DocStore.DocumentRow>, mastery: Map<Long, Mastery>) {
         documentList.removeAllViews()
         val inflater = LayoutInflater.from(this)
 
         for (row in rows) {
             val item = inflater.inflate(R.layout.item_document, documentList, false)
             item.findViewById<TextView>(R.id.docTitle).text = row.title
-            item.findViewById<TextView>(R.id.docMeta).text =
-                getString(R.string.document_meta, row.wordCount)
+            item.findViewById<TextView>(R.id.docMeta).text = meta(row, mastery[row.id])
             item.setOnClickListener { openLesson(row) }
             item.setOnLongClickListener {
                 confirmDelete(row)
@@ -192,6 +196,25 @@ class LibraryActivity : AppCompatActivity() {
         val empty = rows.isEmpty()
         emptyState.visibility = if (empty) View.VISIBLE else View.GONE
         documentList.visibility = if (empty) View.GONE else View.VISIBLE
+    }
+
+    /**
+     * The line under a document's title: its size, what the student knows of it, and whether the
+     * revision schedule says it is due.
+     *
+     * The word count alone is the only thing there is to say before the first quiz — a percentage
+     * shown then would be a confident zero for a document nobody has been tested on yet, which reads
+     * as failure rather than as "not started".
+     */
+    private fun meta(row: DocStore.DocumentRow, mastery: Mastery?): String {
+        val parts = mutableListOf(getString(R.string.document_meta, row.wordCount))
+        if (mastery != null && mastery.exposureCount > 0) {
+            // The decayed figure, not the stored one: what they knew when last tested is history,
+            // and the list should show what they probably know today.
+            parts += getString(R.string.document_mastery, (mastery.decayed() * 100).roundToInt())
+            if (mastery.isDue()) parts += getString(R.string.document_due)
+        }
+        return parts.joinToString("  ·  ")
     }
 
     private fun openLesson(row: DocStore.DocumentRow) {

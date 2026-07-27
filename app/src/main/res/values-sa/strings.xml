@@ -26,6 +26,8 @@
 
     <!-- Documents -->
     <string name="document_meta">%1$d शब्दाः</string>
+    <string name="document_mastery">%1$d%% पठितम्</string>
+    <string name="document_due">पुनरावर्तनाय सज्जम्</string>
     <string name="delete_confirm">इदं लेखपत्रं, तथा LearnBridge इत्यनेन ततः यत् किमपि ज्ञातम्, तत् सर्वम् अपनयतु वा?</string>
     <string name="delete">अपनयतु</string>
     <string name="cd_document">इमं पाठम् उद्घाटयतु</string>

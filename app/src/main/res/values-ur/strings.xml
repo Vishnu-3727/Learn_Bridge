@@ -28,6 +28,8 @@
 
     <!-- Documents -->
     <string name="document_meta">%1$d الفاظ</string>
+    <string name="document_mastery">%1$d%% سیکھا</string>
+    <string name="document_due">دہرانے کے لیے تیار</string>
     <string name="delete_confirm">اس دستاویز کو اور LearnBridge نے اس سے جو کچھ سیکھا، سب ہٹا دیں؟</string>
     <string name="delete">ہٹائیں</string>
     <string name="cd_document">یہ سبق کھولیں</string>

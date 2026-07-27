@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.learnbridge.app.LearnBridgeApp
+import com.learnbridge.app.doc.Mastery
 import com.learnbridge.app.doc.Retrieval
 import com.learnbridge.app.lang.LessonTranslator
 import com.learnbridge.app.lang.SupportedLanguage
@@ -60,6 +61,8 @@ data class LessonUiState(
     val explain: ExplainUi = ExplainUi(),
     val ask: AskUi = AskUi(),
     val quiz: QuizUi = QuizUi(),
+    /** What the app has learned about this student on this document, or null before their first quiz. */
+    val mastery: Mastery? = null,
 )
 
 /** The Explain pane: a database read, never a generation, so there is no "loading" variant. */
@@ -109,9 +112,22 @@ data class QuizUi(
     val score: Int = 0,
     val selectedIndex: Int? = null,
     val answered: Boolean = false,
+    /** When the current question was first shown. The clock behind [latenciesMs]. */
+    val shownAt: Long = 0L,
+    /** How long each answered question took, in order. Feeds the Twin's confidence estimate. */
+    val latenciesMs: List<Long> = emptyList(),
 ) {
     val total: Int get() = items.size
     val isDone: Boolean get() = items.isNotEmpty() && currentIndex >= items.size
+
+    /**
+     * The middle answer time, or 0 when nothing has been answered.
+     *
+     * Median rather than mean: one question interrupted by a phone call would drag an average into
+     * "not confident" and misrepresent the whole quiz.
+     */
+    val medianLatencyMs: Long
+        get() = latenciesMs.sorted().let { if (it.isEmpty()) 0L else it[it.size / 2] }
 
     /**
      * Records a tap on option [selected] of the current question. Pure — no I/O; the caller
@@ -119,19 +135,24 @@ data class QuizUi(
      * A no-op once the current question is already answered, or once the quiz is done, so a
      * double-tap can never double-count a score.
      */
-    fun answer(selected: Int): QuizUi {
+    fun answer(selected: Int, now: Long = System.currentTimeMillis()): QuizUi {
         if (answered || isDone) return this
         val (_, correctIndex) = items[currentIndex].shuffledOptions()
+        // shownAt is 0 for a quiz restored without a display timestamp; recording a latency measured
+        // from the epoch would report roughly fifty-six years of hesitation.
+        val elapsed = if (shownAt > 0) now - shownAt else 0L
         return copy(
             selectedIndex = selected,
             answered = true,
             score = if (selected == correctIndex) score + 1 else score,
+            latenciesMs = if (elapsed > 0) latenciesMs + elapsed else latenciesMs,
         )
     }
 
     /** Moves to the next question, resetting per-question state. A no-op before an answer is given. */
-    fun next(): QuizUi =
-        if (!answered) this else copy(currentIndex = currentIndex + 1, selectedIndex = null, answered = false)
+    fun next(now: Long = System.currentTimeMillis()): QuizUi =
+        if (!answered) this
+        else copy(currentIndex = currentIndex + 1, selectedIndex = null, answered = false, shownAt = now)
 }
 
 /**
@@ -197,6 +218,15 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
         loadExplain()
         loadQuiz()
         refreshTranslationAvailability()
+        loadMastery()
+    }
+
+    private fun loadMastery() {
+        val docId = _state.value.docId
+        viewModelScope.launch(Dispatchers.IO) {
+            val record = runCatching { docStore.mastery(docId) }.getOrNull()
+            _state.update { it.copy(mastery = record) }
+        }
     }
 
     fun selectTab(tab: LessonTab) {
@@ -265,14 +295,17 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
             _state.update {
                 val quiz = if (preserveProgress) {
                     // Only what is language-independent. See this function's header for why the
-                    // per-question selection cannot come along.
+                    // per-question selection cannot come along. Latencies do: how long the student
+                    // took to answer is a fact about them, not about the language it was shown in.
                     QuizUi(
                         items = resolved.rows,
                         currentIndex = it.quiz.currentIndex,
                         score = it.quiz.score,
+                        shownAt = System.currentTimeMillis(),
+                        latenciesMs = it.quiz.latenciesMs,
                     )
                 } else {
-                    QuizUi(items = resolved.rows)
+                    QuizUi(items = resolved.rows, shownAt = System.currentTimeMillis())
                 }
                 it.copy(quiz = quiz)
             }
@@ -437,16 +470,42 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /** In memory only: the score lives as long as the screen does. Nothing reads a stored history,
-     *  so nothing writes one — see the quiz_results removal. */
     fun answerQuiz(selectedIndex: Int) {
         val quiz = _state.value.quiz
         if (quiz.answered || quiz.isDone) return
         _state.update { it.copy(quiz = it.quiz.answer(selectedIndex)) }
     }
 
+    /**
+     * Advances, and commits the result to the Learning Twin on the question that ends the quiz.
+     *
+     * Once per quiz rather than once per answer, because the Twin's unit of evidence is a completed
+     * attempt: a single question answered in isolation is a much noisier signal than a run of them,
+     * and updating per answer would let a student walk away mid-quiz having moved their own score.
+     */
     fun nextQuizQuestion() {
+        val before = _state.value.quiz
         _state.update { it.copy(quiz = it.quiz.next()) }
+        val after = _state.value.quiz
+        if (after.isDone && !before.isDone) recordQuizResult(after)
+    }
+
+    private fun recordQuizResult(quiz: QuizUi) {
+        val docId = _state.value.docId
+        if (docId == NO_DOC || quiz.total == 0) return
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching {
+                val current = docStore.mastery(docId) ?: Mastery.initial(docId)
+                val updated = current.afterQuiz(quiz.score, quiz.total, quiz.medianLatencyMs)
+                docStore.putMastery(updated)
+                Log.i(
+                    TAG,
+                    "doc $docId: mastery ${updated.masteryPercent}%, confidence " +
+                        "${(updated.confidence * 100).toInt()}%, due in ${updated.intervalDays}d",
+                )
+                _state.update { it.copy(mastery = updated) }
+            }.onFailure { Log.w(TAG, "doc $docId: could not record the quiz result", it) }
+        }
     }
 
     private fun otherLang(lang: String): String =

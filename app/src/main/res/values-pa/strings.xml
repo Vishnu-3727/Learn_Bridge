@@ -24,6 +24,8 @@
 
     <!-- Documents -->
     <string name="document_meta">%1$d ਸ਼ਬਦ</string>
+    <string name="document_mastery">%1$d%% ਸਿੱਖਿਆ</string>
+    <string name="document_due">ਦੁਹਰਾਉਣ ਲਈ ਤਿਆਰ</string>
     <string name="delete_confirm">ਇਹ ਦਸਤਾਵੇਜ਼ ਅਤੇ LearnBridge ਨੇ ਇਸ ਤੋਂ ਜੋ ਕੁਝ ਸਿੱਖਿਆ, ਸਭ ਹਟਾ ਦੇਈਏ?</string>
     <string name="delete">ਹਟਾਓ</string>
     <string name="cd_document">ਇਹ ਪਾਠ ਖੋਲ੍ਹੋ</string>

@@ -24,6 +24,8 @@
 
     <!-- Documents -->
     <string name="document_meta">%1$d ಪದಗಳು</string>
+    <string name="document_mastery">%1$d%% ಕಲಿತಿದ್ದೀರಿ</string>
+    <string name="document_due">ಪುನರಾವರ್ತನೆಗೆ ಸಿದ್ಧ</string>
     <string name="delete_confirm">ಈ ದಾಖಲೆಯನ್ನು ಮತ್ತು LearnBridge ಅದರಿಂದ ಕಲಿತ ಎಲ್ಲವನ್ನೂ ತೆಗೆದುಹಾಕಬೇಕೆ?</string>
     <string name="delete">ತೆಗೆದುಹಾಕಿ</string>
     <string name="cd_document">ಈ ಪಾಠವನ್ನು ತೆರೆಯಿರಿ</string>

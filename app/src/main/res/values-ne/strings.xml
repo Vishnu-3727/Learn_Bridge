@@ -24,6 +24,8 @@
 
     <!-- Documents -->
     <string name="document_meta">%1$d शब्द</string>
+    <string name="document_mastery">%1$d%% सिकियो</string>
+    <string name="document_due">दोहोर्‍याउन तयार</string>
     <string name="delete_confirm">यो कागजात र LearnBridge ले यसबाट सिकेको सबै कुरा हटाउने?</string>
     <string name="delete">हटाउनुहोस्</string>
     <string name="cd_document">यो पाठ खोल्नुहोस्</string>

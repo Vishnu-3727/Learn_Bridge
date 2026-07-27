@@ -80,18 +80,36 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
         // explanation" / "is there a Tamil one yet" — and remains a usable prefix of this index, so
         // that query costs nothing extra and now gets its ORDER BY ordinal for free.
         db.execSQL("CREATE UNIQUE INDEX idx_artifacts_lookup ON artifacts(docId, kind, lang, ordinal)")
+
+        // A fresh install runs every migration's DDL rather than a hand-copied duplicate of it, so
+        // the schema a new device gets and the schema an upgraded device reaches cannot drift apart —
+        // which is the usual way migration bugs are introduced.
+        migrate(db, from = 1, to = DB_VERSION)
     }
 
+    /**
+     * Steps the schema forward one version at a time.
+     *
+     * The previous implementation dropped every table and recreated them. That was declared correct
+     * for schema v1 — there was nothing to preserve and nothing had ever shipped a v2 — and it stops
+     * being correct the moment a v2 exists, which is now: it would erase every imported document and
+     * everything learned about the student on the first launch after the update.
+     */
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // ponytail: no migration path — this is schema version 1 with five days left to ship.
-        // Add real ALTER TABLE migrations here the day a v2 is actually needed.
-        db.execSQL("DROP TABLE IF EXISTS documents")
-        db.execSQL("DROP TABLE IF EXISTS chunks_fts")
-        db.execSQL("DROP TABLE IF EXISTS artifacts")
-        // Kept although nothing creates quiz_results any more: a device that installed an earlier
-        // build still has the table, and this is the one place that will ever clear it.
-        db.execSQL("DROP TABLE IF EXISTS quiz_results")
-        onCreate(db)
+        migrate(db, from = oldVersion, to = newVersion)
+    }
+
+    private fun migrate(db: SQLiteDatabase, from: Int, to: Int) {
+        for (version in from + 1..to) {
+            when (version) {
+                2 -> {
+                    db.execSQL(CREATE_MASTERY)
+                    // Written by builds before the F8 removal, read by nothing then or now. This is
+                    // the one place that will ever clear it off a device that still carries it.
+                    db.execSQL("DROP TABLE IF EXISTS quiz_results")
+                }
+            }
+        }
     }
 
     fun insertDocument(title: String, sourceUri: String?, wordCount: Int): Long {
@@ -171,6 +189,7 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
             db.delete("documents", "id = ?", idArg)
             db.delete("chunks_fts", "doc_id = ?", idArg)
             db.delete("artifacts", "docId = ?", idArg)
+            db.delete("mastery", "docId = ?", idArg)
             db.setTransactionSuccessful()
         } finally {
             db.endTransaction()
@@ -236,6 +255,57 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
         return result
     }
 
+    // --- Learning Twin ---------------------------------------------------------------------------
+
+    /**
+     * Reads this document's mastery record, or null before the student has ever been quizzed on it.
+     *
+     * Null rather than a zero-filled default so the caller can tell "never attempted" from "attempted
+     * and scored zero" — two states that mean opposite things to a revision schedule.
+     */
+    fun mastery(docId: Long): Mastery? =
+        readableDatabase.rawQuery(
+            "SELECT docId, mastery, confidence, exposureCount, lastSeen, intervalDays, easeFactor, dueAt " +
+                "FROM mastery WHERE docId = ?",
+            arrayOf(docId.toString()),
+        ).use { if (it.moveToFirst()) it.toMastery() else null }
+
+    /** Every mastery record, soonest due first. The Twin, in full — this is what an export would write. */
+    fun allMastery(): List<Mastery> {
+        val rows = mutableListOf<Mastery>()
+        readableDatabase.rawQuery(
+            "SELECT docId, mastery, confidence, exposureCount, lastSeen, intervalDays, easeFactor, dueAt " +
+                "FROM mastery ORDER BY dueAt",
+            null,
+        ).use { while (it.moveToNext()) rows += it.toMastery() }
+        return rows
+    }
+
+    fun putMastery(record: Mastery) {
+        val values = ContentValues().apply {
+            put("docId", record.docId)
+            put("mastery", record.mastery)
+            put("confidence", record.confidence)
+            put("exposureCount", record.exposureCount)
+            put("lastSeen", record.lastSeen)
+            put("intervalDays", record.intervalDays)
+            put("easeFactor", record.easeFactor)
+            put("dueAt", record.dueAt)
+        }
+        writableDatabase.insertWithOnConflict("mastery", null, values, SQLiteDatabase.CONFLICT_REPLACE)
+    }
+
+    private fun android.database.Cursor.toMastery() = Mastery(
+        docId = getLong(0),
+        mastery = getDouble(1),
+        confidence = getDouble(2),
+        exposureCount = getInt(3),
+        lastSeen = getLong(4),
+        intervalDays = getInt(5),
+        easeFactor = getDouble(6),
+        dueAt = getLong(7),
+    )
+
     /** Writes [text] to `filesDir/docs/<docId>.txt`. Called once, right after extraction. */
     fun saveText(docId: Long, text: String) {
         val dir = docsDir(appContext)
@@ -251,7 +321,27 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
 
     companion object {
         private const val DB_NAME = "learnbridge_docs.db"
-        private const val DB_VERSION = 1
+
+        /** 2 added the `mastery` table. Bumping this requires a matching branch in [migrate]. */
+        private const val DB_VERSION = 2
+
+        /**
+         * One row per document: what the student knows about it, how sure they are, and when it
+         * should next be revised. Keyed on docId alone, so a second quiz updates the row rather than
+         * appending — the record is a compact summary of every attempt, never a log of them.
+         */
+        private val CREATE_MASTERY = """
+            CREATE TABLE mastery(
+                docId INTEGER PRIMARY KEY,
+                mastery REAL NOT NULL,
+                confidence REAL NOT NULL,
+                exposureCount INTEGER NOT NULL,
+                lastSeen INTEGER NOT NULL,
+                intervalDays INTEGER NOT NULL,
+                easeFactor REAL NOT NULL,
+                dueAt INTEGER NOT NULL
+            )
+        """.trimIndent()
 
         /**
          * The status a document reaches only once its lesson is fully generated and persisted.

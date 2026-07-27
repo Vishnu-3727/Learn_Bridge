@@ -35,6 +35,10 @@
 
     <!-- Documents -->
     <string name="document_meta">%1$d words</string>
+    <!-- Appended to the word count once a quiz has been taken. %1$d is a percentage, 0-100. -->
+    <string name="document_mastery">%1$d%% learned</string>
+    <!-- Appended when the spaced-revision schedule says this document is due again. -->
+    <string name="document_due">Ready to revise</string>
     <string name="delete_confirm">Remove this document and everything LearnBridge learned from it?</string>
     <string name="delete">Remove</string>
     <string name="cd_document">Open this lesson</string>
