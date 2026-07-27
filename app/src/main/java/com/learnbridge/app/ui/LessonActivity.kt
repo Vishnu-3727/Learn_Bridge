@@ -182,7 +182,7 @@ class LessonActivity : AppCompatActivity() {
         when (state.tab) {
             LessonTab.EXPLAIN -> renderExplain(state.explain, state.lang)
             LessonTab.ASK -> renderAsk(state.ask)
-            LessonTab.QUIZ -> renderQuiz(state.quiz)
+            LessonTab.QUIZ -> renderQuiz(state.quiz, state.lang)
         }
 
         languageToggle.isEnabled = state.translationAvailable
@@ -212,8 +212,22 @@ class LessonActivity : AppCompatActivity() {
         tab.setTypeface(Typeface.DEFAULT, if (selected) Typeface.BOLD else Typeface.NORMAL)
     }
 
+    /**
+     * Lays a view out for the script its text is written in.
+     *
+     * The platform gets bidi inside an Urdu paragraph right on its own, but nothing was reading
+     * [SupportedLanguage.rtl], so the paragraph itself sat left-aligned in an LTR layout — correct
+     * character order, wrong page. Alignment is VIEW_START so it follows whichever direction is set.
+     */
+    private fun applyDirection(view: TextView, lang: String) {
+        val rtl = SupportedLanguage.byCode(lang)?.rtl == true
+        view.textDirection = if (rtl) View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
+        view.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+    }
+
     /** A database read, never a generation — so there is no spinner here, ever. */
     private fun renderExplain(explain: ExplainUi, requestedLang: String) {
+        applyDirection(contentText, explain.displayedLang)
         if (explain.points.isEmpty()) {
             contentText.text = getString(R.string.explain_unavailable)
             inlineStatus.visibility = View.GONE
@@ -232,6 +246,8 @@ class LessonActivity : AppCompatActivity() {
     }
 
     private fun renderAsk(ask: AskUi) {
+        // The generated answer is English until Final says otherwise — including while it streams.
+        applyDirection(contentText, (ask.output as? AskOutput.Final)?.lang ?: LessonPipeline.LANG_EN)
         askInput.isEnabled = !ask.busy
         askSend.isEnabled = !ask.busy && ask.question.isNotBlank()
 
@@ -279,7 +295,8 @@ class LessonActivity : AppCompatActivity() {
         }
     }
 
-    private fun renderQuiz(quiz: QuizUi) {
+    private fun renderQuiz(quiz: QuizUi, lang: String) {
+        applyDirection(quizQuestion, lang)
         quizFeedback.visibility = View.GONE
         quizNext.visibility = View.GONE
         quizScore.visibility = View.GONE
@@ -315,6 +332,7 @@ class LessonActivity : AppCompatActivity() {
         val inflater = LayoutInflater.from(this)
         options.forEachIndexed { index, optionText ->
             val row = inflater.inflate(R.layout.view_quiz_item, quizOptions, false) as TextView
+            applyDirection(row, lang)
             val isCorrectRow = quiz.answered && index == correctIndex
             val isWrongSelected = quiz.answered && index == quiz.selectedIndex && index != correctIndex
 
