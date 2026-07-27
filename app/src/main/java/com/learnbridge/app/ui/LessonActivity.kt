@@ -33,7 +33,8 @@ import java.util.Locale
  * Thread:   Main. A pure renderer of [LessonViewModel.state]: [render] reads one snapshot and mutates
  *           views: it holds no business state of its own. The one exception is the Ask [EditText]'s
  *           own text, which is left to Android's normal view-state handling rather than bound from
- *           state, so typing never fights a State->View->State feedback loop.
+ *           state, so typing never fights a State->View->State feedback loop, and [streamed], which
+ *           buffers the token stream the state flow deliberately does not carry.
  */
 class LessonActivity : AppCompatActivity() {
 
@@ -65,6 +66,10 @@ class LessonActivity : AppCompatActivity() {
     /** The last rendered snapshot, so click handlers (Listen) act on exactly what is on screen. */
     private var lastState: LessonUiState? = null
 
+    /** Tokens of the in-flight answer, so the Ask pane can be redrawn from scratch after the student
+     *  looks at another tab mid-stream. Not in [LessonUiState] for the reason its header gives. */
+    private val streamed = StringBuilder()
+
     private val selectableBackgroundRes: Int by lazy {
         val value = TypedValue()
         theme.resolveAttribute(android.R.attr.selectableItemBackground, value, true)
@@ -84,10 +89,16 @@ class LessonActivity : AppCompatActivity() {
         viewModel.start(docId, docTitle)
 
         lifecycleScope.launch { viewModel.state.collect { render(it) } }
-        // Tokens are a separate stream from state on purpose — see LessonViewModel's header. Appended
-        // unconditionally: if the student switches away from Ask mid-stream the text still
-        // accumulates in the hidden TextView, so switching back shows it caught up, not restarted.
-        lifecycleScope.launch { viewModel.tokens.collect { token -> contentText.append(token) } }
+        // Tokens are a separate stream from state on purpose — see LessonViewModel's header. They go
+        // into [streamed] always, but onto the screen only while Ask is the visible pane: contentText
+        // is shared with Explain, and appending regardless typed the answer onto the end of the key
+        // points. Switching back still catches up, because renderAsk replays [streamed].
+        lifecycleScope.launch {
+            viewModel.tokens.collect { token ->
+                streamed.append(token)
+                if (lastState?.tab == LessonTab.ASK) contentText.append(token)
+            }
+        }
     }
 
     override fun onPause() {
@@ -232,14 +243,19 @@ class LessonActivity : AppCompatActivity() {
 
             AskOutput.InProgress -> {
                 // Cleared here, once, before any token arrives — see LessonViewModel.sendQuestion,
-                // which always sets InProgress before Streaming. Streaming itself never touches
-                // contentText: the token collector in onCreate owns it from this point on.
+                // which always sets InProgress before Streaming.
+                streamed.setLength(0)
                 contentText.text = ""
                 inlineStatus.text = getString(R.string.ask_thinking)
                 inlineStatus.visibility = View.VISIBLE
             }
 
             AskOutput.Streaming -> {
+                // Replayed rather than appended: this branch runs whenever Ask becomes visible again,
+                // including after a mid-stream detour through Explain, which overwrote contentText.
+                // .toString(): TextView keeps the CharSequence it is handed, and handing it the live
+                // builder means every later append mutates text the view believes it already laid out.
+                contentText.text = streamed.toString()
                 inlineStatus.visibility = View.GONE
             }
 
