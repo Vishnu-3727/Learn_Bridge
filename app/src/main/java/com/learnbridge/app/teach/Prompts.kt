@@ -110,28 +110,52 @@ object Prompts {
     )
 
     /**
-     * Five multiple-choice questions.
+     * Three multiple-choice questions.
      *
      * `Q:` / `A:` / `X:` rather than `A:` / `B:` / `C:` on purpose. Lettered options force the model
      * to also decide *which letter* is correct and state that somewhere, which is a second thing to
      * get wrong and a second thing to parse. Naming the roles instead — answer versus wrong option —
      * means the correct choice is structural, and the UI shuffles before display so the answer is not
      * always first. See [QuizItem.shuffledOptions].
+     *
+     * **Three, not five, and every word of the count is measured rather than chosen.** Four versions
+     * of this prompt ran against the real weights on the SM-M315F (`TeacherQualityDeviceTest`):
+     *
+     * | prompt | parsed items | options |
+     * |---|---|---|
+     * | "five questions", shape shown once | **1** of 5 | real |
+     * | + "five Q lines, twenty lines in total" | **5** of 5 | **placeholder text, copied verbatim** |
+     * | + bracketed slots instead of literal placeholders | **2** of 5 | real |
+     * | asked for three | **3** of 3 | real |
+     *
+     * Two separate findings sit in that table. The count only obeys a *countable* constraint — the same
+     * reason [explain]'s "exactly five lines" always worked. And the five-block run only reached five
+     * because copying `X: a wrong answer` five times is free: given slots it must actually fill, this
+     * model invents roughly two or three good distractor sets and then stops. So five substantive
+     * questions is not available in one pass on this hardware, and asking for a number it will not
+     * reach just moves the shortfall behind [LessonParser]'s forgiving parse, where nobody sees it.
+     *
+     * Three real questions beats five where two are usable. If a larger model is ever staged, raise
+     * this and re-run that test — it prints parsed counts and every raw response.
      */
     fun quiz(chunks: List<Chunk>): String = wrap(
         """
-        Write five quiz questions about the text below.
+        Write three quiz questions about the text below.
 
-        Use exactly this format for every question:
-        Q: the question
-        A: the correct answer
-        X: a wrong answer
-        X: another wrong answer
+        Each question is four lines:
+        Q: (the question)
+        A: (the correct answer)
+        X: (a wrong option)
+        X: (a different wrong option)
 
         Rules:
+        - Write all three questions: three Q lines, twelve lines in total.
+        - Every Q line must be followed by its own A line and two X lines.
+        - Replace every bracket above with real words from the text. Never copy a bracket.
         - Maximum twelve words per line.
-        - The A line must be correct according to the text.
-        - The X lines must be clearly wrong, but about the same topic.
+        - The A line must correctly answer its own Q line, according to the text.
+        - The X lines must be clearly wrong answers to that Q line, but about the same topic.
+        - Ask about a different fact each time.
         - Use only facts from the text.
         """.trimIndent() + "\n\nTEXT:\n" + chunks.joinToString("\n\n") { it.text },
     )
