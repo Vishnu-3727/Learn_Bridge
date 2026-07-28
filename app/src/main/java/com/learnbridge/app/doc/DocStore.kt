@@ -250,16 +250,10 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
     }
 
     /** All artifact rows for (docId, kind, lang) in ordinal order. Empty if that language hasn't been generated yet. */
-    fun artifacts(docId: Long, kind: String, lang: String): List<String> {
-        val result = mutableListOf<String>()
-        readableDatabase.rawQuery(
-            "SELECT text FROM artifacts WHERE docId = ? AND kind = ? AND lang = ? ORDER BY ordinal",
-            arrayOf(docId.toString(), kind, lang),
-        ).use { cursor ->
-            while (cursor.moveToNext()) result += cursor.getString(0)
-        }
-        return result
-    }
+    fun artifacts(docId: Long, kind: String, lang: String): List<String> = queryStrings(
+        "SELECT text FROM artifacts WHERE docId = ? AND kind = ? AND lang = ? ORDER BY ordinal",
+        docId.toString(), kind, lang,
+    )
 
     /**
      * Every non-English language this document has been rendered into, empty if it has none.
@@ -272,12 +266,15 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
      * happened to return first, which was harmless only while a document could hold exactly one
      * translation. A document can now be rendered into a second language after import.
      */
-    fun translationLanguages(docId: Long): List<String> {
+    fun translationLanguages(docId: Long): List<String> = queryStrings(
+        "SELECT DISTINCT lang FROM artifacts WHERE docId = ? AND lang <> 'en' ORDER BY lang",
+        docId.toString(),
+    )
+
+    /** Every row of a one-column query, in the order the query asked for. */
+    private fun queryStrings(sql: String, vararg args: String): List<String> {
         val result = mutableListOf<String>()
-        readableDatabase.rawQuery(
-            "SELECT DISTINCT lang FROM artifacts WHERE docId = ? AND lang <> 'en' ORDER BY lang",
-            arrayOf(docId.toString()),
-        ).use { cursor ->
+        readableDatabase.rawQuery(sql, arrayOf(*args)).use { cursor ->
             while (cursor.moveToNext()) result += cursor.getString(0)
         }
         return result
@@ -292,20 +289,14 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
      * and scored zero" — two states that mean opposite things to a revision schedule.
      */
     fun mastery(docId: Long): Mastery? =
-        readableDatabase.rawQuery(
-            "SELECT docId, mastery, confidence, exposureCount, lastSeen, intervalDays, easeFactor, dueAt " +
-                "FROM mastery WHERE docId = ?",
-            arrayOf(docId.toString()),
-        ).use { if (it.moveToFirst()) it.toMastery() else null }
+        readableDatabase.rawQuery("$SELECT_MASTERY WHERE docId = ?", arrayOf(docId.toString()))
+            .use { if (it.moveToFirst()) it.toMastery() else null }
 
     /** Every mastery record, soonest due first. The Twin, in full — this is what an export would write. */
     fun allMastery(): List<Mastery> {
         val rows = mutableListOf<Mastery>()
-        readableDatabase.rawQuery(
-            "SELECT docId, mastery, confidence, exposureCount, lastSeen, intervalDays, easeFactor, dueAt " +
-                "FROM mastery ORDER BY dueAt",
-            null,
-        ).use { while (it.moveToNext()) rows += it.toMastery() }
+        readableDatabase.rawQuery("$SELECT_MASTERY ORDER BY dueAt", null)
+            .use { while (it.moveToNext()) rows += it.toMastery() }
         return rows
     }
 
@@ -352,6 +343,15 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
 
         /** 2 added the `mastery` table. Bumping this requires a matching branch in [migrate]. */
         private const val DB_VERSION = 2
+
+        /**
+         * Both mastery reads select the same eight columns in the same order, and [toMastery] indexes
+         * them positionally — so the column list and that function have to move together or the
+         * record comes back with confidence in the mastery field. One string makes that impossible.
+         */
+        private const val SELECT_MASTERY =
+            "SELECT docId, mastery, confidence, exposureCount, lastSeen, intervalDays, easeFactor, " +
+                "dueAt FROM mastery"
 
         /**
          * One row per document: what the student knows about it, how sure they are, and when it
