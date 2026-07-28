@@ -262,25 +262,55 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
         if (!current.translationAvailable) return
         val newLang = otherLang(current.lang)
         _state.update { it.copy(lang = newLang) }
+        reloadPanes()
+    }
+
+    /**
+     * Re-reads both panes after the language changed underneath them.
+     *
+     * Always with `preserveProgress`, because every caller is a language change and none of them is a
+     * reason to lose a half-finished quiz — the questions are being reworded, not replaced.
+     */
+    private fun reloadPanes() {
         loadExplain()
         loadQuiz(preserveProgress = true)
     }
 
     private fun loadExplain() {
         val (docId, lang) = _state.value.let { it.docId to it.lang }
-        val other = otherLang(lang)
         viewModelScope.launch(Dispatchers.IO) {
-            val primary = docStore.artifacts(docId, LessonPipeline.KIND_EXPLANATION, lang)
-            val fallback = if (primary.isEmpty()) {
-                docStore.artifacts(docId, LessonPipeline.KIND_EXPLANATION, other)
-            } else {
-                emptyList()
-            }
-            val resolved = resolveFallback(lang, other, primary, fallback)
+            val resolved = readWithFallback(docId, LessonPipeline.KIND_EXPLANATION, lang) { it }
             _state.update {
                 it.copy(explain = ExplainUi(resolved.rows, resolved.lang, resolved.fellBack))
             }
         }
+    }
+
+    /**
+     * Reads one kind of artifact in [lang], falling back to the other language when that has no rows.
+     *
+     * The fallback query only runs when the first came back empty, which is the whole reason this is
+     * not two unconditional reads: on the common path — a document that has the language being asked
+     * for — it costs exactly one query, same as before.
+     *
+     * [decode] turns stored rows into whatever the pane wants; Explain keeps the strings, Quiz parses
+     * them and drops anything unreadable.
+     *
+     * **Emptiness is judged on the stored rows, before [decode], deliberately.** A language that has
+     * rows has been rendered into, whether or not every one of them still parses, and treating an
+     * unparseable row as an absent language would quietly show the other language's content under a
+     * heading claiming this one.
+     */
+    private fun <T> readWithFallback(
+        docId: Long,
+        kind: String,
+        lang: String,
+        decode: (List<String>) -> List<T>,
+    ): FallbackResult<T> {
+        val other = otherLang(lang)
+        val primaryRows = docStore.artifacts(docId, kind, lang)
+        val fallbackRows = if (primaryRows.isEmpty()) docStore.artifacts(docId, kind, other) else emptyList()
+        return resolveFallback(lang, other, decode(primaryRows), decode(fallbackRows))
     }
 
     /**
@@ -296,17 +326,10 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
      */
     private fun loadQuiz(preserveProgress: Boolean = false) {
         val (docId, lang) = _state.value.let { it.docId to it.lang }
-        val other = otherLang(lang)
         viewModelScope.launch(Dispatchers.IO) {
-            val primaryRaw = docStore.artifacts(docId, LessonPipeline.KIND_QUIZ, lang)
-            val fallbackRaw = if (primaryRaw.isEmpty()) {
-                docStore.artifacts(docId, LessonPipeline.KIND_QUIZ, other)
-            } else {
-                emptyList()
+            val resolved = readWithFallback(docId, LessonPipeline.KIND_QUIZ, lang) { rows ->
+                rows.mapNotNull { QuizItem.decode(it) }
             }
-            val primary = primaryRaw.mapNotNull { QuizItem.decode(it) }
-            val fallback = fallbackRaw.mapNotNull { QuizItem.decode(it) }
-            val resolved = resolveFallback(lang, other, primary, fallback)
             _state.update {
                 val quiz = if (preserveProgress) {
                     // Only what is language-independent. See this function's header for why the
@@ -372,15 +395,13 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
 
         if (language == SupportedLanguage.ENGLISH) {
             _state.update { it.copy(lang = LessonPipeline.LANG_EN) }
-            loadExplain()
-            loadQuiz(preserveProgress = true)
+            reloadPanes()
             return
         }
 
         if (language.code in current.renderedLangs) {
             _state.update { it.copy(lang = language.code, translationLang = language.code) }
-            loadExplain()
-            loadQuiz(preserveProgress = true)
+            reloadPanes()
             return
         }
 
@@ -402,10 +423,7 @@ class LessonViewModel(application: Application) : AndroidViewModel(application) 
                 )
             }
             refreshTranslationAvailability(preferred = language.code)
-            if (rendered) {
-                loadExplain()
-                loadQuiz(preserveProgress = true)
-            }
+            if (rendered) reloadPanes()
         }
     }
 
