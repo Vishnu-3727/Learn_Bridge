@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.learnbridge.app.doc.Chunk
+import com.learnbridge.app.doc.chunk
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
@@ -109,18 +110,35 @@ class TeacherQualityDeviceTest {
         /** The question below is answerable from the text, so NOT_IN_TEXT would be a real miss. */
         const val QUESTION = "Where does the plant get water?"
 
-        /** A textbook-shaped passage, long enough that a five-question quiz has material to draw on. */
-        val CHUNKS = listOf(
-            Chunk(
-                0,
-                "Green plants make their own food. This process is called photosynthesis. It happens " +
-                    "mainly in the leaves. Leaves contain a green pigment called chlorophyll. " +
-                    "Chlorophyll absorbs energy from sunlight. The plant takes in carbon dioxide from " +
-                    "the air through tiny pores called stomata. The roots absorb water from the soil " +
-                    "and carry it up the stem to the leaves. Using the energy from sunlight, the plant " +
-                    "combines carbon dioxide and water to make glucose, a simple sugar. Oxygen is " +
-                    "released into the air as a waste product.",
-            ),
-        )
+        /**
+         * A whole textbook page, paragraphs and all.
+         *
+         * **Fed through the real [chunk] and truncated to [Prompts.MAX_CHUNKS], because that is
+         * exactly what `LessonPipeline` does.** An earlier version of this test hand-built a single
+         * short chunk, measured a prompt fix as working, and then the app still produced one quiz
+         * item from the same document — the model's willingness to keep going turns out to depend on
+         * how much text precedes the instruction, so a hand-trimmed passage measures the wrong thing.
+         * Anything that changes chunking changes this input, which is the point.
+         */
+        val CHUNKS: List<Chunk> get() = chunk(SOURCE).take(Prompts.MAX_CHUNKS)
+
+        val SOURCE = """
+            Photosynthesis
+
+            Green plants make their own food. This process is called photosynthesis. It happens
+            mainly in the leaves.
+
+            Leaves contain a green pigment called chlorophyll. Chlorophyll absorbs energy from
+            sunlight. The plant takes in carbon dioxide from the air through tiny pores called
+            stomata. The roots absorb water from the soil and carry it up the stem to the leaves.
+
+            Using the energy from sunlight, the plant combines carbon dioxide and water to make
+            glucose, a simple sugar. Oxygen is released into the air as a waste product. The glucose
+            is used by the plant for growth, and some of it is stored as starch.
+
+            Photosynthesis is important for all life on Earth. It produces the oxygen that animals
+            breathe, and it is the beginning of almost every food chain. Without sunlight,
+            photosynthesis stops, which is why plants kept in darkness turn pale and die.
+        """.trimIndent()
     }
 }

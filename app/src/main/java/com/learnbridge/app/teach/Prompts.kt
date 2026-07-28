@@ -118,25 +118,38 @@ object Prompts {
      * means the correct choice is structural, and the UI shuffles before display so the answer is not
      * always first. See [QuizItem.shuffledOptions].
      *
-     * **Three, not five, and every word of the count is measured rather than chosen.** Four versions
-     * of this prompt ran against the real weights on the SM-M315F (`TeacherQualityDeviceTest`):
+     * **Three, not five, and the number is measured rather than chosen.** Seven versions of this
+     * prompt ran against the real weights on the SM-M315F (`TeacherQualityDeviceTest`), the last four
+     * against a whole page put through the real [chunk] — which matters, because the model gives up
+     * sooner the more text precedes the instruction, and a hand-trimmed passage flatters it:
      *
-     * | prompt | parsed items | options |
+     * | prompt | usable items | wrong options |
      * |---|---|---|
-     * | "five questions", shape shown once | **1** of 5 | real |
-     * | + "five Q lines, twenty lines in total" | **5** of 5 | **placeholder text, copied verbatim** |
-     * | + bracketed slots instead of literal placeholders | **2** of 5 | real |
-     * | asked for three | **3** of 3 | real |
+     * | "five questions", four-line shape shown once | **1** | real |
+     * | + "five Q lines, twenty lines in total" | **5** | **placeholder text, copied verbatim** |
+     * | + bracketed slots instead of literal placeholders | **2** | real |
+     * | asked for three (short passage) | **3** | real |
+     * | asked for three (whole page) | **2** | real |
+     * | + the count repeated *after* the text | **2** | real |
+     * | one line per question, `Q: … \| answer \| wrong \| wrong` | **5** | **only one per line, some of them true** |
+     * | + "exactly three \| characters", eight words per part | **5** | **"Correct answer \| Wrong answer"** |
      *
-     * Two separate findings sit in that table. The count only obeys a *countable* constraint — the same
-     * reason [explain]'s "exactly five lines" always worked. And the five-block run only reached five
-     * because copying `X: a wrong answer` five times is free: given slots it must actually fill, this
-     * model invents roughly two or three good distractor sets and then stops. So five substantive
-     * questions is not available in one pass on this hardware, and asking for a number it will not
-     * reach just moves the shortfall behind [LessonParser]'s forgiving parse, where nobody sees it.
+     * One finding explains every row. **Push this model toward a count and it satisfies the count by
+     * copying the template; ask it for content it has to invent and it stops after two or three.** The
+     * single-line format is the clearest case: it fixes the count outright — five lines, every time,
+     * five correct answers — and pays for it in the distractors, which collapse to one per line and
+     * are sometimes *true*, which is worse than a missing question. That is a capacity ceiling on a
+     * 1B int4 model, not a wording problem, so further prompt tuning is not the lever. Recorded here
+     * because it looks eminently retryable and is not.
      *
-     * Three real questions beats five where two are usable. If a larger model is ever staged, raise
-     * this and re-run that test — it prints parsed counts and every raw response.
+     * What ships is the row that produces correct questions with plausible wrong answers and simply
+     * makes fewer of them. Asking for a number the model will not reach only hides the shortfall
+     * behind [LessonParser]'s forgiving parse, where nobody sees it. **Real distractors are the thing
+     * to protect: a student can learn from two good questions and is actively taught wrongly by five
+     * where the wrong answer is correct.**
+     *
+     * If a larger model is ever staged, raise the count and re-run that test — it prints parsed counts
+     * and every raw response, so the next person re-measures instead of re-arguing.
      */
     fun quiz(chunks: List<Chunk>): String = wrap(
         """
