@@ -265,7 +265,7 @@ Fully implemented, tested, unreachable.
 | **F13** | APKs are **530–556 MB** (arm64 547, v7a 530, x86_64 556 — debug, unminified). Play's base-APK ceiling is 200 MB. Distribution needs an AAB with **install-time asset packs** for the 459 MB model, which keeps the offline guarantee intact after install (unlike on-first-run download). |
 | **F14** | `onUpgrade` drops all four tables. Correct for schema v1; a data-loss bug the day a v2 ships. |
 | **F15** | No CI. 155 tests exist and nothing runs them on push. |
-| **F16** | `Prompts.applyTurnMarkers = true` is unverified. If MediaPipe applies the `.task` bundle's own chat template, the prompt is wrapped twice and output quality degrades measurably. Needs an on-device A/B with the licence-gated `.task` staged. |
+| **F16** | ~~`Prompts.applyTurnMarkers = true` is unverified.~~ **CLOSED 2026-07-28.** `TurnMarkerDeviceTest` ran on the SM-M315F against the real `gemma3-1b-it-int4.task`: both arms produced 5 well-formed bullets on the same source, neither echoed a turn marker, 276 vs 222 chars. No destructive double wrapping — setting stays `true`. |
 | **F17** | **The generative tutor is not in the APK.** Gemma weights must be `adb push`ed to `getExternalFilesDir`. Out of the box, on every device, `createTeacher` logs "No .task model staged" and returns `ExtractiveTeacher`. The app works — that is the point of the ladder — but anyone installing this today gets the extractive tutor, and "Gemma 3 1B on-device" should not read as shipped. |
 
 ### 6.1 Correction to a previously reported number
@@ -346,8 +346,9 @@ deliberate and documented, but a new reader trips on it.
    further.
 
 **Blocked on things outside the codebase:** F12 (your keystore), F13 (a Play listing decision),
-F14 (a real v2 schema need), F16 (a staged Gemma `.task` — the weights are licence-gated, and the
-Gemma Terms of Use and Prohibited Use Policy travel with them).
+F14 (a real v2 schema need). ~~F16~~ is closed — the weights were staged on 2026-07-28 and the A/B
+ran; the Gemma Terms of Use and Prohibited Use Policy still travel with them, which is why they stay
+out of the repository.
 
 ---
 

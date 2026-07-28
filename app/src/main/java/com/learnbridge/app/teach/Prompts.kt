@@ -29,10 +29,15 @@ object Prompts {
     /**
      * Gemma's instruction-tuned turn markers.
      *
-     * MUST BE VERIFIED on the real `.task` file before trusting output quality. MediaPipe can apply a
-     * chat template baked into the task bundle, in which case adding these wraps the prompt twice and
-     * measurably degrades the response. If Day-1 output looks confused or starts mid-sentence, set
-     * [applyTurnMarkers] to false and compare before touching any prompt wording.
+     * **VERIFIED on device 2026-07-28** (SM-M315F, `gemma3-1b-it-int4.task`, CPU) by
+     * `TurnMarkerDeviceTest` — the A/B that F16 asked for. Both arms answered cleanly and neither
+     * echoed a marker back, so MediaPipe is not double-wrapping destructively: 5 bullet lines each,
+     * 276 chars with markers vs 222 without, same five facts in the same order. Keeping this true
+     * because the two are indistinguishable in quality and matching the model's documented format is
+     * the safer default if the bundle ever changes.
+     *
+     * If a future bundle does start echoing `<start_of_turn>`, that test fails on the assertion
+     * rather than on judgement — flip this to false and re-run before touching any prompt wording.
      */
     var applyTurnMarkers: Boolean = true
 
