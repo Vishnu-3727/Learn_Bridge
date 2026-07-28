@@ -363,12 +363,17 @@ class LibraryActivity : AppCompatActivity() {
         }
         pendingCaptureUri = uri
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT, uri)
-        if (intent.resolveActivity(packageManager) == null) {
-            Toast.makeText(this, R.string.error_capture_unavailable, Toast.LENGTH_SHORT).show()
-            pendingCaptureUri = null
-            return
-        }
-        capturePage.launch(intent)
+        // Launched inside runCatching rather than gated on resolveActivity(intent), for the same
+        // reason share() is — from API 30 that call answers through the package-visibility filter
+        // and returns null for a camera this app cannot see, while starting the intent would have
+        // worked. The gate that used to be here reported "no camera" on any device that does not
+        // happen to mark its camera app forceQueryable, which is most of them outside Samsung.
+        runCatching { capturePage.launch(intent) }
+            .onFailure {
+                Log.w(TAG, "No camera app could take the photo: ${it.message}")
+                Toast.makeText(this, R.string.error_capture_unavailable, Toast.LENGTH_SHORT).show()
+                pendingCaptureUri = null
+            }
     }
 
     /**
