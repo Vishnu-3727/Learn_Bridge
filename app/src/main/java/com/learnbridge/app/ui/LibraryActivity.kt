@@ -153,20 +153,9 @@ class LibraryActivity : AppCompatActivity() {
      * and the honest choice for a student who reads English comfortably and wants the tutoring rather
      * than the translating. A language can still be added later from the lesson's own chooser.
      */
-    private fun chooseLanguage() {
-        val options = listOf(SupportedLanguage.ENGLISH) + SupportedLanguage.targets
-        val labels = options.map { it.endonym }.toTypedArray()
-        val current = options.indexOf(app.targetLanguage)
-
-        AlertDialog.Builder(this)
-            .setTitle(R.string.choose_language_title)
-            .setSingleChoiceItems(labels, current) { dialog, which ->
-                app.targetLanguage = options[which]
-                renderLanguage()
-                dialog.dismiss()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+    private fun chooseLanguage() = showLanguageChooser(selected = app.targetLanguage) { language ->
+        app.targetLanguage = language
+        renderLanguage()
     }
 
     /**

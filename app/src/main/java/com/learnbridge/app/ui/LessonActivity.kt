@@ -15,7 +15,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -253,25 +252,18 @@ class LessonActivity : AppCompatActivity() {
         val state = lastState ?: return
         if (state.rendering != null) return
 
-        val options = listOf(SupportedLanguage.ENGLISH) + SupportedLanguage.targets
-        val labels = options.map { language ->
-            when {
-                language == SupportedLanguage.ENGLISH -> language.endonym
-                language.code in state.renderedLangs -> language.endonym
-                // Marked because choosing it is a minutes-long model run, not a database read.
-                else -> getString(R.string.language_needs_rendering, language.endonym)
-            }
-        }.toTypedArray()
-        val current = options.indexOfFirst { it.code == state.lang }
-
-        AlertDialog.Builder(this)
-            .setTitle(R.string.choose_language_title)
-            .setSingleChoiceItems(labels, current) { dialog, which ->
-                viewModel.chooseLanguage(options[which])
-                dialog.dismiss()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        showLanguageChooser(
+            selected = SupportedLanguage.byCode(state.lang),
+            label = { language ->
+                when {
+                    language == SupportedLanguage.ENGLISH -> language.endonym
+                    language.code in state.renderedLangs -> language.endonym
+                    // Marked because choosing it is a minutes-long model run, not a database read.
+                    else -> getString(R.string.language_needs_rendering, language.endonym)
+                }
+            },
+            onPick = viewModel::chooseLanguage,
+        )
     }
 
     /** Selection is never colour-only: bold weight and [View.isSelected] (read aloud by screen
