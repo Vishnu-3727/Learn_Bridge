@@ -13,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -28,6 +29,7 @@ import com.learnbridge.app.lang.SupportedLanguage
 import com.learnbridge.app.teach.IngestProgress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -156,7 +158,7 @@ class LibraryActivity : AppCompatActivity() {
         val labels = options.map { it.endonym }.toTypedArray()
         val current = options.indexOf(app.targetLanguage)
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle(R.string.choose_language_title)
             .setSingleChoiceItems(labels, current) { dialog, which ->
                 app.targetLanguage = options[which]
@@ -176,7 +178,7 @@ class LibraryActivity : AppCompatActivity() {
      * or merely asserted, and it is read by parents at least as often as by students.
      */
     private fun showPrivacy() {
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle(R.string.privacy_entry)
             .setMessage(R.string.privacy_summary)
             .setPositiveButton(R.string.privacy_export) { _, _ -> exportLearnerData() }
@@ -241,7 +243,7 @@ class LibraryActivity : AppCompatActivity() {
 
     /** Irreversible, so it is asked twice: once by opening this, once by confirming it. */
     private fun confirmEraseEverything() {
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setMessage(R.string.privacy_erase_confirm)
             .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(R.string.privacy_erase) { _, _ ->
@@ -342,7 +344,7 @@ class LibraryActivity : AppCompatActivity() {
     }
 
     private fun confirmDelete(row: DocStore.DocumentRow) {
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle(row.title)
             .setMessage(R.string.delete_confirm)
             .setNegativeButton(android.R.string.cancel, null)
@@ -443,7 +445,7 @@ class LibraryActivity : AppCompatActivity() {
     }
 
     private suspend fun <T> withDb(block: () -> T): T =
-        kotlinx.coroutines.withContext(Dispatchers.IO) { block() }
+        withContext(Dispatchers.IO) { block() }
 
     private companion object {
         const val TAG = "LibraryActivity"

@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -263,7 +264,7 @@ class LessonActivity : AppCompatActivity() {
         }.toTypedArray()
         val current = options.indexOfFirst { it.code == state.lang }
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle(R.string.choose_language_title)
             .setSingleChoiceItems(labels, current) { dialog, which ->
                 viewModel.chooseLanguage(options[which])

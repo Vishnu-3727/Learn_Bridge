@@ -3,6 +3,7 @@ package com.learnbridge.app.teach
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import com.learnbridge.app.ModelHost
 import com.learnbridge.app.doc.Chunk
 import com.learnbridge.app.doc.DocImport
 import com.learnbridge.app.doc.DocStore
@@ -54,7 +55,7 @@ class LessonPipeline(
     private val context: Context,
     private val store: DocStore,
     private val translator: LessonTranslator,
-    private val modelHost: com.learnbridge.app.ModelHost,
+    private val modelHost: ModelHost,
     /**
      * Which language the lesson is rendered into at import. Only one is rendered up front — a second
      * costs another pass over every fragment — but adding one later is cheap, because switching target

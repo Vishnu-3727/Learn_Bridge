@@ -2,6 +2,7 @@ package com.learnbridge.app.doc
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import java.io.File
@@ -322,7 +323,7 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
         writableDatabase.insertWithOnConflict("mastery", null, values, SQLiteDatabase.CONFLICT_REPLACE)
     }
 
-    private fun android.database.Cursor.toMastery() = Mastery(
+    private fun Cursor.toMastery() = Mastery(
         docId = getLong(0),
         mastery = getDouble(1),
         confidence = getDouble(2),
