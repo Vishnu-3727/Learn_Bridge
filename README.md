@@ -179,9 +179,36 @@ Samsung SM-M315F (Exynos 9611, 4×A73 @ 2.3 GHz + 4×A53, 5,573 MB RAM, Android 
 | Process PSS, engine resident | 485 MB |
 | Extractive lesson (5 points + 5 quiz items) | ~4.3 s |
 | Full ingest, text file → bilingual lesson | ~55 s, once per document |
+| Generative weights unpacked from the APK | 3.5 s, once per install |
+| Cold generative-engine load | 11.7 s (~1.4 s warm) |
+| Generative explain / quiz / ask | 50 s / 47 s / 38 s |
 
 The ONNX graphs are packaged `STORED`, not deflated, so ONNX Runtime memory-maps them from the APK
 rather than decompressing to heap — verified by inspecting the packaged APK entries.
+
+---
+
+## Install it
+
+The [latest release](../../releases/latest) carries one file: `app-arm64-v8a-debug.apk`, ~1.05 GB.
+Everything the app needs is inside it — the translation graphs and the generative tutor's weights
+both. Download, enable install-from-unknown-sources, install, open. No `adb`, no staging step, and
+no network from that point on.
+
+| | |
+|---|---|
+| **Device** | arm64 Android 8.0+ (a 32-bit or emulator install falls back to the extractive tutor) |
+| **Free space** | ~1.7 GB — the APK, plus the 554 MB the generative model is copied out to |
+| **First lesson** | Pays a one-off unpack of those weights — measured at 3.5 s on the test device, before the usual ~12 s engine load |
+| **Memory** | ~2 GB RAM devices load it; below that the app degrades to its extractive tutor rather than failing |
+
+Debug-signed, unminified — this is a project build, not a Play release. See F12/F13 in
+[AUDIT.md](AUDIT.md).
+
+**Installing this APK means accepting the [Gemma Terms of
+Use](https://ai.google.dev/gemma/terms)**, which travel with the weights it carries, along with the
+[Prohibited Use Policy](https://ai.google.dev/gemma/prohibited_use_policy). See
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ---
 
@@ -213,16 +240,26 @@ That is the EN→target direction, which is the only one the app constructs. The
 `dict.SRC_HI.json` and `dict.TGT_EN.json` for HI→EN; those are 3.7 MB the APK cannot use, because the
 graphs that direction needs are not staged either. Leave them out.
 
-The optional generative model is **not** bundled during development — push it to the device instead,
-so a rebuild does not reinstall a 1.5 GB APK:
+The generative model is licence-gated, so it is not in this repository either: accept the [Gemma
+Terms of Use](https://ai.google.dev/gemma/terms) and download `gemma3-1b-it-int4.task` from
+[`litert-community/Gemma3-1B-IT`](https://huggingface.co/litert-community/Gemma3-1B-IT). Without it
+the app runs on `ExtractiveTeacher` and every feature still works.
+
+There are two places to put it, and the choice is about who is running the build:
 
 ```bash
+# Packaged — what the release APK does. Self-contained, +554 MB, unpacked once on first use.
+cp gemma3-1b-it-int4.task app/src/main/assets/
+
+# Pushed — what development does. Survives a reinstall, so a rebuild does not move 1.05 GB.
 adb push gemma3-1b-it-int4.task /sdcard/Android/data/com.learnbridge.app/files/
 ```
 
-It is licence-gated: accept the [Gemma Terms of Use](https://ai.google.dev/gemma/terms) and download
-from [`litert-community/Gemma3-1B-IT`](https://huggingface.co/litert-community/Gemma3-1B-IT). Without
-it the app runs on `ExtractiveTeacher` and every feature still works.
+A pushed copy wins over a packaged one (`GemmaTeacher.stagedModel`), so staging the asset does not
+take the fast path away from a developer who already has one on the device. MediaPipe's
+`LlmInferenceOptions` accepts a filesystem path and nothing else — no asset, no file descriptor —
+which is why a packaged model has to be copied out to `filesDir` at all; it is a straight copy rather
+than an inflate because `noCompress` covers `.task`.
 
 ### Tests
 
@@ -230,9 +267,9 @@ it the app runs on `ExtractiveTeacher` and every feature still works.
 ./gradlew :app:testDebugUnitTest :engine:testDebugUnitTest
 ```
 
-137 JVM unit tests covering chunking, FTS retrieval, the tolerant output parsers, Hindi sentence
-splitting, the Brahmic script mapping, and the extractive tutor's grounding invariants. No device
-required.
+211 JVM unit tests covering chunking, FTS retrieval, the tolerant output parsers, Hindi sentence
+splitting, the Brahmic script mapping, the schema migration, the model unpack's failure paths, and
+the extractive tutor's grounding invariants. No device required.
 
 One test does need a device, because it is the only way to make the claim it makes:
 

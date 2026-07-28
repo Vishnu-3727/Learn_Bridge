@@ -262,11 +262,11 @@ Fully implemented, tested, unreachable.
 | # | Finding |
 |---|---|
 | **F12** | Release builds sign with the **debug key** and set `optimization { enable = false }`. Not distributable. Blocked on your keystore. |
-| **F13** | APKs are **530–556 MB** (arm64 547, v7a 530, x86_64 556 — debug, unminified). Play's base-APK ceiling is 200 MB. Distribution needs an AAB with **install-time asset packs** for the 459 MB model, which keeps the offline guarantee intact after install (unlike on-first-run download). |
+| **F13** | APKs are **1.01–1.03 GB** (arm64 1050 MB, v7a 1034, x86_64 1058 — debug, unminified) since the generative weights were packaged for F17; they were 530–556 MB before. Play's base-APK ceiling is 200 MB. Distribution needs an AAB with **install-time asset packs** for the 459 MB translation model and the 554 MB `.task`, which keeps the offline guarantee intact after install (unlike on-first-run download). Direct-download distribution (a GitHub release) is unaffected. |
 | **F14** | `onUpgrade` drops all four tables. Correct for schema v1; a data-loss bug the day a v2 ships. |
 | **F15** | No CI. 155 tests exist and nothing runs them on push. |
 | **F16** | ~~`Prompts.applyTurnMarkers = true` is unverified.~~ **CLOSED 2026-07-28.** `TurnMarkerDeviceTest` ran on the SM-M315F against the real `gemma3-1b-it-int4.task`: both arms produced 5 well-formed bullets on the same source, neither echoed a turn marker, 276 vs 222 chars. No destructive double wrapping — setting stays `true`. |
-| **F17** | **The generative tutor is not in the APK.** Gemma weights must be `adb push`ed to `getExternalFilesDir`. Out of the box, on every device, `createTeacher` logs "No .task model staged" and returns `ExtractiveTeacher`. The app works — that is the point of the ladder — but anyone installing this today gets the extractive tutor, and "Gemma 3 1B on-device" should not read as shipped. |
+| **F17** | ~~**The generative tutor is not in the APK.**~~ **CLOSED 2026-07-28.** `gemma3-1b-it-int4.task` is packaged in `app/src/main/assets/` (uncompressed, like the ONNX graphs) and `GemmaTeacher.stagedModel` copies it to `filesDir` on first use — MediaPipe's `LlmInferenceOptions` takes a filesystem path and offers no asset or file-descriptor variant, so a packaged model must be copied out once. A pushed copy still wins, so development keeps its fast path. Verified on the SM-M315F from a clean install with **nothing pushed**: unpack 3.5 s, 554,661,243 bytes in `filesDir`, engine ready 11.7 s, all three prompts generated. Cost is F13's: the arm64 APK went 523 MB → 1050 MB. Both device tests now resolve through `stagedModel`; probing `modelFile` made them skip silently on the build that ships. |
 
 ### 6.1 Correction to a previously reported number
 

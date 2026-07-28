@@ -4,7 +4,9 @@ LearnBridge AI runs entirely on-device. It bundles pre-trained models and native
 projects below. Their licences apply to the distributed application, including the model weights
 shipped inside it.
 
-No model weights are committed to this repository — see the README for how to stage them.
+No model weights are committed to this repository — see the README for how to stage them. The
+**released APK does carry them**, so the licences below apply to that download as distributed,
+the Gemma Terms of Use in particular.
 
 ---
 
