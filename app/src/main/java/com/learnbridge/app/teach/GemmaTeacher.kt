@@ -8,6 +8,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import java.io.File
+import java.io.IOException
+import java.io.InputStream
 
 /**
  * Purpose:  The generative tutor, backed by Gemma 3 1B int4 running on-device through MediaPipe's
@@ -149,6 +151,67 @@ class GemmaTeacher private constructor(
                 context.getExternalFilesDir(null)?.let { File(it, MODEL_NAME) },
                 File(context.filesDir, MODEL_NAME),
             ).firstOrNull { it.isFile && it.length() > 0 }
+
+        /**
+         * The model file, unpacking it out of the APK's assets on first use if this build carries
+         * them. Blocking and slow — the file is ~554 MB — so call it where a load is already
+         * expected, off the main thread.
+         *
+         * MediaPipe takes a filesystem path and nothing else ([LlmInference.LlmInferenceOptions]
+         * has `setModelPath` and no asset or file-descriptor variant, checked against the 0.10.27
+         * artifact), so a packaged model must be copied out once. The asset is stored uncompressed
+         * (see `noCompress` in app/build.gradle.kts), which is what makes `openFd` return a real
+         * length and keeps this a straight copy rather than an inflate.
+         *
+         * Returns null when there is no model anywhere, which stays a supported state: the caller
+         * degrades to the extractive tutor.
+         */
+        fun stagedModel(context: Context): File? =
+            modelFile(context) ?: unpackFromAssets(context)
+
+        private fun unpackFromAssets(context: Context): File? {
+            val size = try {
+                context.assets.openFd(MODEL_NAME).use { it.length }
+            } catch (e: IOException) {
+                // No packaged weights. The dev builds and a fresh clone both land here.
+                Log.i(TAG, "No $MODEL_NAME in assets (${e.message})")
+                return null
+            }
+            return unpackTo(context.filesDir, size) { context.assets.open(MODEL_NAME) }
+        }
+
+        /**
+         * Copies [size] bytes into `dir/`[MODEL_NAME] and returns it, or null if it will not fit.
+         *
+         * Writes to a `.part` file and renames, so a copy killed halfway (the app is backgrounded,
+         * the phone dies) leaves no truncated model to be loaded as if it were whole on the next
+         * run — [modelFile] only accepts the final name.
+         *
+         * Separated from the Android asset lookup so the failure paths that matter — no space, a
+         * half-written file — are reachable from a plain JVM test.
+         */
+        internal fun unpackTo(dir: File, size: Long, open: () -> InputStream): File? {
+            val target = File(dir, MODEL_NAME)
+            val partial = File(dir, "$MODEL_NAME.part")
+
+            // The copy needs the full size free, and a device that is that close to full will fail
+            // somewhere less obvious later. Degrading here is the honest outcome.
+            if (dir.usableSpace < size) {
+                Log.w(TAG, "Not unpacking: need $size B, ${dir.usableSpace} B free")
+                return null
+            }
+
+            Log.i(TAG, "Unpacking $MODEL_NAME (${size / (1024 * 1024)} MB) — first run only")
+            return try {
+                open().use { source -> partial.outputStream().use { source.copyTo(it) } }
+                if (!partial.renameTo(target)) throw IOException("rename failed: $partial")
+                target
+            } catch (e: IOException) {
+                Log.e(TAG, "Unpack failed (${e.message})")
+                partial.delete()
+                null
+            }
+        }
 
         /**
          * Loads the engine. Blocking and slow — call off the main thread.

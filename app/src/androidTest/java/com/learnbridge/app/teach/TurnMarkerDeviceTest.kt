@@ -63,9 +63,10 @@ class TurnMarkerDeviceTest {
 
     @Test
     fun turnMarkersDoNotCorruptGeneration() {
-        val model = GemmaTeacher.modelFile(context)
+        val model = GemmaTeacher.stagedModel(context)
         assumeTrue(
-            "Gemma weights not staged — push ${GemmaTeacher.MODEL_NAME} to getExternalFilesDir to run this",
+            "Gemma weights not staged — push ${GemmaTeacher.MODEL_NAME} to getExternalFilesDir, " +
+                "or build with it in app/src/main/assets/, to run this",
             model != null,
         )
 

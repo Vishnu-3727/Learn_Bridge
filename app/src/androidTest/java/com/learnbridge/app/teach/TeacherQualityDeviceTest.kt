@@ -47,9 +47,13 @@ class TeacherQualityDeviceTest {
 
     @Test
     fun everyPromptProducesSomethingTheParsersCanUse() {
-        val model = GemmaTeacher.modelFile(context)
+        // stagedModel, not modelFile: this must resolve the weights the same way the app does, which
+        // on a packaged build means unpacking them out of the APK. Probing only the pushed copy made
+        // this test skip silently on exactly the build that ships.
+        val model = GemmaTeacher.stagedModel(context)
         assumeTrue(
-            "Gemma weights not staged — push ${GemmaTeacher.MODEL_NAME} to getExternalFilesDir to run this",
+            "Gemma weights not staged — push ${GemmaTeacher.MODEL_NAME} to getExternalFilesDir, " +
+                "or build with it in app/src/main/assets/, to run this",
             model != null,
         )
 

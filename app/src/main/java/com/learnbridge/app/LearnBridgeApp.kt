@@ -175,8 +175,10 @@ class LearnBridgeApp : Application() {
      *   2. Gemma loads                                          -> full generative tutor
      *   3. Gemma throws (including OutOfMemoryError)            -> degrade and remember, tutor still works
      *
-     * A missing model file is a normal state, not a bug: development happens with the weights
-     * `adb push`ed rather than packaged, and a fresh clone has no weights at all.
+     * A missing model file is a normal state, not a bug: a fresh clone has no weights at all, and a
+     * dev build takes them from an `adb push` rather than from the APK. A release APK carries them
+     * and [GemmaTeacher.stagedModel] unpacks them here, once, which is why this call can take a
+     * minute on a first run.
      */
     fun createTeacher(tier: ModelHost.Tier): Teacher {
         if (tier == ModelHost.Tier.EXTRACTIVE) {
@@ -184,7 +186,7 @@ class LearnBridgeApp : Application() {
             return fallbackTeacher()
         }
 
-        val model = GemmaTeacher.modelFile(this)
+        val model = GemmaTeacher.stagedModel(this)
         if (model == null) {
             Log.w(TAG, "No .task model staged — using the fallback tutor")
             return fallbackTeacher()
