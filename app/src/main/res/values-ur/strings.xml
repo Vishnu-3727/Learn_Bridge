@@ -53,6 +53,7 @@
     <string name="action_english">انگریزی</string>
     <string name="action_listen">سنیں</string>
     <string name="tts_voice_missing">اس آلے پر %1$s کی کوئی آواز نصب نہیں ہے، اس لیے اسے انگریزی میں پڑھا جائے گا۔ اسے ترتیبات › متن سے تقریر سے نصب کریں۔</string>
+    <string name="tts_voice_install">%1$s کی آواز نصب نہیں ہے۔ اس فون کا تقریری انجن اسے ڈاؤن لوڈ کر سکتا ہے۔ ابھی کھولیں؟</string>
     <string name="cd_listen">اسے بلند آواز میں پڑھیں</string>
     <string name="translating_inline">ترجمہ ہو رہا ہے…</string>
 

@@ -1,6 +1,7 @@
 package com.bhashabridge.app.speech
 
 import android.content.Context
+import android.content.Intent
 import android.speech.tts.TextToSpeech
 import com.bhashabridge.app.LogTag
 import com.bhashabridge.app.logDebug
@@ -31,7 +32,19 @@ class Tts(
     private val onReady: () -> Unit,
 ) {
 
-    private val engine = TextToSpeech(context.applicationContext) { status -> handleInit(status) }
+    private val app = context.applicationContext
+
+    /**
+     * The engine package this instance speaks through, or null to accept the system default.
+     *
+     * **Why this is not left to the default.** The default on a Samsung device is Samsung TTS, which
+     * on the SM-M315F carries English and Korean; Google's engine is the one with voices for all
+     * thirteen lesson languages. A student whose phone prefers an engine that cannot speak Tamil
+     * would be told to install a voice that engine will never have.
+     */
+    private val enginePackage = preferredEngine(app)
+
+    private val engine = TextToSpeech(app, { status -> handleInit(status) }, enginePackage)
 
     @Volatile var ready = false
         private set
@@ -68,6 +81,26 @@ class Tts(
      * has. Only a voice without that feature can be spoken here.
      */
     fun voiceAvailable(locale: Locale): Boolean = ready && installedVoiceExists(locale)
+
+    /**
+     * Where to send the student to get a missing voice, best first, for a caller to try in order.
+     *
+     * **This app cannot download the voice itself and never will** — it holds no `INTERNET`
+     * permission, which is the point of it. The speech engine has its own network access, so the
+     * download happens inside the engine, over the engine's connection, under the student's control.
+     * That is also why it cannot be silent or automatic: the bytes are the engine's to fetch and the
+     * consent is the student's to give.
+     *
+     * First entry is the engine's own voice-data installer, aimed at [enginePackage] so a device with
+     * two engines does not open the one that lacks Indic voices. Second is the platform's
+     * text-to-speech settings page, which reaches the same downloads by hand — kept because
+     * `INSTALL_TTS_DATA` is optional for an engine to implement, and a dead first choice would
+     * otherwise leave the student with instructions and no door.
+     */
+    fun voiceDataIntents(): List<Intent> = listOf(
+        Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA).also { it.`package` = enginePackage },
+        Intent("com.android.settings.TTS_SETTINGS"),
+    )
 
     /**
      * Matched on language alone, not language-and-country: the engine ships `hi-IN` voices for a
@@ -116,6 +149,28 @@ class Tts(
     }
 
     internal companion object {
+
+        /**
+         * The installed speech engine most likely to be able to speak an Indic language, or null when
+         * none of the known ones is present and the system default is as good a guess as any.
+         *
+         * Chosen by package name rather than by asking each engine what it supports: an engine
+         * reports availability for voices it would have to download (see [voiceAvailable]), so that
+         * question cannot separate "has Tamil" from "could fetch Tamil" at construction time.
+         */
+        private fun preferredEngine(context: Context): String? = runCatching {
+            val installed = context.packageManager
+                .queryIntentServices(Intent(TextToSpeech.Engine.INTENT_ACTION_TTS_SERVICE), 0)
+                .mapNotNull { it.serviceInfo?.packageName }
+            PREFERRED_ENGINES.firstOrNull(installed::contains)
+        }.getOrNull()
+
+        /**
+         * Google's engine first: it is the only one carrying voices for all thirteen lesson
+         * languages. `com.samsung.SMT` is next only because it is the default on the test device and
+         * beats no engine at all; anything else falls through to the system default.
+         */
+        private val PREFERRED_ENGINES = listOf("com.google.android.tts", "com.samsung.SMT")
 
         /**
          * Splits [text] into pieces the engine will accept, preferring sentence ends and then word

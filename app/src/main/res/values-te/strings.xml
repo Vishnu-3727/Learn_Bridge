@@ -49,6 +49,7 @@
     <string name="action_english">ఆంగ్లం</string>
     <string name="action_listen">వినండి</string>
     <string name="tts_voice_missing">ఈ పరికరంలో %1$s స్వరం ఇన్‌స్టాల్ కాలేదు, కాబట్టి దీన్ని ఆంగ్లంలో చదువుతుంది. సెట్టింగ్‌లు › వచనం-నుండి-ప్రసంగం నుండి ఇన్‌స్టాల్ చేయండి.</string>
+    <string name="tts_voice_install">%1$s స్వరం ఇన్‌స్టాల్ కాలేదు. ఈ ఫోన్‌లోని ప్రసంగ ఇంజిన్ దీన్ని డౌన్‌లోడ్ చేయగలదు. ఇప్పుడు తెరవాలా?</string>
     <string name="cd_listen">దీన్ని బిగ్గరగా చదవండి</string>
     <string name="translating_inline">అనువదిస్తోంది…</string>
 

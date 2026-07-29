@@ -71,6 +71,7 @@
     <string name="action_listen">Listen</string>
     <!-- %1$s is the language's endonym. Shown when the device has no voice data for it. -->
     <string name="tts_voice_missing">No %1$s voice is installed on this device, so it will be read in English. Install it from Settings › Text-to-speech.</string>
+    <string name="tts_voice_install">No %1$s voice is installed. The speech engine on this phone can download it. Open it now?</string>
     <string name="cd_listen">Read this aloud</string>
     <string name="translating_inline">Translating…</string>
 

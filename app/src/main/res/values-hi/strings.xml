@@ -53,6 +53,7 @@
     <string name="action_english">अंग्रेज़ी</string>
     <string name="action_listen">सुनें</string>
     <string name="tts_voice_missing">इस डिवाइस पर %1$s की कोई आवाज़ इंस्टॉल नहीं है, इसलिए इसे अंग्रेज़ी में पढ़ा जाएगा। इसे सेटिंग्स › टेक्स्ट-टू-स्पीच से इंस्टॉल करें।</string>
+    <string name="tts_voice_install">%1$s की आवाज़ इंस्टॉल नहीं है। इस फ़ोन का स्पीच इंजन इसे डाउनलोड कर सकता है। अभी खोलें?</string>
     <string name="cd_listen">इसे ज़ोर से पढ़ें</string>
     <string name="translating_inline">अनुवाद हो रहा है…</string>
 

@@ -49,6 +49,7 @@
     <string name="action_english">अङ्ग्रेजी</string>
     <string name="action_listen">सुन्नुहोस्</string>
     <string name="tts_voice_missing">यो यन्त्रमा %1$s को कुनै आवाज स्थापना गरिएको छैन, त्यसैले यो अङ्ग्रेजीमा पढिनेछ। सेटिङ › पाठ-देखि-वाणी बाट स्थापना गर्नुहोस्।</string>
+    <string name="tts_voice_install">%1$s आवाज स्थापना गरिएको छैन। यो फोनको वाणी इन्जिनले यसलाई डाउनलोड गर्न सक्छ। अहिले खोल्ने?</string>
     <string name="cd_listen">यो ठूलो स्वरमा पढ्नुहोस्</string>
     <string name="translating_inline">अनुवाद हुँदै…</string>
 

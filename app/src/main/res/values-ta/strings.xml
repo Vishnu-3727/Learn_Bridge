@@ -53,6 +53,7 @@
     <string name="action_english">ஆங்கிலம்</string>
     <string name="action_listen">கேள்</string>
     <string name="tts_voice_missing">இந்தச் சாதனத்தில் %1$s குரல் நிறுவப்படவில்லை, எனவே இது ஆங்கிலத்தில் வாசிக்கப்படும். அமைப்புகள் › உரை-முதல்-பேச்சு இலிருந்து நிறுவவும்.</string>
+    <string name="tts_voice_install">%1$s குரல் நிறுவப்படவில்லை. இந்தத் தொலைபேசியின் பேச்சு இயந்திரம் அதைப் பதிவிறக்கம் செய்யலாம். இப்போது திறக்கவா?</string>
     <string name="cd_listen">இதை உரக்க வாசி</string>
     <string name="translating_inline">மொழிபெயர்க்கப்படுகிறது…</string>
 

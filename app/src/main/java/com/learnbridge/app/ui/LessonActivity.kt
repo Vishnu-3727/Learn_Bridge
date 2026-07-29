@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -65,6 +66,9 @@ class LessonActivity : AppCompatActivity() {
 
     /** The last rendered snapshot, so click handlers (Listen) act on exactly what is on screen. */
     private var lastState: LessonUiState? = null
+
+    /** Language tags already offered a voice download on this screen — see [offerVoiceDownload]. */
+    private val voiceOfferedFor = mutableSetOf<String>()
 
     /** Tokens of the in-flight answer, so the Ask pane can be redrawn from scratch after the student
      *  looks at another tab mid-stream. Not in [LessonUiState] for the reason its header gives. */
@@ -472,18 +476,55 @@ class LessonActivity : AppCompatActivity() {
         }
         if (text.isBlank()) return
 
-        // Most devices ship no voice data for Odia, Sanskrit or Kannada. Tts falls back to the
-        // English voice rather than going silent, but the student deserves to know why the words
-        // sound wrong, and how to fix it.
-        if (!tts.voiceAvailable(locale)) {
-            val language = SupportedLanguage.entries.firstOrNull { it.locale == locale }
-            Toast.makeText(
-                this,
-                getString(R.string.tts_voice_missing, language?.endonym ?: locale.displayLanguage),
-                Toast.LENGTH_LONG,
-            ).show()
-        }
+        // Most devices ship no voice data for Odia, Sanskrit or Kannada — measured on the SM-M315F,
+        // twelve of the thirteen were absent. Tts falls back to the English voice rather than going
+        // silent, but the student deserves to know why the words sound wrong, and to fix it in one
+        // tap rather than by hunting through Settings.
+        if (!tts.voiceAvailable(locale)) offerVoiceDownload(locale)
         tts.speak(text, locale)
+    }
+
+    /**
+     * Offers to send the student to the speech engine's voice download for [locale].
+     *
+     * **The app cannot fetch the voice itself.** It declares no `INTERNET` permission, which is the
+     * whole promise of it, so the download belongs to the speech engine — which has its own network
+     * access and its own consent screen. That is why this asks instead of doing: a voice is tens of
+     * megabytes over what may be metered mobile data, and this app is for students who chose an
+     * offline one.
+     *
+     * Asked once per language per visit to this screen, then downgraded to the old notice. Repeating
+     * a dialog on every Listen for someone who has already declined would be worse than the silence
+     * this replaced.
+     */
+    private fun offerVoiceDownload(locale: Locale) {
+        val name = SupportedLanguage.entries.firstOrNull { it.locale == locale }?.endonym
+            ?: locale.displayLanguage
+        // ponytail: per-screen memory, not persisted. Promote to LearnBridgeApp's prefs if the
+        // dialog turns out to be a nuisance across lessons.
+        if (!voiceOfferedFor.add(locale.language)) {
+            Toast.makeText(this, getString(R.string.tts_voice_missing, name), Toast.LENGTH_LONG).show()
+            return
+        }
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.tts_voice_install, name))
+            .setPositiveButton(android.R.string.ok) { _, _ -> openVoiceDownload(name) }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    /**
+     * Starts the first of [Tts.voiceDataIntents] that resolves.
+     *
+     * Not gated on `resolveActivity`: from API 30 it returns null for a package this app cannot see,
+     * so it reports failure on exactly the devices where the screen would have opened. Attempt and
+     * catch instead — the same trap the camera and share paths already hit.
+     */
+    private fun openVoiceDownload(name: String) {
+        val opened = tts.voiceDataIntents().any { runCatching { startActivity(it) }.isSuccess }
+        if (!opened) {
+            Toast.makeText(this, getString(R.string.tts_voice_missing, name), Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun quizSpeechFor(state: LessonUiState): Pair<String, Locale> {

@@ -49,6 +49,7 @@
     <string name="action_english">ਅੰਗਰੇਜ਼ੀ</string>
     <string name="action_listen">ਸੁਣੋ</string>
     <string name="tts_voice_missing">ਇਸ ਡਿਵਾਈਸ ਉੱਤੇ %1$s ਦੀ ਕੋਈ ਆਵਾਜ਼ ਸਥਾਪਤ ਨਹੀਂ ਹੈ, ਇਸ ਲਈ ਇਹ ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ ਪੜ੍ਹਿਆ ਜਾਵੇਗਾ। ਸੈਟਿੰਗਾਂ › ਲਿਖਤ-ਤੋਂ-ਬੋਲੀ ਤੋਂ ਸਥਾਪਤ ਕਰੋ।</string>
+    <string name="tts_voice_install">%1$s ਆਵਾਜ਼ ਸਥਾਪਤ ਨਹੀਂ ਹੈ। ਇਸ ਫ਼ੋਨ ਦਾ ਸਪੀਚ ਇੰਜਣ ਇਸਨੂੰ ਡਾਊਨਲੋਡ ਕਰ ਸਕਦਾ ਹੈ। ਹੁਣ ਖੋਲ੍ਹਣਾ ਹੈ?</string>
     <string name="cd_listen">ਇਹ ਉੱਚੀ ਆਵਾਜ਼ ਵਿੱਚ ਪੜ੍ਹੋ</string>
     <string name="translating_inline">ਅਨੁਵਾਦ ਹੋ ਰਿਹਾ ਹੈ…</string>
 

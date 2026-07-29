@@ -49,6 +49,7 @@
     <string name="action_english">ইংরেজি</string>
     <string name="action_listen">শুনুন</string>
     <string name="tts_voice_missing">এই ডিভাইসে %1$s-এর কোনো কণ্ঠ ইনস্টল করা নেই, তাই এটি ইংরেজিতে পড়া হবে। সেটিংস › টেক্সট-টু-স্পিচ থেকে ইনস্টল করুন।</string>
+    <string name="tts_voice_install">%1$s কণ্ঠ ইনস্টল করা নেই। এই ফোনের স্পিচ ইঞ্জিন এটি ডাউনলোড করতে পারে। এখনই খুলবেন?</string>
     <string name="cd_listen">এটি জোরে পড়ুন</string>
     <string name="translating_inline">অনুবাদ করা হচ্ছে…</string>
 

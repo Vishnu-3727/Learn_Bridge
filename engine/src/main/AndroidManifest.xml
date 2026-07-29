@@ -4,4 +4,20 @@
   RECORD_AUDIO is the consuming app's decision, and there is deliberately no INTERNET.
   Models, translation, recognition and speech are all on-device.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      Package visibility for speech engines. On API 30+ an app sees no package it has not declared
+      an interest in, so without this Tts cannot tell that Google's engine (the only one shipping
+      Indic voices on most devices) is installed, and cannot hand the student off to it to download
+      a voice. Reading the engine list is all this buys; it grants no network of its own.
+    -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+        <intent>
+            <action android:name="android.speech.tts.engine.INSTALL_TTS_DATA" />
+        </intent>
+    </queries>
+</manifest>
