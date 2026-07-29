@@ -50,6 +50,10 @@
     <string name="action_listen">ଶୁଣନ୍ତୁ</string>
     <string name="tts_voice_missing">ଏହି ଉପକରଣରେ %1$s ର କୌଣସି ସ୍ୱର ସ୍ଥାପିତ ହୋଇନାହିଁ, ତେଣୁ ଏହା ଇଂରାଜୀରେ ପଢ଼ାଯିବ। ସେଟିଂସ୍ › ଲେଖା-ରୁ-ବାଣୀ ରୁ ସ୍ଥାପନ କରନ୍ତୁ।</string>
     <string name="tts_voice_install">%1$s ସ୍ୱର ସ୍ଥାପିତ ହୋଇନାହିଁ। ଏହି ଫୋନର ବାଣୀ ଇଞ୍ଜିନ ଏହାକୁ ଡାଉନଲୋଡ୍ କରିପାରିବ। ବର୍ତ୍ତମାନ ଖୋଲିବେ?</string>
+    <string name="voices_entry">ସ୍ୱରଗୁଡ଼ିକ</string>
+    <string name="voices_title">ପଢ଼ି ଶୁଣାଉଥିବା ସ୍ୱର</string>
+    <string name="voice_row_installed">%1$s — ସ୍ଥାପିତ ଅଛି</string>
+    <string name="voice_row_missing">%1$s — ଡାଉନଲୋଡ୍ କରିବାକୁ ଟ୍ୟାପ୍ କରନ୍ତୁ</string>
     <string name="cd_listen">ଏହା ଉଚ୍ଚ ସ୍ୱରରେ ପଢ଼ନ୍ତୁ</string>
     <string name="translating_inline">ଅନୁବାଦ ହେଉଛି…</string>
 

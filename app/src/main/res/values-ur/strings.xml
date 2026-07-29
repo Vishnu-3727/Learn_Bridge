@@ -54,6 +54,10 @@
     <string name="action_listen">سنیں</string>
     <string name="tts_voice_missing">اس آلے پر %1$s کی کوئی آواز نصب نہیں ہے، اس لیے اسے انگریزی میں پڑھا جائے گا۔ اسے ترتیبات › متن سے تقریر سے نصب کریں۔</string>
     <string name="tts_voice_install">%1$s کی آواز نصب نہیں ہے۔ اس فون کا تقریری انجن اسے ڈاؤن لوڈ کر سکتا ہے۔ ابھی کھولیں؟</string>
+    <string name="voices_entry">آوازیں</string>
+    <string name="voices_title">پڑھ کر سنانے والی آوازیں</string>
+    <string name="voice_row_installed">%1$s — نصب ہے</string>
+    <string name="voice_row_missing">%1$s — ڈاؤن لوڈ کے لیے ٹیپ کریں</string>
     <string name="cd_listen">اسے بلند آواز میں پڑھیں</string>
     <string name="translating_inline">ترجمہ ہو رہا ہے…</string>
 

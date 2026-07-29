@@ -50,6 +50,10 @@
     <string name="action_listen">સાંભળો</string>
     <string name="tts_voice_missing">આ ઉપકરણ પર %1$s નો કોઈ અવાજ સ્થાપિત નથી, તેથી તે અંગ્રેજીમાં વંચાશે. સેટિંગ્સ › ટેક્સ્ટ-ટુ-સ્પીચ માંથી સ્થાપિત કરો.</string>
     <string name="tts_voice_install">%1$s અવાજ સ્થાપિત નથી. આ ફોનનું સ્પીચ એન્જિન તેને ડાઉનલોડ કરી શકે છે. હમણાં ખોલવું?</string>
+    <string name="voices_entry">અવાજો</string>
+    <string name="voices_title">વાંચી સંભળાવતા અવાજો</string>
+    <string name="voice_row_installed">%1$s — સ્થાપિત છે</string>
+    <string name="voice_row_missing">%1$s — ડાઉનલોડ કરવા ટૅપ કરો</string>
     <string name="cd_listen">આ મોટેથી વાંચો</string>
     <string name="translating_inline">અનુવાદ થઈ રહ્યો છે…</string>
 

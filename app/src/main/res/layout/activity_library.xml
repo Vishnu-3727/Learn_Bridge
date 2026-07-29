@@ -18,9 +18,27 @@
         android:text="@string/library_title"
         android:textColor="@color/text_primary"
         android:textSize="24sp"
-        app:layout_constraintEnd_toStartOf="@id/privacyEntry"
+        app:layout_constraintEnd_toStartOf="@id/voicesEntry"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Beside "Your data" for the same reason it is: a voice is downloaded when a student wants that
+         language read aloud, which is not a moment worth burying. Nothing is fetched from here by this
+         app — the tap ends at the speech engine's own installer. -->
+    <TextView
+        android:id="@+id/voicesEntry"
+        style="@style/TouchTarget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:text="@string/voices_entry"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="@id/title"
+        app:layout_constraintEnd_toStartOf="@id/privacyEntry"
+        app:layout_constraintTop_toTopOf="@id/title" />
 
     <!-- Beside the title rather than buried in a settings screen there is no room for. A student
          who wants to know what is held about them, or wants it gone, should not have to hunt. -->

@@ -50,6 +50,10 @@
     <string name="action_listen">ಆಲಿಸಿ</string>
     <string name="tts_voice_missing">ಈ ಸಾಧನದಲ್ಲಿ %1$s ಧ್ವನಿ ಸ್ಥಾಪಿಸಿಲ್ಲ, ಆದ್ದರಿಂದ ಇದನ್ನು ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ಓದಲಾಗುತ್ತದೆ. ಸೆಟ್ಟಿಂಗ್‌ಗಳು › ಪಠ್ಯದಿಂದ-ಧ್ವನಿ ಇಂದ ಸ್ಥಾಪಿಸಿ.</string>
     <string name="tts_voice_install">%1$s ಧ್ವನಿ ಸ್ಥಾಪಿಸಿಲ್ಲ. ಈ ಫೋನ್‌ನ ಮಾತಿನ ಎಂಜಿನ್ ಅದನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಬಹುದು. ಈಗ ತೆರೆಯುವುದೇ?</string>
+    <string name="voices_entry">ಧ್ವನಿಗಳು</string>
+    <string name="voices_title">ಓದಿ ಹೇಳುವ ಧ್ವನಿಗಳು</string>
+    <string name="voice_row_installed">%1$s — ಸ್ಥಾಪಿಸಲಾಗಿದೆ</string>
+    <string name="voice_row_missing">%1$s — ಡೌನ್‌ಲೋಡ್ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
     <string name="cd_listen">ಇದನ್ನು ಗಟ್ಟಿಯಾಗಿ ಓದಿ</string>
     <string name="translating_inline">ಅನುವಾದಿಸಲಾಗುತ್ತಿದೆ…</string>
 

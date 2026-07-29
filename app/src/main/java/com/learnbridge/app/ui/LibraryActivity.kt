@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bhashabridge.app.speech.Tts
 import com.learnbridge.app.LearnBridgeApp
 import com.learnbridge.app.R
 import com.learnbridge.app.doc.DocStore
@@ -57,6 +58,16 @@ class LibraryActivity : AppCompatActivity() {
     private lateinit var languageChooser: TextView
     private lateinit var reviseNext: TextView
     private lateinit var privacyEntry: TextView
+    private lateinit var voicesEntry: TextView
+
+    /**
+     * Built on the first tap of "Voices" and kept for the screen's life, because the voice list is the
+     * only thing here that needs a speech engine and most visits never open it.
+     */
+    private var voiceEngine: Tts? = null
+
+    /** Set when the list was asked for before the engine finished initialising. See [openVoices]. */
+    private var pendingVoiceCatalog = false
 
     /**
      * OpenDocument rather than GetContent: it returns a durably readable Uri, and the document's
@@ -121,6 +132,8 @@ class LibraryActivity : AppCompatActivity() {
         reviseNext = findViewById(R.id.reviseNext)
         privacyEntry = findViewById(R.id.privacyEntry)
         privacyEntry.setOnClickListener { showPrivacy() }
+        voicesEntry = findViewById(R.id.voicesEntry)
+        voicesEntry.setOnClickListener { openVoices() }
 
         photoButton.setOnClickListener { launchCamera() }
         importButton.setOnClickListener { pickDocument.launch(IMPORTABLE_TYPES) }
@@ -137,6 +150,36 @@ class LibraryActivity : AppCompatActivity() {
                 viewModel.progress.collect { onProgress(it) }
             }
         }
+    }
+
+    /**
+     * Opens the voice list, waiting for the speech engine if it is still starting.
+     *
+     * Deliberately not a "download the voices" button. A student who studies in Tamil needs Tamil, and
+     * thirteen voices is a few hundred megabytes of somebody's data plan; the list says what is here
+     * and lets them pick. The app itself downloads nothing — see [showVoiceCatalog].
+     *
+     * The wait exists because [Tts.voiceAvailable] answers false until the engine initialises, so a
+     * list shown too early would report every language as missing.
+     */
+    private fun openVoices() {
+        val engine = voiceEngine
+            ?: Tts(this) { runOnUiThread(::onVoiceEngineReady) }.also { voiceEngine = it }
+        // ponytail: a phone with no working speech engine simply shows nothing here. It also cannot
+        // read a lesson aloud, so there is no voice list worth offering it; Tts logs the failure.
+        if (engine.ready) showVoiceCatalog(engine) else pendingVoiceCatalog = true
+    }
+
+    private fun onVoiceEngineReady() {
+        if (!pendingVoiceCatalog) return
+        pendingVoiceCatalog = false
+        voiceEngine?.let { showVoiceCatalog(it) }
+    }
+
+    override fun onDestroy() {
+        voiceEngine?.shutdown()
+        voiceEngine = null
+        super.onDestroy()
     }
 
     private fun renderLanguage() {

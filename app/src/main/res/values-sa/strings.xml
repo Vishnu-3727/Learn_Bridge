@@ -52,6 +52,10 @@
     <string name="action_listen">शृणोतु</string>
     <string name="tts_voice_missing">अस्मिन् यन्त्रे %1$s इत्यस्य कोऽपि स्वरः न स्थापितः, अतः इदम् आङ्ग्लभाषायां पठिष्यते। विन्यासः › पाठ्यात्-वाणी इत्यस्मात् तं स्थापयतु।</string>
     <string name="tts_voice_install">%1$s इत्यस्य स्वरः न स्थापितः। अस्य दूरभाषस्य वाणी-यन्त्रम् तम् अवतारयितुं शक्नोति। इदानीम् उद्घाट्यताम्?</string>
+    <string name="voices_entry">स्वराः</string>
+    <string name="voices_title">पठित्वा श्रावयितुं स्वराः</string>
+    <string name="voice_row_installed">%1$s — स्थापितः</string>
+    <string name="voice_row_missing">%1$s — अवतारणार्थं स्पृश्यताम्</string>
     <string name="cd_listen">इदम् उच्चैः पठतु</string>
     <string name="translating_inline">अनुवादः क्रियते…</string>
 

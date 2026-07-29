@@ -508,23 +508,13 @@ class LessonActivity : AppCompatActivity() {
         }
         AlertDialog.Builder(this)
             .setMessage(getString(R.string.tts_voice_install, name))
-            .setPositiveButton(android.R.string.ok) { _, _ -> openVoiceDownload(name) }
+            .setPositiveButton(android.R.string.ok) { _, _ -> startVoiceDownload(tts, name) }
+            // The third choice matters more than it looks: a student who wants a different language's
+            // voice, or wants to see what is already installed before spending data on one, would
+            // otherwise have to decline this and go hunting for the list.
+            .setNeutralButton(R.string.voices_title) { _, _ -> showVoiceCatalog(tts) }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
-    }
-
-    /**
-     * Starts the first of [Tts.voiceDataIntents] that resolves.
-     *
-     * Not gated on `resolveActivity`: from API 30 it returns null for a package this app cannot see,
-     * so it reports failure on exactly the devices where the screen would have opened. Attempt and
-     * catch instead — the same trap the camera and share paths already hit.
-     */
-    private fun openVoiceDownload(name: String) {
-        val opened = tts.voiceDataIntents().any { runCatching { startActivity(it) }.isSuccess }
-        if (!opened) {
-            Toast.makeText(this, getString(R.string.tts_voice_missing, name), Toast.LENGTH_LONG).show()
-        }
     }
 
     private fun quizSpeechFor(state: LessonUiState): Pair<String, Locale> {

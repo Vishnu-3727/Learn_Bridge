@@ -50,6 +50,10 @@
     <string name="action_listen">ऐका</string>
     <string name="tts_voice_missing">या उपकरणावर %1$s चा आवाज स्थापित केलेला नाही, त्यामुळे तो इंग्रजीत वाचला जाईल. सेटिंग्ज › मजकूर-ते-भाषण मधून तो स्थापित करा.</string>
     <string name="tts_voice_install">%1$s आवाज स्थापित केलेला नाही. या फोनचे भाषण इंजिन तो डाउनलोड करू शकते. आता उघडायचे?</string>
+    <string name="voices_entry">आवाज</string>
+    <string name="voices_title">वाचून दाखवणारे आवाज</string>
+    <string name="voice_row_installed">%1$s — स्थापित आहे</string>
+    <string name="voice_row_missing">%1$s — डाउनलोड करण्यासाठी टॅप करा</string>
     <string name="cd_listen">हे मोठ्याने वाचा</string>
     <string name="translating_inline">भाषांतर होत आहे…</string>
 
