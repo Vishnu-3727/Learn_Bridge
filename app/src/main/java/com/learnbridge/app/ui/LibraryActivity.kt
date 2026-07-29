@@ -390,9 +390,15 @@ class LibraryActivity : AppCompatActivity() {
                 ingestStatus.setText(R.string.ingest_reading)
             }
 
-            IngestProgress.Teaching -> {
+            is IngestProgress.Teaching -> {
                 setBusy(true)
-                ingestStatus.setText(R.string.ingest_thinking)
+                // The position is appended as bare numerals rather than a translated sentence: a
+                // long document's import runs for minutes, so the line has to visibly advance, and
+                // "3 / 10" needs no new string in fourteen locales to say that. Single-section
+                // documents — a photographed page, the common case — show no counter at all.
+                ingestStatus.text = getString(R.string.ingest_thinking).let {
+                    if (progress.total > 1) "$it  ${progress.part} / ${progress.total}" else it
+                }
             }
 
             IngestProgress.Translating -> {

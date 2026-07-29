@@ -73,6 +73,26 @@ class LessonPipelineTest {
         transpiration, and it adds moisture to the clouds above a forest.
     """.trimIndent()
 
+    /**
+     * Twelve paragraphs of ordinary prose, ~100 words each — comfortably more than the four chunks
+     * one section holds, so the ingest has to run several passes to cover it. Built rather than
+     * pasted because only its length and its per-paragraph vocabulary matter; a real 30-page PDF
+     * measured 7,527 words, six times this.
+     */
+    private val longLesson = (1..12).joinToString("\n\n") { n ->
+        """
+        Layer $n of the atmosphere behaves differently from the layers around it, and students
+        often confuse them. Air in layer $n carries water vapour that condenses when the
+        temperature falls below its dew point. Instruments carried on balloon $n measure that
+        temperature every few seconds as they rise. Readings from balloon $n are radioed back to
+        a ground station before the balloon bursts. Forecasters combine reading $n with satellite
+        images to predict where rain will fall. Without measurement $n the forecast for the
+        following day would be far less reliable than it is.
+        """.trimIndent().replace("\n", " ")
+    }
+
+    private val longLessonWords = longLesson.split(Regex("\\s+")).size
+
     // --- the happy path ---
 
     @Test
@@ -104,9 +124,44 @@ class LessonPipelineTest {
         val states = pipeline(SupportedLanguage.HINDI).ingest(textUri("water.txt", lesson)).toList()
 
         assertEquals(IngestProgress.Reading, states.first())
-        assertTrue(states.contains(IngestProgress.Teaching))
+        assertTrue(states.any { it is IngestProgress.Teaching })
         assertTrue(states.contains(IngestProgress.Translating))
         assertTrue(states.last() is IngestProgress.Done)
+    }
+
+    /**
+     * **The whole document is taught, not just its opening.**
+     *
+     * This is the regression test for the defect a real 30-page PDF exposed: the pipeline took
+     * `chunks.take(Prompts.MAX_CHUNKS)`, so a student's unit notes produced a lesson about the first
+     * three pages and a quiz that could not ask about anything after them.
+     *
+     * The evidence is the key-point count. ExtractiveTeacher emits at most
+     * [ExtractiveTeacher.KEY_POINTS] per pass, so more than that many persisted points can only mean
+     * a later section was taught too — which the old code could not do at any document length.
+     */
+    @Test
+    fun `every section of a long document is taught, not only the first`() = runTest {
+        val states = pipeline().ingest(textUri("long.txt", longLesson)).toList()
+
+        val docId = (states.last() as IngestProgress.Done).docId
+        val parts = states.filterIsInstance<IngestProgress.Teaching>()
+        val total = parts.first().total
+
+        assertTrue("a $longLessonWords-word document is more than one section", total > 1)
+        // Distinct, because the stage is announced once before the tutor is acquired — so the model
+        // load is not a blank wait — and again as each section starts. Part 1 therefore repeats.
+        assertEquals(
+            "every section should be announced",
+            (1..total).toList(),
+            parts.map { it.part }.distinct(),
+        )
+
+        val points = store.artifacts(docId, LessonPipeline.KIND_EXPLANATION, LessonPipeline.LANG_EN)
+        assertTrue(
+            "only ${points.size} key points: no section past the first was taught",
+            points.size > ExtractiveTeacher.KEY_POINTS,
+        )
     }
 
     /**
@@ -118,7 +173,7 @@ class LessonPipelineTest {
     fun `an English import never reports a translation stage`() = runTest {
         val states = pipeline(SupportedLanguage.ENGLISH).ingest(textUri("water.txt", lesson)).toList()
 
-        assertTrue(states.contains(IngestProgress.Teaching))
+        assertTrue(states.any { it is IngestProgress.Teaching })
         assertFalse("English needs no translation stage", states.contains(IngestProgress.Translating))
         assertTrue(states.last() is IngestProgress.Done)
     }
