@@ -41,9 +41,12 @@ object Prompts {
      */
     var applyTurnMarkers: Boolean = true
 
-    private const val TURN_START_USER = "<start_of_turn>user\n"
-    private const val TURN_END = "<end_of_turn>\n"
-    private const val TURN_START_MODEL = "<start_of_turn>model\n"
+    /**
+     * The chat template to wrap prompts in. Set by [GemmaTeacher.create] from whichever weights
+     * actually loaded, because the markers belong to the model rather than to the app — see
+     * [ModelKind]. Defaults to Gemma, which is the packaged model.
+     */
+    var modelKind: ModelKind = ModelKind.GEMMA3_1B
 
     /** How many retrieved chunks are worth including. Four ~180-word chunks land near 1,000 tokens. */
     const val MAX_CHUNKS = 4
@@ -174,5 +177,9 @@ object Prompts {
     )
 
     private fun wrap(body: String): String =
-        if (applyTurnMarkers) TURN_START_USER + body + "\n" + TURN_END + TURN_START_MODEL else body
+        if (applyTurnMarkers) {
+            modelKind.startUser + body + "\n" + modelKind.endTurn + modelKind.startModel
+        } else {
+            body
+        }
 }
