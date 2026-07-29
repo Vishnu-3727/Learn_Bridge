@@ -157,8 +157,30 @@ object Prompts {
      * to protect: a student can learn from two good questions and is actively taught wrongly by five
      * where the wrong answer is correct.**
      *
+     * **Sampling was swept on 2026-07-30 and every arm is worse or equal, which closes the last
+     * "maybe it is a setting" door.** Seven runs of that test on the same page, varying only
+     * `GemmaTeacher`'s knobs: 0.7/64 and 1.0/64 both gave **1** item and turned the wrong options back
+     * into placeholder prose ("This isn't correct", "It's an incorrect colour"); 0.1/10 and greedy
+     * 0.0/1 also gave **1**, with distractors that are *true statements about the text* ("A plant needs
+     * water and carbon dioxide"), which is the failure this prompt exists to avoid. Nothing beat the
+     * shipping 0.3/40.
+     *
+     * **The uncomfortable half of that sweep: the count is seed noise.** 0.3/40 gives 2 items at
+     * `RANDOM_SEED` 1 and **1** item at seeds 2 and 3, same prompt, same page. Six of the seven runs
+     * produced one item. So "two or three" above describes the shipped seed on this page, not a rate —
+     * a different document is a different roll. The seed is fixed, so a given document behaves the same
+     * way every time a student opens it, which is what makes the demo reproducible and also what hid
+     * this: one lucky seed reads as a property of the prompt.
+     *
+     * Volume now comes from the document rather than from the call. `LessonPipeline` teaches in
+     * prompt-sized sections and concatenates, so a fourteen-page PDF asks six times and gets roughly
+     * six items. That is why this is documented rather than fixed: three separate one-question calls
+     * would cost ~43 s each on top of a ~90 s section and buy what sectioning already gives.
+     *
      * If a larger model is ever staged, raise the count and re-run that test — it prints parsed counts
-     * and every raw response, so the next person re-measures instead of re-arguing.
+     * and every raw response, so the next person re-measures instead of re-arguing. Qwen2.5 1.5B was
+     * that test on 2026-07-30: 3 of 3 with real distractors, and rejected for 2.4x the time, 3x the
+     * weights and a hallucinated answer on grounded Ask.
      */
     fun quiz(chunks: List<Chunk>): String = wrap(
         """

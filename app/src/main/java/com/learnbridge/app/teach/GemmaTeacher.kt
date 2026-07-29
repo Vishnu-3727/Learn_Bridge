@@ -137,6 +137,14 @@ class GemmaTeacher private constructor(
          *
          * Vars rather than constants only so the sweep is possible; nothing in the app writes them,
          * and a run that does not pass an override measures exactly what ships.
+         *
+         * **Swept 2026-07-30 on the SM-M315F; these values stay because nothing beat them.** Quiz items
+         * parsed, of three asked for: 0.3/40 → **2**, 0.7/64 → 1, 1.0/64 → 1, 0.1/10 → 1, 0.0/1 → 1.
+         * Heat degrades the wrong options into placeholder prose; cold degrades them into statements
+         * that are *true*, which teaches the student the opposite of the point. Explain and Ask were
+         * indifferent to all of it — 5-6 key points and a correct grounded answer in every arm — so
+         * sampling is not the lever on the quiz shortfall. See [Prompts.quiz], including the finding
+         * that the count moves with [randomSeed] alone.
          */
         @Volatile
         internal var temperature = 0.3f

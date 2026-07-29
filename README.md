@@ -289,6 +289,14 @@ all thirteen targets, and asserts each result lands in that language's own Unico
   is then rendered into the lesson's language, which can force a model swap mid-conversation —
   measured at ~14 s. The screen says so while it happens. Explain and Quiz avoid it entirely by being
   rendered once, at import.
+- **The generative quiz produces about one question per section, not the three it asks for.** Measured
+  2026-07-30: three of three parse only for the shipped random seed on the page tested, and one for
+  seeds 2 and 3 — the count is a roll, not a rate. Sampling was swept (0.0 to 1.0, topK 1 to 64) and
+  every arm was equal or worse: hot turns the wrong options into placeholder prose, cold turns them
+  into statements that are *true*. It is a 1B capacity ceiling, so the volume comes from teaching the
+  document in sections and concatenating — a fourteen-page PDF asks six times. Qwen2.5 1.5B does
+  reach three of three and was rejected for costing 2.4x the time, 3x the weights, and a wrong answer
+  on the one grounded question Gemma got right.
 - **Hindi input is not supported.** The engine can do HI→EN, but neither its graphs nor its
   vocabularies are staged, so the direction would fail at model load rather than merely go unused.
   Routing a document through HI→EN → tutor → EN→HI would stack three lossy hops anyway.
