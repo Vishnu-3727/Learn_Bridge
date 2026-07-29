@@ -392,12 +392,13 @@ class LibraryActivity : AppCompatActivity() {
 
             is IngestProgress.Teaching -> {
                 setBusy(true)
-                // The position is appended as bare numerals rather than a translated sentence: a
-                // long document's import runs for minutes, so the line has to visibly advance, and
-                // "3 / 10" needs no new string in fourteen locales to say that. Single-section
-                // documents — a photographed page, the common case — show no counter at all.
+                // Percent, not "3 / 6". The bare pair was read as a page count by the first person
+                // who saw it — reasonably, since the thing being imported was a 14-page PDF — and it
+                // is not one: those are prompt-sized sections, six of them for fourteen pages. A
+                // percentage cannot be mistaken for a page and needs no new string in fourteen
+                // locales. Single-section documents, the photographed-page case, show no number.
                 ingestStatus.text = getString(R.string.ingest_thinking).let {
-                    if (progress.total > 1) "$it  ${progress.part} / ${progress.total}" else it
+                    if (progress.total > 1) "$it  ${progress.part * 100 / progress.total}%" else it
                 }
             }
 
