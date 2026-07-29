@@ -57,6 +57,8 @@ class TeacherQualityDeviceTest {
             model != null,
         )
 
+        applySamplingOverrides()
+
         // One engine for all three prompts, matching how LessonPipeline uses it: a single
         // withTeacher acquisition generates every artifact for a document.
         val loadStarted = System.currentTimeMillis()
@@ -93,6 +95,31 @@ class TeacherQualityDeviceTest {
         } finally {
             teacher.release()
         }
+    }
+
+    /**
+     * Lets one installed APK measure a whole sampling sweep:
+     *
+     * ```
+     * adb shell am instrument -w -e class com.learnbridge.app.teach.TeacherQualityDeviceTest \
+     *   -e temperature 0.7 -e topK 64 -e seed 2 \
+     *   com.learnbridge.app.test/androidx.test.runner.AndroidJUnitRunner
+     * ```
+     *
+     * Every value is logged, including the defaults, so a transcript in `adb logcat -s TeacherQuality`
+     * says which arm produced it. A run with no arguments measures exactly what ships. `topK` cannot
+     * exceed the engine's `MAX_TOP_K` or session creation fails.
+     */
+    private fun applySamplingOverrides() {
+        val args = InstrumentationRegistry.getArguments()
+        args.getString("temperature")?.let { GemmaTeacher.temperature = it.toFloat() }
+        args.getString("topK")?.let { GemmaTeacher.topK = it.toInt() }
+        args.getString("seed")?.let { GemmaTeacher.randomSeed = it.toInt() }
+        Log.i(
+            TAG,
+            "sampling: temperature=${GemmaTeacher.temperature} topK=${GemmaTeacher.topK} " +
+                "seed=${GemmaTeacher.randomSeed}",
+        )
     }
 
     /** Generates, logs the response in full, and reports wall time. */

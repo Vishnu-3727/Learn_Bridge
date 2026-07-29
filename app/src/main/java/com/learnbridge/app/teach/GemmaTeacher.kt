@@ -89,9 +89,9 @@ class GemmaTeacher private constructor(
 
     private fun sessionOptions(): LlmInferenceSession.LlmInferenceSessionOptions =
         LlmInferenceSession.LlmInferenceSessionOptions.builder()
-            .setTopK(TOP_K)
-            .setTemperature(TEMPERATURE)
-            .setRandomSeed(RANDOM_SEED)
+            .setTopK(topK)
+            .setTemperature(temperature)
+            .setRandomSeed(randomSeed)
             .build()
 
     /**
@@ -127,14 +127,32 @@ class GemmaTeacher private constructor(
         private const val MAX_TOKENS = 2048
 
         /**
+         * Sampling. **Measured, not assumed** — see `TeacherQualityDeviceTest`, which overrides these
+         * from instrumentation arguments so an arm costs a run rather than a rebuild.
+         *
          * Deliberately cool. Every prompt in this app is extraction-shaped — "copy the important
          * sentences, then rewrite them simpler" — where creative sampling is a liability. A fixed
          * seed on top of low temperature keeps output reproducible, which matters because the demo
          * documents are verified by repeated runs.
+         *
+         * Vars rather than constants only so the sweep is possible; nothing in the app writes them,
+         * and a run that does not pass an override measures exactly what ships.
          */
-        private const val TEMPERATURE = 0.3f
-        private const val TOP_K = 40
-        private const val RANDOM_SEED = 1
+        @Volatile
+        internal var temperature = 0.3f
+
+        @Volatile
+        internal var topK = 40
+
+        @Volatile
+        internal var randomSeed = 1
+
+        /**
+         * The engine's ceiling for a session's `topK`, fixed at load: a session asking for more than
+         * this fails, so it cannot be the swept value itself. Set above every arm worth trying rather
+         * than at the default, which would make raising [topK] fail at generation time.
+         */
+        private const val MAX_TOP_K = 64
 
         /** Dev-mode location: `adb push`ed here so a rebuild does not reinstall a ~1.5 GB APK. */
         const val MODEL_NAME = "gemma3-1b-it-int4.task"
@@ -226,7 +244,7 @@ class GemmaTeacher private constructor(
             val options = LlmInference.LlmInferenceOptions.builder()
                 .setModelPath(model.absolutePath)
                 .setMaxTokens(MAX_TOKENS)
-                .setMaxTopK(TOP_K)
+                .setMaxTopK(MAX_TOP_K)
                 .setPreferredBackend(backend.toMediaPipe())
                 .build()
 
