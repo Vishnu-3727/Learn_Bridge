@@ -147,10 +147,10 @@ class GemmaTeacher private constructor(
          * happens with the weights pushed rather than packaged, and a fresh clone has none.
          */
         fun modelFile(context: Context): File? =
-            listOfNotNull(context.getExternalFilesDir(null), context.filesDir)
-                .asSequence()
-                .flatMap { dir -> ModelKind.entries.asSequence().map { File(dir, it.fileName) } }
-                .firstOrNull { it.isFile && it.length() > 0 }
+            listOfNotNull(
+                context.getExternalFilesDir(null)?.let { File(it, MODEL_NAME) },
+                File(context.filesDir, MODEL_NAME),
+            ).firstOrNull { it.isFile && it.length() > 0 }
 
         /**
          * The model file, unpacking it out of the APK's assets on first use if this build carries
@@ -222,17 +222,6 @@ class GemmaTeacher private constructor(
          */
         fun create(context: Context, model: File, backend: Backend = Backend.CPU): GemmaTeacher {
             Log.i(TAG, "Loading ${model.name} (${model.length() / (1024 * 1024)} MB) on $backend")
-
-            // The chat template travels with the weights, not with the build. Setting it here rather
-            // than at a call site means every path that loads a model — app start, both device tests
-            // — gets the right markers without having to remember to.
-            when (val kind = ModelKind.of(model)) {
-                null -> Log.w(TAG, "Unrecognised model ${model.name}; keeping ${Prompts.modelKind} template")
-                else -> {
-                    Prompts.modelKind = kind
-                    Log.i(TAG, "Chat template: $kind")
-                }
-            }
 
             val options = LlmInference.LlmInferenceOptions.builder()
                 .setModelPath(model.absolutePath)

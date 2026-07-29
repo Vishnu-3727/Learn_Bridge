@@ -42,11 +42,17 @@ object Prompts {
     var applyTurnMarkers: Boolean = true
 
     /**
-     * The chat template to wrap prompts in. Set by [GemmaTeacher.create] from whichever weights
-     * actually loaded, because the markers belong to the model rather than to the app — see
-     * [ModelKind]. Defaults to Gemma, which is the packaged model.
+     * These markers belong to Gemma, and Gemma is the only model this app ships or supports.
+     *
+     * A `ModelKind` abstraction briefly carried a second template so Qwen2.5 1.5B could be staged
+     * alongside. That question is answered — the A/B ran on device 2026-07-30 and Gemma stays — so the
+     * second template is gone with it. Should another model ever be tried, the thing to restore is the
+     * pairing, not the constants: the markers travel with the weights, and sending one model another's
+     * does not fail loudly, it degrades output in the way that is hardest to attribute.
      */
-    var modelKind: ModelKind = ModelKind.GEMMA3_1B
+    private const val TURN_START_USER = "<start_of_turn>user\n"
+    private const val TURN_END = "<end_of_turn>\n"
+    private const val TURN_START_MODEL = "<start_of_turn>model\n"
 
     /** How many retrieved chunks are worth including. Four ~180-word chunks land near 1,000 tokens. */
     const val MAX_CHUNKS = 4
@@ -177,9 +183,5 @@ object Prompts {
     )
 
     private fun wrap(body: String): String =
-        if (applyTurnMarkers) {
-            modelKind.startUser + body + "\n" + modelKind.endTurn + modelKind.startModel
-        } else {
-            body
-        }
+        if (applyTurnMarkers) TURN_START_USER + body + "\n" + TURN_END + TURN_START_MODEL else body
 }
