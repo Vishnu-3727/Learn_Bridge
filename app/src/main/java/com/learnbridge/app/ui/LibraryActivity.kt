@@ -428,9 +428,15 @@ class LibraryActivity : AppCompatActivity() {
             // Nothing in flight: either no import has run, or a terminal one has been acted on.
             null -> setBusy(false)
 
-            IngestProgress.Reading -> {
+            is IngestProgress.Reading -> {
                 setBusy(true)
-                ingestStatus.setText(R.string.ingest_reading)
+                // Percent for the same reason [Teaching] shows one, and reusing the same string: OCR
+                // of a scanned PDF runs a page every second or two and there is nothing else on
+                // screen to say the app is still working. Zero total — every other source — shows
+                // the bare line, unchanged.
+                ingestStatus.text = getString(R.string.ingest_reading).let {
+                    if (progress.total > 1) "$it  ${progress.page * 100 / progress.total}%" else it
+                }
             }
 
             is IngestProgress.Teaching -> {
@@ -491,10 +497,18 @@ class LibraryActivity : AppCompatActivity() {
         const val KEY_PENDING_CAPTURE = "pending_capture_uri"
 
         /**
-         * Plain text and markdown first — the path with no extraction failure modes — plus PDF and
-         * images. A text wildcard rather than "text/plain" exactly, because content providers label
-         * markdown files inconsistently.
+         * Everything — because the picker filter is the wrong place to decide what is readable.
+         *
+         * It used to be a text wildcard plus "application/pdf" plus an image wildcard. That greyed
+         * out a student's own .docx notes, and — worse — greyed out PDFs a chat app had labelled
+         * "application/octet-stream", which is common. [DocImport] identifies a file by name and then
+         * by its first bytes, and reads Word, PowerPoint, Excel, OpenDocument, EPUB, HTML and RTF as
+         * well as text, PDF and photos. Anything it genuinely cannot read comes back as a failure the
+         * student can see; a wrong "not supported" they can act on beats a file they cannot select.
+         *
+         * (Kotlin nests block comments, so a MIME wildcard written literally in a KDoc opens one and
+         * the closing delimiter then ends the wrong comment. That is why these are spelled out.)
          */
-        val IMPORTABLE_TYPES = arrayOf("text/*", "application/pdf", "image/*")
+        val IMPORTABLE_TYPES = arrayOf("*/*")
     }
 }

@@ -14,12 +14,20 @@ import com.learnbridge.app.lang.SupportedLanguage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.onCompletion
 
 /** What the ingest screen renders. Every failure is a state, never an exception reaching the UI. */
 sealed interface IngestProgress {
-    data object Reading : IngestProgress
+    /**
+     * Extraction is under way, on page [page] of [total] when the source is a scanned PDF being
+     * OCR'd and (0, 0) for everything else.
+     *
+     * Carries a position for the same reason [Teaching] does. Reading a text file or a photograph is
+     * instant, but OCR of a rendered PDF runs at 1-2 s a page — a 50-page scan sits here for well
+     * over a minute, and an unchanging "Reading the page…" reads as a hang.
+     */
+    data class Reading(val page: Int = 0, val total: Int = 0) : IngestProgress
 
     /**
      * Generation is under way on section [part] of [total], both 1-based.
@@ -102,13 +110,18 @@ class LessonPipeline(
         // builder, read by the terminal operators below, which is why it lives out here.
         var pending: Long? = null
 
-        return flow {
-            emit(IngestProgress.Reading)
+        return channelFlow {
+            send(IngestProgress.Reading())
 
-            val imported = DocImport.import(context, uri)
+            // channelFlow, not flow: DocImport reports OCR progress from inside its own
+            // withContext(Dispatchers.IO), and a plain flow rejects an emission made from another
+            // coroutine ("Flow invariant is violated"). A channel accepts sends from anywhere.
+            val imported = DocImport.import(context, uri) { page, total ->
+                send(IngestProgress.Reading(page, total))
+            }
             if (imported is ImportResult.Failure) {
-                emit(IngestProgress.Failed(imported.reason))
-                return@flow
+                send(IngestProgress.Failed(imported.reason))
+                return@channelFlow
             }
             val doc = imported as ImportResult.Success
 
@@ -121,8 +134,8 @@ class LessonPipeline(
             if (chunks.isEmpty()) {
                 store.deleteDocument(docId)
                 pending = null
-                emit(IngestProgress.Failed(ImportResult.Reason.EMPTY))
-                return@flow
+                send(IngestProgress.Failed(ImportResult.Reason.EMPTY))
+                return@channelFlow
             }
             store.insertChunks(docId, chunks)
 
@@ -140,15 +153,15 @@ class LessonPipeline(
             // gives up sooner the more text precedes the instruction (see Prompts.quiz).
             val sections = chunks.chunked(Prompts.MAX_CHUNKS)
 
-            emit(IngestProgress.Teaching(1, sections.size))
+            send(IngestProgress.Teaching(1, sections.size))
             val keyPoints = generateEnglish(docId, sections) { part ->
-                emit(IngestProgress.Teaching(part, sections.size))
+                send(IngestProgress.Teaching(part, sections.size))
             }
 
             // Not announced when the target is English: translateInto returns immediately in that
             // case, and "Preparing the English version…" would name work that never happens.
             if (target != SupportedLanguage.ENGLISH) {
-                emit(IngestProgress.Translating)
+                send(IngestProgress.Translating)
                 translateInto(docId, keyPoints, target)
             }
 
@@ -156,7 +169,7 @@ class LessonPipeline(
             // Committed: from here the document is a real lesson and must survive a cancelled
             // collector — the student may well have navigated away while it finished.
             pending = null
-            emit(IngestProgress.Done(docId, doc.title))
+            send(IngestProgress.Done(docId, doc.title))
         }
             // `.catch`, not a try/catch around the body. A try/catch wrapping `emit` also catches
             // exceptions thrown by the *collector*, and emitting again from there fails with "Flow

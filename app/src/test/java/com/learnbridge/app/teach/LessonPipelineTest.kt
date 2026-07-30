@@ -55,12 +55,20 @@ class LessonPipelineTest {
     /**
      * Registers [text] as the content of a `.txt` Uri. The extension is what DocImport.classify
      * matches on when the resolver reports no MIME type, which is the case in Robolectric.
+     *
+     * A *supplier*, not a single stream: DocImport opens a Uri more than once for a file it has to
+     * identify by signature (and twice more for a zipped document, whose entry list decides which
+     * parts to read). Real providers hand out a new stream per `openInputStream`;
+     * `registerInputStream` hands out the same exhausted one, which turns any second read into a
+     * document that "looks empty".
      */
-    private fun textUri(name: String, text: String): Uri {
+    private fun contentUri(name: String, bytes: ByteArray): Uri {
         val uri = Uri.parse("content://test/$name")
-        shadowOf(app.contentResolver).registerInputStream(uri, text.byteInputStream())
+        shadowOf(app.contentResolver).registerInputStreamSupplier(uri) { bytes.inputStream() }
         return uri
     }
+
+    private fun textUri(name: String, text: String): Uri = contentUri(name, text.toByteArray())
 
     private val lesson = """
         The Water Cycle
@@ -123,7 +131,9 @@ class LessonPipelineTest {
     fun `progress is reported in order`() = runTest {
         val states = pipeline(SupportedLanguage.HINDI).ingest(textUri("water.txt", lesson)).toList()
 
-        assertEquals(IngestProgress.Reading, states.first())
+        // Reading() with no page numbers: those are for a scanned PDF being OCR'd, and this is a
+        // text file, which is read in one go.
+        assertEquals(IngestProgress.Reading(), states.first())
         assertTrue(states.any { it is IngestProgress.Teaching })
         assertTrue(states.contains(IngestProgress.Translating))
         assertTrue(states.last() is IngestProgress.Done)
@@ -188,18 +198,40 @@ class LessonPipelineTest {
         assertTrue(store.listDocuments().isEmpty())
     }
 
+    /**
+     * **Unsupported now means "these bytes are not text", not "this extension is not on a list".**
+     *
+     * The import path deliberately attempts anything it cannot identify — that is what makes "import
+     * any document" true for a `.tex` file or a note with no extension at all — so this test uses a
+     * file that really is binary. A video is the case that has to keep failing: reading one as text
+     * would produce a lesson made of mojibake instead of an error the student can act on.
+     */
     @Test
-    fun `an unsupported file type fails without touching the database`() = runTest {
-        val uri = Uri.parse("content://test/archive.zip")
-        shadowOf(app.contentResolver).registerInputStream(uri, "binary".byteInputStream())
+    fun `a binary file fails without touching the database`() = runTest {
+        val mp4 = byteArrayOf(0, 0, 0, 0x18, 0x66, 0x74, 0x79, 0x70, 0x6D, 0x70, 0x34, 0x32, 0, 1)
 
-        val states = pipeline().ingest(uri).toList()
+        val states = pipeline().ingest(contentUri("clip.mp4", mp4)).toList()
 
         assertEquals(
             IngestProgress.Failed(com.learnbridge.app.doc.ImportResult.Reason.UNSUPPORTED),
             states.last(),
         )
         assertTrue(store.listDocuments().isEmpty())
+    }
+
+    /**
+     * The other half of that behaviour: a readable file whose name says nothing is read, not refused.
+     *
+     * This is the case the old extension whitelist got wrong. A student's notes shared through a chat
+     * app arrive named `document` with MIME `application/octet-stream`, and the import used to stop
+     * there.
+     */
+    @Test
+    fun `a file with no extension or MIME type is still read as text`() = runTest {
+        val states = pipeline().ingest(contentUri("notes-with-no-extension", lesson.toByteArray())).toList()
+
+        assertTrue("expected Done, got ${states.last()}", states.last() is IngestProgress.Done)
+        assertEquals(1, store.listDocuments().size)
     }
 
     @Test
