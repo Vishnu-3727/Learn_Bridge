@@ -60,6 +60,27 @@ object Prompts {
     /** The sentinel an answer uses when the document does not cover the question. */
     const val NOT_IN_TEXT = "NOT_IN_TEXT"
 
+    /**
+     * The bracketed slots in the quiz template, written out so [LessonParser] can recognise one that
+     * came back as content.
+     *
+     * "Never copy a bracket" stops the model emitting `X: (a different wrong option)`. It does not
+     * stop `X: A different wrong option`, which is the same failure with the brackets obeyed, and
+     * which reached a student on the SM-M315F on 2026-07-30 as one of two options on a
+     * SystemVerilog `inside` question. The prompt cannot fix this — the instruction is already
+     * there and is already being followed to the letter — so the parser drops it instead.
+     *
+     * Interpolated into [quiz] below rather than written twice, so the filter cannot drift away
+     * from the wording it filters. The rendered prompt is unchanged, which matters because the
+     * measurements recorded on [quiz] were taken against that exact text.
+     */
+    private const val SLOT_QUESTION = "the question"
+    private const val SLOT_ANSWER = "the correct answer"
+    private const val SLOT_WRONG = "a wrong option"
+    private const val SLOT_WRONG_OTHER = "a different wrong option"
+
+    internal val QUIZ_SLOTS = listOf(SLOT_QUESTION, SLOT_ANSWER, SLOT_WRONG, SLOT_WRONG_OTHER)
+
     /** Maps a request to the prompt that asks a language model for it. */
     fun of(request: TeachRequest): String = when (request) {
         is TeachRequest.Explain -> explain(request.chunks)
@@ -187,10 +208,10 @@ object Prompts {
         Write three quiz questions about the text below.
 
         Each question is four lines:
-        Q: (the question)
-        A: (the correct answer)
-        X: (a wrong option)
-        X: (a different wrong option)
+        Q: ($SLOT_QUESTION)
+        A: ($SLOT_ANSWER)
+        X: ($SLOT_WRONG)
+        X: ($SLOT_WRONG_OTHER)
 
         Rules:
         - Write all three questions: three Q lines, twelve lines in total.
