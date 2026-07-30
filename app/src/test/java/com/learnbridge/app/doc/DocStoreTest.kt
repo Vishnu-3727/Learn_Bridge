@@ -55,6 +55,37 @@ class DocStoreTest {
         assertTrue(store.listDocuments().isEmpty())
     }
 
+    /**
+     * A document left mid-import by a killed process is removed when the database is next opened.
+     *
+     * Hiding it from the library was only half the job: the row, its chunks, its artifacts and its
+     * saved text stayed on the device permanently, because the only cleanup lived in
+     * [com.learnbridge.app.teach.LessonPipeline] and a killed process runs no cleanup at all. Found on
+     * a real device as a PDF still `importing` four days after the fact.
+     *
+     * A second [DocStore] over the same database stands in for the next process: SQLiteOpenHelper
+     * runs `onOpen` per instance, so this exercises exactly the path a fresh launch takes.
+     */
+    @Test
+    fun `a document left importing by an earlier process is swept on the next open`() {
+        val abandoned = store.insertDocument("Half-imported", null, 10) // left at STATUS_IMPORTING
+        store.insertChunks(abandoned, listOf(Chunk(0, "orphan chunk")))
+        store.putArtifact(abandoned, "explanation", "en", 0, "orphan explanation")
+        store.saveText(abandoned, "orphan text")
+
+        val finished = store.insertDocument("Finished", null, 10)
+        store.setStatus(finished, DocStore.STATUS_READY)
+        store.close()
+
+        val reopened = DocStore(RuntimeEnvironment.getApplication())
+
+        assertEquals(listOf(finished), reopened.listDocuments().map { it.id })
+        // Everything the abandoned import had written, gone with it.
+        assertEquals(0, Retrieval(reopened).retrieve(abandoned, "orphan").size)
+        assertTrue(reopened.artifacts(abandoned, "explanation", "en").isEmpty())
+        assertNull(reopened.savedText(abandoned))
+    }
+
     @Test
     fun `setStatus updates only the targeted document`() {
         val a = store.insertDocument("A", null, 1)
