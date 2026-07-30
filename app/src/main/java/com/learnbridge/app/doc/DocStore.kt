@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 import java.io.File
 
 /**
@@ -96,6 +97,30 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
      * being correct the moment a v2 exists, which is now: it would erase every imported document and
      * everything learned about the student on the first launch after the update.
      */
+    /**
+     * Clears out documents left mid-import by a process that died.
+     *
+     * [LessonPipeline] deletes a document whose ingest fails or is cancelled, and that covers every
+     * case it is still alive for. It cannot cover being killed: the row is inserted at
+     * [STATUS_IMPORTING] before minutes of OCR and generation, and a low-memory kill in the middle of
+     * that leaves it there for good — invisible to [listDocuments], which filters on status, and so
+     * permanent. Found on a real device: a resume PDF imported four days earlier, still `importing`,
+     * holding its chunks and its saved text.
+     *
+     * `onOpen` is the right hook precisely because it is per-process and runs before any import can:
+     * nothing in this process is mid-ingest yet, so a row in that state is by definition a corpse
+     * from a previous one.
+     */
+    override fun onOpen(db: SQLiteDatabase) {
+        val abandoned = mutableListOf<Long>()
+        db.rawQuery("SELECT id FROM documents WHERE status = ?", arrayOf(STATUS_IMPORTING)).use { cursor ->
+            while (cursor.moveToNext()) abandoned += cursor.getLong(0)
+        }
+        if (abandoned.isEmpty()) return
+        Log.i(TAG, "Removing ${abandoned.size} document(s) left unfinished by an earlier process")
+        for (docId in abandoned) deleteDocumentIn(db, docId)
+    }
+
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         migrate(db, from = oldVersion, to = newVersion)
     }
@@ -182,9 +207,16 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
     }
 
     /** Removes the document and every row that references it — chunks and artifacts — plus its saved text. */
-    fun deleteDocument(docId: Long) {
+    fun deleteDocument(docId: Long) = deleteDocumentIn(writableDatabase, docId)
+
+    /**
+     * The body of [deleteDocument], against a database handed in rather than fetched.
+     *
+     * [onOpen] needs this: it runs *during* the open that `writableDatabase` is performing, and
+     * asking for the database from in there deadlocks on SQLiteOpenHelper's own lock.
+     */
+    private fun deleteDocumentIn(db: SQLiteDatabase, docId: Long) {
         val idArg = arrayOf(docId.toString())
-        val db = writableDatabase
         db.beginTransaction()
         try {
             db.delete("documents", "id = ?", idArg)
@@ -381,6 +413,8 @@ open class DocStore(context: Context) : SQLiteOpenHelper(context, DB_NAME, null,
 
         /** A document whose ingest has started but not finished. Never shown in the library. */
         const val STATUS_IMPORTING = "importing"
+
+        private const val TAG = "DocStore"
 
         private fun docsDir(context: Context) = File(context.filesDir, "docs")
     }
